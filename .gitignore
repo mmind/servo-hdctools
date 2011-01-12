@@ -1,0 +1,18 @@
+#
+# NOTE! Please use 'git ls-files -i --exclude-standard'
+# command after changing this file, to see if there are
+# any tracked files which get ignored after the change.
+#
+
+# Standard ignores
+*.a
+*.la
+*.lo
+*.o
+*.pyc
+*.so
+*.swp
+*~
+
+# Ignore tags for those using TAGS
+TAGS
