@@ -1,0 +1,8 @@
+DESCRIPTION="Chrome OS Hardware Debug & Control Tools"
+HOMEPAGE="http://sites.google.com/a/google.com/chromeos-partner/hardware-control-and-debug"
+UPSTREAM_REPO="None"
+LOCAL_GIT_REPO="git://git.chromium.org/hdctools"
+UPSTREAM_BUGSDB="None"
+LOCAL_BUGSDB="http://code.google.com/p/chrome-os-partner/issues/list"
+LICENSE="Chromium"
+LICENSE_FILE="LICENSE"
