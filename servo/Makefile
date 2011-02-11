@@ -24,7 +24,7 @@ LIBFTDI_LDFLAGS  := $(shell pkg-config --libs   libftdi)
 CFLAGS  = -Wall -Werror -c $(LIBFTDI_CFLAGS)
 LDFLAGS = $(LIBFTDI_LDFLAGS)
 
-SERIAL_IP = gpio uart
+SERIAL_IP = gpio uart i2c
 LIB_OBJS = $(SERIAL_IP:%=libftdi%)
 SERIAL_OBJS = $(SERIAL_IP:%=ftdi%.o) ftdi_common.o
 

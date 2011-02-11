@@ -30,16 +30,21 @@ extern "C" {
 
 // global clock setup commands
 #define FTDI_CMD_X5_OFF      0x8a   // disable clock div 5 for 60mhz master clk
+#define FTDI_CMD_3PHASE      0x8c   // 3 phase clocking needed for i2c
 #define FTDI_CMD_NO_ADAP_CLK 0x97   // turn off adaptive clocking
 #define FTDI_CMD_3PH_CLK     0x8d   // enable 3 phase clocking
 
 // MPSSE clocking control commands
-// MFE == MSB Falling Edge 
-// LFE == LSB Falling Edge
-#define FTDI_CMD_LFE_CLK_BIT_IN   0x2e
-#define FTDI_CMD_MFE_CLK_BYTE_IN  0x24
+// M(F|R)E == MSB Falling|Rising Edge 
+// L(F|R)E == LSB Falling|Rising Edge
+#define FTDI_CMD_MRE_CLK_BYTE_OUT 0x10
 #define FTDI_CMD_MFE_CLK_BYTE_OUT 0x11
+#define FTDI_CMD_MRE_CLK_BIT_OUT  0x12
 #define FTDI_CMD_MFE_CLK_BIT_OUT  0x13
+#define FTDI_CMD_MRE_CLK_BYTE_IN  0x20
+#define FTDI_CMD_MFE_CLK_BYTE_IN  0x24
+#define FTDI_CMD_LRE_CLK_BIT_IN   0x2a
+#define FTDI_CMD_LFE_CLK_BIT_IN   0x2e
 
 #define IS_FTDI_OPEN(context) (context->usb_dev != NULL)
 
@@ -140,7 +145,6 @@ struct tm *tm;
   _prn_ftdi_common("ERROR", rv, context, __VA_ARGS__)
 #define prn_ftdi_warn(rv, context, ...)                \
   _prn_ftdi_common("WARN", rv, context, __VA_ARGS__)
-
 
 int fcom_cfg(struct ftdi_context *, int, enum ftdi_mpsse_mode, int);
 int fcom_args(struct ftdi_common_args *, int, char **);
