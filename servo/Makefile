@@ -1,49 +1,52 @@
 OS_NAME = $(shell uname -s)
-ifeq ($(OS_NAME),Darwin)
-CC = gcc -DDARWIN
-LD = gcc
-LD_LIB = gcc -dynamiclib
-LIB_EXT = dylib
-else
-CC = gcc -fPIC
-LD = gcc
-LD_LIB = gcc -shared 
-LIB_EXT = so
-endif
-
-ifeq ($(DEBUG),1)
-CC += -g -DDEBUG
-else
-CC += -O2
-endif
+CC ?= gcc
 
 PKG_CONFIG_PATH ?= /usr/lib/pkgconfig
 LIBFTDI_CFLAGS   := $(shell pkg-config --cflags libftdi)
 LIBFTDI_LDFLAGS  := $(shell pkg-config --libs   libftdi)
 
-CFLAGS  = -Wall -Werror -c $(LIBFTDI_CFLAGS)
+CFLAGS  = -Werror -Wall -c $(LIBFTDI_CFLAGS)
 LDFLAGS = $(LIBFTDI_LDFLAGS)
 
-SERIAL_IP = gpio uart i2c
-LIB_OBJS = $(SERIAL_IP:%=libftdi%)
-SERIAL_OBJS = $(SERIAL_IP:%=ftdi%.o) ftdi_common.o
+ifeq ($(OS_NAME),Darwin)
+LD_LIB = -dynamiclib
+LIB_EXT = dylib
+CFLAGS += -DDARWIN
+else
+LD_LIB = -shared 
+LIB_EXT = so
+CFLAGS += -fPIC
+endif
 
-TARGETS = miniservod $(SERIAL_IP:%=f%_test) 
+ifeq ($(DEBUG),1)
+CFLAGS += -g -DDEBUG
+else
+CFLAGS += -O2
+endif
+
+SERIAL_IP = gpio uart i2c
+SERIAL_OBJS = $(SERIAL_IP:%=ftdi%.o) ftdi_common.o
+TARGETS = servod miniservod $(SERIAL_IP:%=f%_test) 
 
 all: $(TARGETS)
 
-%.o : %.c %.h ftdi_common.h
+%.o : %.c Makefile *.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-%_test: %_test.o $(SERIAL_OBJS)
-	$(LD) $(LDFLAGS) -o $@ $^
+f%_test: f%_test.o ftdi_common.o ftdi%.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
 miniservod: miniservod.o $(SERIAL_OBJS)
-	$(LD) -lpthread $(LDFLAGS) -o $@ $^
+	$(CC) -lpthread $(LDFLAGS) -o $@ $^
 
-# TODO(tbroch) expand to add shared libraries and install
+servod: servod.o $(SERIAL_OBJS)
+	$(CC) -lpthread $(LDFLAGS) -o $@ $^
+
 install:
-	@echo "install TBD"
+	mkdir -p $(DESTDIR)/usr/bin
+	for f in $(TARGETS); \
+		do cp $$f $(DESTDIR)/usr/bin/.; \
+	done
 
 clean:
 	rm -f *.o *.$(LIB_EXT) $(TARGETS)

@@ -26,12 +26,17 @@ int posix_openpt(int flags);
 
 #ifdef DARWIN
 int ptsname_r(int fd, char *buf, size_t buflen) {
-  buf = ptsname(fd);
-  if (buf == NULL) {
+  char *name = ptsname(fd);
+  if (name == NULL) {
+    errno = EINVAL;
     return -1;
-  } else {
-    return 0;
   }
+  if (strlen(name) + 1 > buflen) {
+    errno = ERANGE;
+    return -1;
+  }
+  strncpy(buf, name, buflen);
+  return 0;
 }
 #endif
 
@@ -55,7 +60,9 @@ int fuart_open(struct fuart_context *fuartc,
   int rv;
 
   struct ftdi_context *fc = fuartc->fc;
+  assert(fc);
 
+  ftdi_set_interface(fc, fargs->interface);
   if (!IS_FTDI_OPEN(fc)) {
     rv = ftdi_usb_open(fc, fargs->vendor_id, fargs->product_id);
     if (rv < 0) {
@@ -63,7 +70,6 @@ int fuart_open(struct fuart_context *fuartc,
       return FUART_ERR_FTDI;
     }
   }
-  assert(fuartc->fc);
   if (fcom_num_interfaces(fc) > 1) {
     if ((rv = ftdi_set_interface(fc, fargs->interface))) {
       ERROR_FTDI("setting interface", fc);
@@ -105,6 +111,7 @@ int fuart_open(struct fuart_context *fuartc,
     perror("getting name of pty");
     return FUART_ERR_OPEN;
   }
+  prn_dbg("pty name = %s\n", fuartc->name);
   if (!isatty(fd)) {
     prn_error("Not a TTY device.\n"); 
     return FUART_ERR_OPEN;
@@ -128,13 +135,6 @@ int fuart_wr_rd(struct fuart_context *fuartc, int nsecs) {
     printf("about to write %d bytes to ftdi %s\n", bytes, fuartc->buf);
 #endif
     rv = ftdi_write_data(fc, fuartc->buf, bytes);
-    /*
-    retry = 0;
-    while ((rv < 0) && (retry < 1000)) {
-      rv = ftdi_write_data(fc, fuartc->buf, bytes);
-      retry++;
-    }
-    */
     if (rv != bytes) {
       ERROR_FTDI("writing to uart", fc);
       return FUART_ERR_WR;

@@ -79,11 +79,17 @@ struct ftdi_common_args {
 };
 
 enum ftdi_interface_type {
+  ANY,
   GPIO,
   I2C,
   JTAG,
   SPI,
   UART
+};
+
+struct ftdi_itype {
+  enum ftdi_interface_type type;
+  void *context;
 };
 
 #ifdef WITH_TIME
@@ -151,6 +157,9 @@ int fcom_args(struct ftdi_common_args *, int, char **);
 int fcom_lookup_serial(struct ftdi_context *, char *);
 int fcom_num_interfaces(struct ftdi_context *);
 int fcom_is_mpsse(struct ftdi_context *, struct ftdi_common_args *);
+struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *, unsigned int,
+                                         unsigned int,
+                                         enum ftdi_interface_type itype);
 
 #ifdef __cplusplus
 }

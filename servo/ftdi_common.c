@@ -33,6 +33,7 @@ int fcom_cfg(struct ftdi_context *fc, int interface,
                    enum ftdi_mpsse_mode mode, int direction) {
 
   if (fcom_num_interfaces(fc) > 1) {
+    prn_dbg("setting interface to %d\n", interface);
     if (ftdi_set_interface(fc, interface)) {
       ERROR_FTDI("setting interface", fc);
       return FCOM_ERR_SET_INTERFACE;
@@ -175,3 +176,17 @@ int fcom_is_mpsse(struct ftdi_context *fc,
       break;
   }
 }
+
+struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *interfaces, 
+                                         unsigned int cnt, 
+                                         unsigned int interface_num,
+                                         enum ftdi_interface_type itype) {
+  if (interface_num > cnt) {
+    return NULL;
+  }
+  if ((itype != ANY) && (interfaces[interface_num-1].type != itype)) {
+    return NULL;
+  }
+  return &interfaces[interface_num-1];
+}
+

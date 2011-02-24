@@ -68,14 +68,16 @@ extern "C" {
   } while (0)
   
 struct fi2c_context { 
+  // v--- DO NOT REORDER ---v
   struct ftdi_context *fc;
+  struct gpio_s gpio;
+  // ^--- DO NOT REORDER ---^
   unsigned int clk;
   int error;
   uint8_t slv;
   uint8_t *buf;
   int bufcnt;
   int bufsize;
-  struct gpio_s gpio;
 };
 
 int fi2c_init(struct fi2c_context *fic, struct ftdi_context *fc);

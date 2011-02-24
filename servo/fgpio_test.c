@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     gpio.value = strtoul(in_str, NULL, 0);
 
     uint8_t rd_val;
-    if ((rv = fgpio_wr_rd(&fgc, &gpio, &rd_val))) {
+    if ((rv = fgpio_wr_rd(&fgc, &gpio, &rd_val, GPIO))) {
       prn_error("fgpio_wr_rd (%d)\n", rv);
       break;
     }

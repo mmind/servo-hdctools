@@ -91,7 +91,7 @@ int process_client(struct fgpio_context *fgc, int client) {
              "E:parsing client request.  Should be <dir>,<val>.\n");
     goto CLIENT_RSP;
   }
-  if (fgpio_wr_rd(fgc, &new_gpio, &rd_val)) {
+  if (fgpio_wr_rd(fgc, &new_gpio, &rd_val, GPIO)) {
     snprintf(buf, MAX_BUF, "E:writing/reading gpio\n");
     goto CLIENT_RSP;
   }

@@ -19,6 +19,7 @@ extern "C" {
 #define FGPIO_ERR_WR     1
 #define FGPIO_ERR_RD     2
 #define FGPIO_ERR_MASK   3
+#define FGPIO_ERR_NOIMP  4
   
 #define ERROR_FGPIO(ecode, ...)                 \
   fprintf(stderr, "-E- (%d) ", ecode);          \
@@ -45,14 +46,17 @@ enum fgpio_type {
 };
 
 struct fgpio_context { 
+  // v--- DO NOT REORDER ---v
   struct ftdi_context *fc;
   struct gpio_s gpio;
+  // ^--- DO NOT REORDER ---^
   int error;
 };
 
 int fgpio_init(struct fgpio_context *, struct ftdi_context *);
 int fgpio_open(struct fgpio_context *, struct ftdi_common_args *);
-int fgpio_wr_rd(struct fgpio_context *, struct gpio_s *, uint8_t *);
+int fgpio_wr_rd(struct fgpio_context *, struct gpio_s *, uint8_t *,
+                enum ftdi_interface_type);
 int fgpio_close(struct fgpio_context *);
 
 #ifdef __cplusplus

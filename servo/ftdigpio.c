@@ -24,6 +24,7 @@ int fgpio_init(struct fgpio_context *fgc, struct ftdi_context *fc) {
 
 int fgpio_open(struct fgpio_context *fgc, struct ftdi_common_args *fargs) {
   int rv = 0;
+  ftdi_set_interface(fgc->fc, fargs->interface);
   if (!IS_FTDI_OPEN(fgc->fc)) {
     rv = ftdi_usb_open(fgc->fc, fargs->vendor_id, fargs->product_id);
     // TODO(tbroch) investigate rmmod for ftdi_sio and retrying open when the
@@ -41,16 +42,16 @@ int fgpio_open(struct fgpio_context *fgc, struct ftdi_common_args *fargs) {
 }
 
 int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio, 
-                      uint8_t *rd_val) {
-  uint8_t buf[1];
+                uint8_t *rd_val, enum ftdi_interface_type itype) {
+  uint8_t buf[3];
   int dir_chg = 0;
   int val_chg = 0;
   struct ftdi_context *fc = fgc->fc;
   struct gpio_s *gpio = &fgc->gpio;
 
   if ((gpio->mask | new_gpio->mask) != gpio->mask) {
-    prn_error("GPIO mask mismatch 0x%02x != 0x%02x for this interface\n",
-              gpio->mask, new_gpio->mask);
+    prn_dbg("GPIO mask mismatch 0x%02x != 0x%02x for this interface\n",
+            gpio->mask, new_gpio->mask);
     return FGPIO_ERR_MASK;
   }
   // direction register is changing
@@ -65,27 +66,45 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
     val_chg = 1;
     gpio->value = (new_gpio->mask & new_gpio->value) | 
                   (~new_gpio->mask & gpio->value);
-    prn_dbg("Writing value register to 0x%02x\n", gpio->value);
+    prn_dbg("Changing value register to 0x%02x\n", gpio->value);
   }
 
   if ((fgc->fc->type == TYPE_R) && (val_chg || dir_chg)) {
     buf[0] = ((0xf & gpio->direction)<<4) | (0xf & gpio->value);
     prn_dbg("cbus write of 0x%02x\n", buf[0]);
-    CHECK_FTDI(ftdi_set_bitmode(fc, buf[0], BITMODE_CBUS), 
+    CHECK_FTDI(ftdi_set_bitmode(fc, buf[0], BITMODE_CBUS),
                "write cbus gpio", fc);
   } else {
-    if (dir_chg) {
+    // traditional 8-bit interfaces
+    if (itype == UART) {
+      // TODO(tbroch) implement this but requires libusb plumbing in all
+      // likelihood.  For now error
+      return FGPIO_ERR_NOIMP;
+    }
+    if ((itype == GPIO) && dir_chg) {
       CHECK_FTDI(ftdi_set_bitmode(fc, gpio->direction, BITMODE_BITBANG), 
                  "re-cfg gpio direction", fc);
+      prn_dbg("Wrote direction to 0x%02x\n", gpio->direction);
     }
-    if (val_chg) {
+    if (val_chg || (dir_chg && (itype != GPIO))) {
       int wr_bytes = 0;
-      buf[0] = (uint8_t) gpio->value;
-      wr_bytes = ftdi_write_data(fc, buf, 1);
-      if (wr_bytes != 1) {
+      int bytes_to_wr = 0;
+
+      if (itype != GPIO) {
+        // all non-gpio interfaces (spi,jtag,i2c) rely on MPSSE mode
+        // TODO(tbroch) PRI=2, add support for chips w/ hi/low support
+        buf[bytes_to_wr++] = SET_BITS_LOW;
+        buf[bytes_to_wr++] = gpio->value;
+        buf[bytes_to_wr++] = gpio->direction;
+      } else {
+        buf[bytes_to_wr++] = gpio->value;
+      }
+      wr_bytes = ftdi_write_data(fc, buf, bytes_to_wr);
+      if (wr_bytes != bytes_to_wr) {
         ERROR_FTDI("writing gpio data", fc);
         return FGPIO_ERR_WR;
       }
+      prn_dbg("Wrote value to 0x%02x\n", gpio->value);
     }
   }
   if (rd_val != NULL) {

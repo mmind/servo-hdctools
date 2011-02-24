@@ -55,11 +55,13 @@ struct fuart_cfg {
 };
 
 struct fuart_context { 
+  // v--- DO NOT REORDER ---v
+  struct ftdi_context *fc;
+  struct gpio_s gpio;
+  // ^--- DO NOT REORDER ---^
   char name[PATH_MAX];
   int fd;
-  struct ftdi_context *fc;
   uint8_t buf[FUART_BUF_SIZE];
-  struct gpio_s gpio;
   int error;
 };
 
