@@ -86,7 +86,8 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
                  "re-cfg gpio direction", fc);
       prn_dbg("Wrote direction to 0x%02x\n", gpio->direction);
     }
-    if (val_chg || (dir_chg && (itype != GPIO))) {
+    // dir change takes effect on ftdi_write_data done below
+    if (val_chg || dir_chg) {
       int wr_bytes = 0;
       int bytes_to_wr = 0;
 

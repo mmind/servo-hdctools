@@ -26,9 +26,10 @@ endif
 
 SERIAL_IP = gpio uart i2c
 SERIAL_OBJS = $(SERIAL_IP:%=ftdi%.o) ftdi_common.o
+LIBS = $(SERIAL_IP:%=libftdi%.$(LIB_EXT))
 TARGETS = servod miniservod $(SERIAL_IP:%=f%_test) 
 
-all: $(TARGETS)
+all: $(TARGETS) $(LIBS)
 
 %.o : %.c Makefile *.h
 	$(CC) $(CFLAGS) -o $@ $<
@@ -47,6 +48,13 @@ install:
 	for f in $(TARGETS); \
 		do cp $$f $(DESTDIR)/usr/bin/.; \
 	done
+	mkdir -p $(DESTDIR)/usr/lib
+	for f in $(LIBS); \
+		do cp $$f $(DESTDIR)/usr/lib/.; \
+	done
+
+libftdi%.$(LIB_EXT): ftdi%.o ftdi_common.o
+	$(CC) $(LDFLAGS) $(LD_LIB) -o $@ $^
 
 clean:
 	rm -f *.o *.$(LIB_EXT) $(TARGETS)

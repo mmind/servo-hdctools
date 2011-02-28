@@ -34,6 +34,9 @@ int main(int argc, char **argv) {
     .vendor_id = 0x0403,
     .product_id = 0x6011,
     .serialname = NULL,
+    // default is inputs
+    .direction = 0,
+    .value = 0,
   };
 
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {
@@ -51,9 +54,20 @@ int main(int argc, char **argv) {
   }
 
   struct gpio_s gpio;
+  uint8_t rd_val;
   // just default to allowable maximum
   gpio.mask = fgc.gpio.mask;
-
+  
+  if (fargs.direction) {
+    gpio.direction = fargs.direction;
+    gpio.value = fargs.value;
+    if ((rv = fgpio_wr_rd(&fgc, &gpio, &rd_val, GPIO))) {
+      prn_error("fgpio_wr_rd (%d)\n", rv);
+    } else {
+      prn_info("Initialized gpio dir = 0x%02x, val = 0x%02x\n",
+               gpio.direction, gpio.value);
+    }
+  }
   while (1) {
     char in_str[128];
     printf("DIR:");
@@ -71,7 +85,6 @@ int main(int argc, char **argv) {
     }
     gpio.value = strtoul(in_str, NULL, 0);
 
-    uint8_t rd_val;
     if ((rv = fgpio_wr_rd(&fgc, &gpio, &rd_val, GPIO))) {
       prn_error("fgpio_wr_rd (%d)\n", rv);
       break;
