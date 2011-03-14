@@ -96,19 +96,16 @@ static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
 
   // TODO(tbroch) this is s/w ACK should be doable via h/w WAIT_ON_x
   bytes_read = ftdi_read_data(fic->fc, rdbuf, 1);
-  int try_again = 10;
-  while ((bytes_read == 0) && try_again) {
-    bytes_read = ftdi_read_data(fic->fc, rdbuf, 1);
-    try_again--;
-  }
   if (bytes_read < 0) {
     ERROR_FTDI("read of ack", fic->fc);
     return FI2C_ERR_FTDI;
   }
   if (bytes_read != 1) {
+    prn_error("bytes read %d != 1\n", bytes_read);
     return FI2C_ERR_READ;
   } else {
     if ((rdbuf[0] & 0x80) != 0x0) {
+      prn_error("ack read 0x%02x != 0x0\n", (rdbuf[0] & 0x80));
       return FI2C_ERR_ACK;
     }
     prn_dbg("saw the ack 0x%02x\n", rdbuf[0]);
@@ -254,13 +251,31 @@ int fi2c_reset(struct fi2c_context *fic) {
 
 int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
                      uint8_t *rbuf, int rcnt) {
+  int err;
+  static int retry_count;
+
+ retry:
   if (wcnt && wbuf) {
-    prn_dbg("begin write\n");
+#ifdef DEBUG
+    printf("begin write of: ");
+    int i;
+    for (i = 0; i < wcnt; i++) {
+      printf("0x%02x ", wbuf[i]);
+    } 
+    printf("\n");
+#endif
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(WR) Start bit\n");
-    CHECK_FI2C(fic, fi2c_send_slave(fic, 0), "(WR) Slave 0x%02x\n",
-               fic->slv);
-    if (!fic->error) {
-      CHECK_FI2C(fic, fi2c_wr(fic, wbuf, wcnt), "(WR) Payload\n");
+    err = fi2c_send_slave(fic, 0);
+    if (err == FI2C_ERR_READ) {
+          retry_count++;
+          goto retry;
+    }
+    if (!fic->error && !err) {
+      err = fi2c_wr(fic, wbuf, wcnt);
+      if (err == FI2C_ERR_READ) {
+          retry_count++;
+          goto retry;
+    }
       CHECK_FI2C(fic, fi2c_stop_bit_cmds(fic), "(WR) Stop bit\n");
       CHECK_FI2C(fic, fi2c_write_cmds(fic), "(WR) FTDI write cmds\n");
     }
@@ -268,17 +283,27 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
   if (rcnt && rbuf && !fic->error) {
     prn_dbg("begin read\n");
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(RD) Start bit\n");
-    CHECK_FI2C(fic, fi2c_send_slave(fic, 1), "(RD) Slave 0x%02x\n", fic->slv);
-    if (!fic->error) {
-      CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
+    err = fi2c_send_slave(fic, 1);
+      if (err == FI2C_ERR_READ) {
+          retry_count++;
+          goto retry;
     }
+    CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
+#ifdef DEBUG
+    printf("end read: ");
+    int i;
+    for (i = 0; i < rcnt; i++) {
+      printf("0x%02x ", rbuf[i]);
+    } 
+    printf("\n");
+#endif
   }
   // TODO(tbroch) debug why this is necessary.  W/o I get sporadic
   // ftdi_usb_read_data failures.  Might be able to remedy by looking at 
   // error codes from ftdi_read/write ( -666 ) or errno -16 (EBUSY)
   // NOTE, removing exposes bug on linux w/ bad results
   CHECK_FTDI(ftdi_usb_purge_tx_buffer(fic->fc), "Purge tx buf", fic->fc);
-  prn_dbg("done\n");
+  prn_dbg("done.  Error = %d, Retry count = %d\n", fic->error, retry_count);
   return fic->error;
 }
 
