@@ -45,7 +45,7 @@ class Fgpio(object):
       FgpioError: An error accessing Fgpio object
     """
     self._logger = logging.getLogger("Fgpio")
-    self._logger.debug("__init__")
+    self._logger.debug("")
 
     (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdigpio")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
@@ -93,7 +93,7 @@ class Fgpio(object):
                             ctypes.byref(rd_val), 1)
     else:
       self._lib.fgpio_wr_rd(ctypes.byref(self._fgc), 0, ctypes.byref(rd_val), 1)
-    self._logger.debug("dir:%s val:%s returned %d\n" % \
+    self._logger.debug("dir:%s val:%s returned %d" %
                        (str(dir_val), str(wr_val), rd_val.value))
     return (rd_val.value & self._gpio.mask) >> offset
 
