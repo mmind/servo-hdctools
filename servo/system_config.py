@@ -103,10 +103,14 @@ class SystemConfig(object):
     Raises:
       SystemConfigError: for schema violations
     """
-    self._systemfiles.append(filename)
     if (not os.path.isfile(filename)):
-      self._logger.error("Unable to find system file %s" % (filename))
-      raise SystemConfigError("Unable to find system file %s" % filename)
+      default_path = os.path.join(os.path.dirname(__file__), "data")
+      if os.path.isfile(os.path.join(default_path, filename)):
+        filename = os.path.join(default_path, filename)
+      else:
+        self._logger.error("Unable to find system file %s" % (filename))
+        raise SystemConfigError("Unable to find system file %s" % filename)
+    self._systemfiles.append(filename)
     root = xml.etree.ElementTree.parse(filename).getroot()
     for tag in SYSCFG_TAG_LIST:
       for element in root.findall(tag):

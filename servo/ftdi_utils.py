@@ -36,7 +36,8 @@ def ftdi_locate_lib(lib_name):
     lib_path = os.path.join(path,'lib' + lib_name + lib_ext)
     if os.path.exists(lib_path):
       return os.path.realpath(lib_path)
-  return None
+  # Try the default OS library path
+  return 'lib' + lib_name + lib_ext
 
 
 def load_libs(*args):
@@ -53,10 +54,11 @@ def load_libs(*args):
   dll_list = []
   for lib_name in args:
     lib_path = ftdi_locate_lib(lib_name)
-    if lib_path is None:
+    try:
+      dll_list.append(ctypes.cdll.LoadLibrary(lib_path))
+    except OSError,e:
       print "-E- Unable to find library %s" % lib_name
       sys.exit(1)
-    dll_list.append(ctypes.cdll.LoadLibrary(lib_path))
   return dll_list
 
 def parse_common_args(vendor=ftdi_common.DEFAULT_VID,

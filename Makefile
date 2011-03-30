@@ -1,4 +1,4 @@
-SUBDIRS=src servo/data
+SUBDIRS=src
 all:
 	for d in $(SUBDIRS); do \
 		make DEBUG=1 -C $$d; \
