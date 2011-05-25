@@ -59,11 +59,12 @@ static void usage(struct ftdi_common_args *fargs) {
   USG_DEFAULT("0x%02x\n", fargs->vendor_id);
   puts("       -p <num>            : product id of device to connect to");
   USG_DEFAULT("0x%02x\n", fargs->product_id);
-  puts("       -d <num>            : device id if >1 ftdi with same vid:pid");
+  puts("       -d <num>            : "
+       "device serialname (use if >1 FTDI device with same vid:pid )");
   USG_DEFAULT("%d\n", fargs->dev_id);
   puts("       -i <interface>      : interface id for FTDI port");
   USG_DEFAULT("%d\n", fargs->interface);
-  puts("       -s <num>             : speed ( buadrate ) in hertz");
+  puts("       -s <num>            : speed ( buadrate ) in hertz");
   USG_DEFAULT("%d\n", fargs->speed);
   puts("       -g <dir>:<val>      : initial gpio configuration");
   puts("       -h                  : this message");
@@ -82,7 +83,7 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
   int args_consumed = 0;
 
   // TODO(tbroch) add uart bits,sbits,parity arg parsing
-  while ((c = getopt(argc, argv, "v:p:i:s:g:h")) != -1) {
+  while ((c = getopt(argc, argv, "v:p:i:d:s:g:h")) != -1) {
     switch (c) {
       case 'v':
         fargs->vendor_id = strtoul(optarg, NULL, 0);
@@ -123,6 +124,9 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
         }
         args_consumed += 2;
         break;
+      case 'd':
+        fargs->serialname = malloc(strlen(optarg)+1);
+        strcpy(fargs->serialname, optarg);
       case 's':
         fargs->speed = strtoul(optarg, NULL, 0);
         args_consumed += 2;

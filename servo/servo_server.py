@@ -19,7 +19,8 @@ class ServodError(Exception):
 class Servod(object):
   """Main class for Servo debug/controller Daemon."""
   def __init__(self, config, vendor=ftdi_common.DEFAULT_VID,
-               product=ftdi_common.DEFAULT_PID):
+               product=ftdi_common.DEFAULT_PID,
+               serialname=None):
     """Servod constructor.
 
     Args:
@@ -27,11 +28,13 @@ class Servod(object):
           particular Servod invocation
       vendor: usb vendor id of FTDI device
       product: usb product id of FTDI device
+      serialname: string of device serialname/number as defined in FTDI eeprom.
     """
     self._logger = logging.getLogger("Servod")
     self._logger.debug("")
     self._vendor = vendor
     self._product = product
+    self._serialname = serialname
     self._syscfg = config
     # list of objects (Fi2c, Fgpio) to physical interfaces (gpio, i2c) that ftdi
     # interfaces are mapped to
@@ -58,7 +61,8 @@ class Servod(object):
     Returns:
       Instance object of interface.
     """
-    fobj = ftdigpio.Fgpio(self._vendor, self._product, interface)
+    fobj = ftdigpio.Fgpio(self._vendor, self._product, interface,
+                          self._serialname)
     fobj.open()
     return fobj
 
@@ -71,7 +75,8 @@ class Servod(object):
     Returns:
       Instance object of interface
     """
-    fobj = ftdii2c.Fi2c(self._vendor, self._product, interface)
+    fobj = ftdii2c.Fi2c(self._vendor, self._product, interface,
+                        self._serialname)
     fobj.open()
     # Set the frequency of operation of the i2c bus.
     # TODO(tbroch) make configureable

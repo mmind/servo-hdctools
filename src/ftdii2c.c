@@ -200,9 +200,12 @@ int fi2c_open(struct fi2c_context *fic, struct ftdi_common_args *fargs) {
 
   ftdi_set_interface(fic->fc, fargs->interface);
   if (!IS_FTDI_OPEN(fic->fc)) {
-    int rv = ftdi_usb_open(fic->fc, fargs->vendor_id, fargs->product_id);
+    int rv = ftdi_usb_open_desc(fic->fc, fargs->vendor_id, fargs->product_id,
+                                NULL, fargs->serialname);
     if (rv < 0 && rv != -5) {
       ERROR_FTDI("Opening usb connection", fic->fc);
+      prn_error("vid:0x%02x pid:0x%02x serial:%s\n", fargs->vendor_id,
+                fargs->product_id, fargs->serialname);
       return rv;
     }
   }

@@ -26,11 +26,14 @@ int fgpio_open(struct fgpio_context *fgc, struct ftdi_common_args *fargs) {
   int rv = 0;
   ftdi_set_interface(fgc->fc, fargs->interface);
   if (!IS_FTDI_OPEN(fgc->fc)) {
-    rv = ftdi_usb_open(fgc->fc, fargs->vendor_id, fargs->product_id);
+    rv = ftdi_usb_open_desc(fgc->fc, fargs->vendor_id, fargs->product_id,
+                            NULL, fargs->serialname);
     // TODO(tbroch) investigate rmmod for ftdi_sio and retrying open when the
     // return value is -5 (unable to claim device)
     if (rv < 0) {
       ERROR_FTDI("Opening usb connection", fgc->fc);
+      prn_error("vid:0x%02x pid:0x%02x serial:%s\n", fargs->vendor_id,
+                fargs->product_id, fargs->serialname);
       return rv;
     }
   }

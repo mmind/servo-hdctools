@@ -58,11 +58,11 @@ def _parse_args():
                     help="vendor id of ftdi device to interface to")
   parser.add_option("-p", "--product", default=0x6011, type=int,
                     help="USB product id of ftdi device to interface with")
+  parser.add_option("-s", "--serialname", default=None, type=str,
+                    help="device serialname stored in eeprom")
   parser.add_option("-c", "--config", type=str, action="append",
                     help="system config files (XML) to read")
   # TODO(tbroch) add arg for declaring interfaces
-  # TODO(tbroch) add arg for serial / device specific string to allow for more
-  # ftdi hooked to host
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
 
@@ -88,7 +88,9 @@ def main():
 
   logger.debug("\n" + scfg.display_config())
 
-  servod = servo_server.Servod(scfg)
+  servod = servo_server.Servod(scfg, vendor=options.vendor,
+                               product=options.product,
+                               serialname=options.serialname)
   server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port))
   server.register_introspection_functions()
   server.register_multicall_functions()

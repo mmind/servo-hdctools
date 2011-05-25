@@ -36,7 +36,7 @@ class Fi2c(object):
   """
 
   def __init__(self, vendor=ftdi_common.DEFAULT_VID,
-               product=ftdi_common.DEFAULT_PID, interface=2):
+               product=ftdi_common.DEFAULT_PID, interface=2, serialname=None):
     """Fi2c constructor.
 
     Loads libraries for libftdi, libftdii2c.  Creates instance objects
@@ -47,6 +47,7 @@ class Fi2c(object):
       vendor: usb vendor id of FTDI device
       product: usb product id of FTDI device
       interface: interface number of FTDI device to use
+      serialname: string of device serialname/number as defined in FTDI eeprom.
 
     Raises:
       Fi2cError: If either ftdi or fi2c inits fail
@@ -57,7 +58,8 @@ class Fi2c(object):
     (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdii2c")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
-                                             interface=interface)
+                                             interface=interface,
+                                             serialname=serialname)
     self._fc = ftdi_common.FtdiContext()
     self._fic = Fi2cContext()
     self._is_closed = True

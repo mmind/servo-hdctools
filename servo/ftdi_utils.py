@@ -62,13 +62,15 @@ def load_libs(*args):
   return dll_list
 
 def parse_common_args(vendor=ftdi_common.DEFAULT_VID,
-                      product=ftdi_common.DEFAULT_PID, interface=1):
+                      product=ftdi_common.DEFAULT_PID, interface=1,
+                      serialname=None):
   """Parse common arguments for tools related to FTDI devices.
 
   Args:
     vendor    : integer value of USB vendor id of FTDI device
     product   : integer value of USB vendor id of FTDI device
     interface : integer ( 1 - 4 ) of interface on FTDI device
+    serialname: string of device serialname/number as defined in FTDI eeprom.
 
   Returns:
     (values, args) where 'values' is a optparse.Values instance and 'args' is
@@ -83,4 +85,6 @@ def parse_common_args(vendor=ftdi_common.DEFAULT_VID,
                     default=product, type=int)
   parser.add_option("-i", "--interface", help="ftdi interface to use",
                     type=int, default=interface)
+  parser.add_option("-s", "--serialname", default=None, type=str,
+                    help="device serialname stored in eeprom")
   return parser.parse_args()

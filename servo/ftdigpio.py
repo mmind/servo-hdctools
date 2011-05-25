@@ -28,7 +28,7 @@ class FgpioContext(ctypes.Structure):
 class Fgpio(object):
   """Provide interface to libftdigpio c-library via python ctypes module."""
   def __init__(self, vendor=ftdi_common.DEFAULT_VID,
-               product=ftdi_common.DEFAULT_PID, interface=4):
+               product=ftdi_common.DEFAULT_PID, interface=4, serialname=None):
     """Fgpio constructor.
 
     Loads libraries for libftdi, libftdigpio.  Creates instance objects
@@ -39,6 +39,7 @@ class Fgpio(object):
       vendor    : usb vendor id of FTDI device
       product   : usb product id of FTDI device
       interface : interface number ( 1 - 4 ) of FTDI device to use
+      serialname: string of device serialname/number as defined in FTDI eeprom.
 
     Raises:
       FgpioError: An error accessing Fgpio object
@@ -49,7 +50,8 @@ class Fgpio(object):
     (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdigpio")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
-                                             interface=interface)
+                                             interface=interface,
+                                             serialname=serialname)
     self._gpio = ftdi_common.Gpio()
     self._fc = ftdi_common.FtdiContext()
     self._fgc = FgpioContext()

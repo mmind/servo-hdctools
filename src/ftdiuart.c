@@ -64,9 +64,12 @@ int fuart_open(struct fuart_context *fuartc,
 
   ftdi_set_interface(fc, fargs->interface);
   if (!IS_FTDI_OPEN(fc)) {
-    rv = ftdi_usb_open(fc, fargs->vendor_id, fargs->product_id);
+    rv = ftdi_usb_open_desc(fc, fargs->vendor_id, fargs->product_id,
+                            NULL, fargs->serialname);
     if (rv < 0) {
       ERROR_FTDI("Opening usb connection", fc);
+      prn_error("vid:0x%02x pid:0x%02x serial:%s\n", fargs->vendor_id,
+                fargs->product_id, fargs->serialname);
       return FUART_ERR_FTDI;
     }
   }
