@@ -10,6 +10,7 @@ import SimpleXMLRPCServer
 import ftdigpio
 import ftdii2c
 import ftdi_common
+import ftdiuart
 
 MAX_I2C_CLOCK_HZ = 100000
 
@@ -87,6 +88,25 @@ class Servod(object):
     # Set the frequency of operation of the i2c bus.
     # TODO(tbroch) make configureable
     fobj.setclock(MAX_I2C_CLOCK_HZ)
+    return fobj
+
+  def _init_uart(self, interface):
+    """Initialize uart inteface and open for use
+
+    Note, the uart runs in a separate thread (pthreads).  Users wishing to
+    interact with it will query control for the pty's pathname and connect
+    with there favorite console program.  For example:
+      cu -l /dev/pts/22
+
+    Args:
+      interface: interface number of FTDI device to use
+
+    Returns:
+      Instance object of interface
+    """
+    fobj = ftdiuart.Fuart(self._vendor, self._product, interface)
+    fobj.run()
+    self._logger.info("%s" % fobj.get_pty())
     return fobj
 
   def _get_param_drv(self, control_name, is_get=True):

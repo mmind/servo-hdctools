@@ -140,20 +140,6 @@ int init_server(int port) {
   return sock;
 }
 
-void *run_uart(void *ptr) {
-  struct fuart_context *fcc = (struct fuart_context *)ptr;
-
-  while (1) {
-    prn_dbg("uart checked\n");
-    if (fuart_wr_rd(fcc, 1000)) {
-      prn_error("fuart_wr_rd");
-      break;
-    }
-  }
-  // should never reach
-  return NULL;
-}
-
 void run_server(struct fgpio_context *fgc, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
@@ -249,15 +235,13 @@ int main(int argc, char **argv) {
     return FCOM_ERR;
   }
   printf("ftdi uart connected to pty at %s\n", fcc.name);
+  if (fuart_run(&fcc, FUART_USECS_SLEEP)) {
+    prn_error("fuart_run\n");
+    return FCOM_ERR;
+  }
 
   // TODO(tbroch) this should be configurable
   sock = init_server(9999);
-
-  pthread_t fcc_thread;
-  if (pthread_create(&fcc_thread, NULL, run_uart, (void *)&fcc)) {
-    perror("threading fuart");
-    return errno;
-  } 
   run_server(&fgc, sock);
   return 0;
 }

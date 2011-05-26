@@ -54,12 +54,14 @@ int main(int argc, char **argv) {
     prn_fatal("fuart_open\n");
   }
   prn_info("ftdi uart connected to %s\n", fuartc.name);
-  while (1) {
-    if ((rv = fuart_wr_rd(&fuartc, 10000))) {
-      prn_error("fuart_wr_rd (%d)\n", rv);
-      break;
-    }
+  if ((rv = fuart_run(&fuartc, FUART_USECS_SLEEP))) {
+    prn_fatal("fuart_run");
   }
+  while (1) {
+    // ours sleeps to eleven!
+    sleep(11);
+  }
+  // never reached
   fuart_close(&fuartc);
   return rv;
 }

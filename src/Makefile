@@ -1,3 +1,6 @@
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 OS_NAME = $(shell uname -s)
 CC ?= gcc
 
@@ -27,7 +30,7 @@ endif
 SERIAL_IP = gpio uart i2c
 SERIAL_OBJS = $(SERIAL_IP:%=ftdi%.o) ftdi_common.o
 LIBS = $(SERIAL_IP:%=libftdi%.$(LIB_EXT))
-TARGETS = miniservod $(SERIAL_IP:%=f%_test) 
+TARGETS = miniservod $(SERIAL_IP:%=f%_test)
 
 all: $(TARGETS) $(LIBS)
 
@@ -35,7 +38,7 @@ all: $(TARGETS) $(LIBS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 f%_test: f%_test.o ftdi_common.o ftdi%.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lpthread
 
 miniservod: miniservod.o $(SERIAL_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lpthread

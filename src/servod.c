@@ -278,19 +278,6 @@ int init_server(int port) {
   return sock;
 }
 
-void *run_uart(void *ptr) {
-  struct fuart_context *fcc = (struct fuart_context *)ptr;
-
-  while (1) {
-    if (fuart_wr_rd(fcc, 10000)) {
-      prn_error("fuart_wr_rd");
-      break;
-    }
-  }
-  // should never reach
-  return NULL;
-}
-
 void run_server(struct ftdi_itype *interfaces, int int_cnt, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
@@ -425,11 +412,10 @@ int main(int argc, char **argv) {
     return FCOM_ERR;
   }
   printf("ftdi uart connected to pty at %s\n", fcc.name);
-  pthread_t fcc_thread;
-  if (pthread_create(&fcc_thread, NULL, run_uart, (void *)&fcc)) {
-    perror("threading fuart");
-    return errno;
-  } 
+  if (fuart_run(&fcc, FUART_USECS_SLEEP)) {
+    prn_error("fuart_run\n");
+    return FCOM_ERR;
+  }
   interfaces[fargs.interface - 1].context = (void *)&fcc;
   interfaces[fargs.interface - 1].type = UART;
 
