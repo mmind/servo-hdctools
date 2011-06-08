@@ -70,6 +70,13 @@
   </control>
   <!-- ******************** Interface C gpios ******************** -->
   <!-- TODO(tbroch) implement uart + gpio controls -->
+  <!-- TODO(jguerin) hacks for now so I can do EC SPI -->
+  <control>
+    <name>servo_dut_tx</name>
+    <doc>Make input when in EC SPI programming mode</doc>
+    <params interface="3" drv="gpio" offset="0" map="onoff">
+    </params>
+  </control>
   <!-- ******************** Interface D gpios ******************** -->
   <control>
     <name>kbd_en</name>
@@ -96,10 +103,15 @@
     <params interface="4" drv="gpio" offset="3" map="yesno">
     </params>
   </control>
+  <map>
+    <name>press</name>
+    <doc>map for press and release of buttons</doc>
+    <params press="0" release="1"></params>
+  </map>
   <control>
     <name>pwr_button</name>
     <doc>power button gpio</doc>
-    <params interface="4" drv="gpio" offset="4" map="onoff">
+    <params interface="4" drv="gpio" offset="4" map="press">
     </params>
   </control>
   <control>
@@ -127,6 +139,17 @@
   <!-- TODO(tbroch) implement these controls -->
   <!-- slv 0x20 : ioexpander port 1 -->
   <!-- TODO(tbroch) implement these controls -->
+  <map>
+    <name>io</name>
+    <doc>map for buffer direction</doc>
+    <params input="0" output="1"></params>
+  </map>
+  <control>
+    <name>tx_dir</name>
+    <doc>Sets the direction of dut tx buffer.</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="1" map="io" init="input"></params>
+  </control>
   <!-- slv 0x21 : ioexpander port 0 -->
   <control>
     <name>dut_hub_on</name>
@@ -191,16 +214,10 @@
     offset="2" map="onoff" init="on"></params>
   </control>
   <control>
-    <name>io_xpand_sp4</name>
-    <doc>spare gpio on io expander 0x21</doc>
+    <name>blinky</name>
+    <doc>LED on gpio for blinking</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
-    offset="3" map="onoff"></params>
-  </control>
-  <control>
-    <name>io_xpand_sp5</name>
-    <doc>spare gpio on io expander 0x21</doc>
-    <params interface="2" drv="tca6416" slv="0x21" port="1"
-    offset="4" map="onoff"></params>
+    offset="3" map="onoff_i"></params>
   </control>
   <control>
     <name>dut_hub_pwren</name>
@@ -209,16 +226,22 @@
     offset="5" map="onoff"></params>
   </control>
   <control>
-    <name>io_xpand_sp7</name>
-    <doc>spare gpio on io expander 0x21</doc>
-    <params interface="2" drv="tca6416" slv="0x21" port="1"
-    offset="6" map="onoff"></params>
-  </control>
-  <control>
     <name>pwren_gate</name>
-    <doc>Enable open-drain drivers for JTAG/SPI and UART IO's</doc>
+    <doc>Enable drivers for JTAG/SPI and UART IO's</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="7" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>ec_spi</name>
+    <doc>Enable power to DUT for programming EC SPI Flash</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>spi_flash</name>
+    <doc>Enable power to DUT for programming BIOS SPI Flash</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="6" map="onoff_i"></params>
   </control>
   <!-- ******************** Sequences **************************** -->
   <sequence>
