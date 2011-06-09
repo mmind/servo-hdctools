@@ -36,6 +36,8 @@
     <doc>Reset the device warmly</doc>
     <params interface="1" drv="gpio" offset="5" map="onoff_i">
     </params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="1" map="onoff_i"></params>
   </control>
   <control>
     <name>dut_spare1_in</name>
@@ -77,6 +79,33 @@
     <params interface="3" drv="gpio" offset="0" map="onoff">
     </params>
   </control>
+  <control>
+    <name>dut_flaga</name>
+    <doc>flag (A) used for TBD signalling between DUT host and
+    servo</doc>
+    <params cmd="set" interface="3" drv="gpio" offset="4"
+    map="onoff"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_flagb</name>
+    <doc>flag (B) used for TBD signalling between DUT host and
+    servo</doc>
+    <params cmd="set" interface="3" drv="gpio" offset="5"
+    map="onoff"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="3" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_nmi</name>
+    <doc>Non maskable interrupt (NMI) used to signal DUT from
+    servo</doc>
+    <params cmd="set" interface="3" drv="gpio" offset="6"
+    map="onoff"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="0" map="onoff"></params>
+  </control>
   <!-- ******************** Interface D gpios ******************** -->
   <control>
     <name>kbd_en</name>
@@ -88,20 +117,26 @@
   <control>
     <name>rec_mode</name>
     <doc>Partner specific recovery mode</doc>
-    <params interface="4" drv="gpio" offset="1" map="onoff_i">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="1"
+    map="onoff_i"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="7" map="onoff_i"></params>
   </control>
   <control>
     <name>dev_mode</name>
     <doc>Developer mode</doc>
-    <params interface="4" drv="gpio" offset="2" map="onoff">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="2"
+    map="onoff"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="6" map="onoff_i"></params>
   </control>
   <control>
     <name>lid_open</name>
     <doc>lid open gpio</doc>
-    <params interface="4" drv="gpio" offset="3" map="yesno">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="3"
+    map="yesno"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="5" map="yesno"></params>
   </control>
   <map>
     <name>press</name>
@@ -111,8 +146,10 @@
   <control>
     <name>pwr_button</name>
     <doc>power button gpio</doc>
-    <params interface="4" drv="gpio" offset="4" map="press">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="4"
+    map="press"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="4" map="press"></params>
   </control>
   <control>
     <name>goog_rec_mode</name>
@@ -125,18 +162,34 @@
   <control>
     <name>cold_reset</name>
     <doc>reset the device frigidly</doc>
-    <params interface="4" drv="gpio" offset="6" map="onoff_i">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="6"
+    map="onoff_i"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="2" map="onoff_i"></params>
   </control>
   <control>
     <name>mfg_mode</name>
     <doc>Manufacturing mode</doc>
-    <params interface="4" drv="gpio" offset="7" map="onoff">
-    </params>
+    <params cmd="set" interface="4" drv="gpio" offset="7"
+    map="onoff"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="2" map="onoff"></params>
   </control>
   <!-- ******************** I2c related controls ******************** -->
   <!-- slv 0x20 : ioexpander port 0 -->
-  <!-- TODO(tbroch) implement these controls -->
+  <control>
+    <name>prtctl4_ocs</name>
+    <doc>USB port 4 (J19, USB key) over current signal (OCS)</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_usb2_ocs</name>
+    <doc>Over-current signal for USB port (TYPE A/J18) to DUT via
+    USB port (TYPE MINI-AB/J15)</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="7" map="onoff_i"></params>
+  </control>
   <!-- slv 0x20 : ioexpander port 1 -->
   <!-- TODO(tbroch) implement these controls -->
   <map>
@@ -150,40 +203,58 @@
     <params interface="2" drv="tca6416" slv="0x20" port="1"
     offset="1" map="io" init="input"></params>
   </control>
+  <control>
+    <name>dut_hub_ocs</name>
+    <doc>DUT USB hub over current signal (OCS). This hub supports
+    ethernet (RJ45/I79) and USB port (vert TYPE A/J19)</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="0" map="onoff_i"></params>
+  </control>
   <!-- slv 0x21 : ioexpander port 0 -->
   <control>
     <name>dut_hub_on</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>Enables DUT's USB hub with ethernet (RJ45/I79) and USB
+    port (Vert TYPE A/J19)</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="0" map="onoff_i"></params>
   </control>
   <control>
     <name>usb_mux_oe2</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>Output enable for USB port (TYPE A/J18) to DUT via USB
+    port (TYPE MINI-AB/J15)</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="1" map="onoff_i"></params>
   </control>
   <control>
     <name>usb_mux_oe1</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>Output enable for USB port (vert TYPE A/J19) to DUT via
+    DUT USB hub</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="2" map="onoff_i"></params>
   </control>
+  <map>
+    <name>usbkey</name>
+    <doc>Determines whether DUT or servo sees USB port (vert TYPE
+    A/J19)</doc>
+    <params dut_sees_usbkey="1" servo_sees_usbkey="0"></params>
+  </map>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>Mux select for USB port (vert TYPE A/J19).</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
-    offset="3" map="onoff"></params>
+    offset="3" map="usbkey"></params>
   </control>
   <control>
     <name>dut_hub1_rst1</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>Reset DUT's USB hub with ethernet (RJ45/I79) and USB port
+    (Vert TYPE A/J19)</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="4" map="onoff_i"></params>
   </control>
   <control>
     <name>dut_usb2_prtctl</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>power enable for USB port (TYPE A/J18) to DUT via USB port
+    (TYPE MINI-AB/J15)</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="5" map="onoff"></params>
   </control>
@@ -195,7 +266,7 @@
   </control>
   <control>
     <name>prtctl4_pwren</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>USB port 4 (J19, USB key) power enable</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="7" map="onoff"></params>
   </control>
