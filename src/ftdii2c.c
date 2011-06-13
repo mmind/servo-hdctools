@@ -255,9 +255,13 @@ int fi2c_reset(struct fi2c_context *fic) {
 int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
                      uint8_t *rbuf, int rcnt) {
   int err;
-  static int retry_count;
+  static int retry_count = 0;
 
  retry:
+  // flush both buffers to guarantee clean restart
+  if (retry_count) {
+    CHECK_FTDI(ftdi_usb_purge_buffers(fic->fc), "Purge rx/tx buf", fic->fc);
+  }
   if (wcnt && wbuf) {
 #ifdef DEBUG
     printf("begin write of: ");
