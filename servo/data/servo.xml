@@ -34,7 +34,7 @@
   <control>
     <name>warm_reset</name>
     <doc>Reset the device warmly</doc>
-    <params interface="1" drv="gpio" offset="5" map="onoff_i">
+    <params cmd="set" interface="1" drv="gpio" offset="5" map="onoff_i">
     </params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="1" map="onoff_i"></params>
