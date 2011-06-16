@@ -34,8 +34,8 @@
   <control>
     <name>warm_reset</name>
     <doc>Reset the device warmly</doc>
-    <params cmd="set" interface="1" drv="gpio" offset="5" map="onoff_i">
-    </params>
+    <params cmd="set" interface="1" drv="gpio" offset="5"
+    map="onoff_i"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="1" map="onoff_i"></params>
   </control>
@@ -46,6 +46,11 @@
     map="onoff"></params>
   </control>
   <!-- ******************** Interface B gpios ******************** -->
+  <control>
+    <name>tp6</name>
+    <doc>test point 6</doc>
+    <params interface="2" drv="gpio" offset="3" width="1"></params>
+  </control>
   <map>
     <name>kbd_m1</name>
     <doc>TODO(tbroch) determine what keys these choices hit and

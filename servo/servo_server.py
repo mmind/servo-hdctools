@@ -187,6 +187,9 @@ class Servod(object):
       rd_val = self._syscfg.reformat_val(param, val)
       self._logger.info("%s = %s" % (name, rd_val))
       return rd_val
+    except AttributeError, error:
+      self._logger.error("Getting %s: %s" % (name, error))
+      raise
     except drv.hw_driver.HwDriverError:
       self._logger.error("Getting %s" % (name))
       raise

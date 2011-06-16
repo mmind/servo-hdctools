@@ -55,18 +55,21 @@ class Fi2c(object):
     self._logger = logging.getLogger("Fi2c")
     self._logger.debug("")
 
-    (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdii2c")
+    (self._flib, self._lib, self._gpiolib) = \
+        ftdi_utils.load_libs("ftdi", "ftdii2c",  "ftdigpio")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
                                              interface=interface,
                                              serialname=serialname)
     self._fc = ftdi_common.FtdiContext()
     self._fic = Fi2cContext()
+    self._gpio = ftdi_common.Gpio()
     self._is_closed = True
     if self._flib.ftdi_init(ctypes.byref(self._fc)):
       raise Fi2cError("doing ftdi_init")
     if self._lib.fi2c_init(ctypes.byref(self._fic), ctypes.byref(self._fc)):
       raise Fi2cError("doing fi2c_init")
+    self._i2c_mask = ~self._fic.gpio.mask
 
   def __del__(self):
     """Fi2c destructor.
@@ -107,6 +110,7 @@ class Fi2c(object):
     Returns:
       list of c_ubyte's read from i2c device.
     """
+    self._logger.debug("")
     self._fic.slv = slv
     wcnt = len(wlist)
     wbuf_type = ctypes.c_ubyte * wcnt
@@ -124,6 +128,51 @@ class Fi2c(object):
     for i, rval in enumerate(rbuf):
       self._logger.debug("rbuf[%i] = 0x%02x" % (i, rval))
     return list(rbuf)
+
+  def gpio_wr_rd(self, offset, width, dir_val=None, wr_val=None):
+    """Write and/or read GPIO controls
+
+    I2C interface on FTDI's MPSSE engine requires 3 bits.  One for SCL and two
+    for SDA ( bi-directional ).  The remaining 5 bits of the byte interface can
+    be used as spare GPIO's providing the interface is left in the native (I2C)
+    mode.  This routine facilitates those GPIO's by calling the same GPIO
+    library as a native GPIO interface but with the interface type set to
+    'INTERFACE_TYPE_I2C'.
+
+    Args:
+      offset  : bit offset of the gpio to read or write
+      width   : integer, number of contiguous bits in gpio to read or write
+      dir_val : direction value of the gpio.  dir_val is interpretted as:
+                  None : read the pins via libftdi's ftdi_read_pins
+                  0    : configure as input
+                  1    : configure as output
+      wr_val  : value to write to the GPIO.  Note wr_val is irrelevant if
+                dir_val = 0
+
+    Returns:
+      integer value from reading the gpio value ( masked & aligned )
+
+    Raises:
+      Fi2cError: if gpio's mask would interfere with i2c's bits
+    """
+    rd_val = ctypes.c_ubyte()
+    self._gpio.mask = (pow(2, width) - 1) << offset
+    if self._gpio.mask & self._i2c_mask:
+      raise Fi2cError("gpio mask violates i2c mask")
+    if wr_val is not None and dir_val is not None:
+      self._gpio.direction = self._gpio.mask
+      self._gpio.value = wr_val << offset
+      self._gpiolib.fgpio_wr_rd(ctypes.byref(self._fic),
+                                ctypes.byref(self._gpio),
+                                ctypes.byref(rd_val),
+                                ftdi_common.INTERFACE_TYPE_I2C)
+    else:
+      self._gpiolib.fgpio_wr_rd(ctypes.byref(self._fic), 0,
+                                ctypes.byref(rd_val),
+                                ftdi_common.INTERFACE_TYPE_I2C)
+    self._logger.debug("mask:0x%x val:%s returned %d" %
+                       (self._gpio.mask, str(wr_val), rd_val.value))
+    return (rd_val.value & self._gpio.mask) >> offset
 
   def close(self):
     """Close connection to FTDI device and cleanup.

@@ -8,6 +8,10 @@ import ctypes
 DEFAULT_VID = 0x0403
 DEFAULT_PID = 0x6011
 
+(INTERFACE_TYPE_ANY, INTERFACE_TYPE_GPIO, INTERFACE_TYPE_I2C,
+ INTERFACE_TYPE_JTAG, INTERFACE_TYPE_SPI, INTERFACE_TYPE_UART) = \
+ map(ctypes.c_int, xrange(6))
+
 class FtdiContext(ctypes.Structure):
   """Defines primary context structure for libftdi.
 

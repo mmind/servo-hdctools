@@ -109,7 +109,7 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
           ERROR_FTDI("writing gpio data", fc);
           return FGPIO_ERR_WR;
         }
-        prn_dbg("Wrote value to 0x%02x\n", gpio->value);
+        prn_dbg("Wrote dir:0x%02x val:0x%02x\n", gpio->direction, gpio->value);
       }
     }
   }

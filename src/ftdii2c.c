@@ -291,11 +291,15 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     prn_dbg("begin read\n");
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(RD) Start bit\n");
     err = fi2c_send_slave(fic, 1);
-      if (err == FI2C_ERR_READ) {
-          retry_count++;
-          goto retry;
+    if (err == FI2C_ERR_READ) {
+      retry_count++;
+      goto retry;
     }
     CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
+    if (fic->error == FI2C_ERR_READ) {
+      retry_count++;
+      goto retry;
+    }
 #ifdef DEBUG
     printf("end read: ");
     int i;
@@ -305,11 +309,6 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     printf("\n");
 #endif
   }
-  // TODO(tbroch) debug why this is necessary.  W/o I get sporadic
-  // ftdi_usb_read_data failures.  Might be able to remedy by looking at 
-  // error codes from ftdi_read/write ( -666 ) or errno -16 (EBUSY)
-  // NOTE, removing exposes bug on linux w/ bad results
-  CHECK_FTDI(ftdi_usb_purge_tx_buffer(fic->fc), "Purge tx buf", fic->fc);
   prn_dbg("done.  Error = %d, Retry count = %d\n", fic->error, retry_count);
   return fic->error;
 }

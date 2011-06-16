@@ -124,7 +124,7 @@ class HwDriver(object):
       if 'width' not in self._params:
         mask = 1 << offset
       else:
-        mask = (2 ** int(self._params['width'])) - 1
+        mask = (pow(2, int(self._params['width'])) - 1) << offset
     else:
       offset = None
       mask = None

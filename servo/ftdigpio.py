@@ -70,12 +70,13 @@ class Fgpio(object):
     if self._lib.fgpio_open(ctypes.byref(self._fgc), ctypes.byref(self._fargs)):
       raise FgpioError("doing fgpio_open")
 
-  def wr_rd(self, offset, dir_val=None, wr_val=None):
+  def wr_rd(self, offset, width, dir_val=None, wr_val=None):
     """Write and/or read GPIO bit.
 
     Args:
       offset  : bit offset of the gpio to read or write
-      dir_val : direction value of the gpio.  dir_vall is interpretted as:
+      width   : integer, number of contiguous bits in gpio to read or write
+      dir_val : direction value of the gpio.  dir_val is interpretted as:
                   None : read the pins via libftdi's ftdi_read_pins
                   0    : configure as input
                   1    : configure as output
@@ -86,14 +87,16 @@ class Fgpio(object):
       integer value from reading the gpio value ( masked & aligned )
     """
     rd_val = ctypes.c_ubyte()
-    self._gpio.mask = 1 << offset
+    self._gpio.mask = (pow(2, width) - 1) << offset
     if wr_val is not None and dir_val is not None:
-      self._gpio.direction = dir_val << offset
+      self._gpio.direction = self._gpio.mask
       self._gpio.value = wr_val << offset
       self._lib.fgpio_wr_rd(ctypes.byref(self._fgc), ctypes.byref(self._gpio),
-                            ctypes.byref(rd_val), 1)
+                            ctypes.byref(rd_val),
+                            ftdi_common.INTERFACE_TYPE_GPIO)
     else:
-      self._lib.fgpio_wr_rd(ctypes.byref(self._fgc), 0, ctypes.byref(rd_val), 1)
+      self._lib.fgpio_wr_rd(ctypes.byref(self._fgc), 0, ctypes.byref(rd_val),
+                            ftdi_common.INTERFACE_TYPE_GPIO)
     self._logger.debug("dir:%s val:%s returned %d" %
                        (str(dir_val), str(wr_val), rd_val.value))
     return (rd_val.value & self._gpio.mask) >> offset
