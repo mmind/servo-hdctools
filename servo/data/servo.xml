@@ -221,7 +221,7 @@
     <doc>Enables DUT's USB hub with ethernet (RJ45/I79) and USB
     port (Vert TYPE A/J19)</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
-    offset="0" map="onoff_i"></params>
+    offset="0" map="yesno_i"></params>
   </control>
   <control>
     <name>usb_mux_oe2</name>
@@ -241,11 +241,12 @@
     <name>usbkey</name>
     <doc>Determines whether DUT or servo sees USB port (vert TYPE
     A/J19)</doc>
-    <params dut_sees_usbkey="1" servo_sees_usbkey="0"></params>
+    <params dut_sees_usbkey="0" servo_sees_usbkey="1"></params>
   </map>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>Mux select for USB port (vert TYPE A/J19).</doc>
+    <doc>2to1 mux select for USB port (vert TYPE A/J19). Set either
+    'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="3" map="usbkey"></params>
   </control>
@@ -263,11 +264,18 @@
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="5" map="onoff"></params>
   </control>
+  <map>
+    <name>duthub</name>
+    <doc>Determine whether DUT sees USB hub or Servo via USB port
+    (TYPE MINI-AB/J15)</doc>
+    <params dut_sees_hub="0" dut_sees_servo="1"></params>
+  </map>
   <control>
     <name>dut_hub_sel</name>
-    <doc>TODO(tbroch) add doc describing control</doc>
+    <doc>2to1 Mux select for USB port (TYPE mini-AB/J14) Set either
+    'dut_sees_hub' or 'dut_sees_servo'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
-    offset="6" map="onoff"></params>
+    offset="6" map="duthub"></params>
   </control>
   <control>
     <name>prtctl4_pwren</name>
