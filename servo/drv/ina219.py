@@ -152,16 +152,23 @@ class ina219(drv.hw_driver.HwDriver):
   def set(self, value):
     """Set value on INA219 device.
 
-    TODO(tbroch) Implement some limited setting.  Device presently functions in
-    default mode (continuous, 12b samples) but should offer some ability to
-    change the mode (sleep).  In addition may want to add raw register writing
-    for debugging or advanced uses.
-    
     Args:
       value: integer value to write to device
+
+    Raises:
+      Ina219Error: Errors pertaining to this class
     """
     self._logger.debug("value = %s" % str(value))
-    raise NotImplementedError("Setting ina219 values not implemented")
+    subtype = self._params['subtype']
+    try:
+      func = getattr(self, '_Set_%s' % subtype)
+    except AttributeError:
+      raise Ina219Error("subtype %s has no function" % subtype)
+    try:
+      func(value)
+    except Exception, e:
+      raise Ina219Error("Unknown failure calling subtype %s %s" % (subtype, str(e)))
+    return value
 
   def _read_busv(self):
     """Read the bus voltage register.
@@ -320,12 +327,33 @@ class ina219(drv.hw_driver.HwDriver):
     Raises:
       Ina219Error: If error with register access
     """
+    self._logger.debug("")
     if 'reg' not in self._params:
       raise Ina219Error("no register defined in paramters")
     reg = int(self._params['reg'])
     if reg > REG_CALIB or reg < REG_CFG:
       raise Ina219Error("register index %d, out of range" % reg)
     return self._i2c_obj._read_reg(reg)
+
+  def _Set_writereg(self, value):
+    """Write raw register value from INA219.
+
+    Args:
+      value: Integer value to write to register
+
+    Raises:
+      Ina219Error: If error with register access
+    """
+    self._logger.debug("")
+    if 'reg' not in self._params:
+      raise Ina219Error("no register defined in paramters")
+    try:
+      reg = int(self._params['reg'])
+    except ValueError, e:
+      raise Ina219Error(e)
+    if reg > REG_CALIB or reg < REG_CFG:
+      raise Ina219Error("register index %d, out of range" % reg)
+    return self._i2c_obj._write_reg(reg, value)
 
   def _wake(self):
     """Wake up the INA219 adc from sleep."""

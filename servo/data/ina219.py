@@ -58,11 +58,20 @@ def dump_adcs(module_name):
       rsp += (
         '<control><name>%(name)s_%(reg)s_reg</name>\n'
         '<doc>Raw register value of %(reg)s on i2c_mux:%(mux)s</doc>'
-        '<params interface="2" drv="ina219" slv="%(slv)s"'
-        ' type="get" subtype="readreg" reg="%(i)s" mux="%(mux)s"'
-        ' fmt="hex">\n</params></control>') % {'name':name, 'slv':slv, 
-                                               'mux':mux, 'sense':sense, 
+        '<params cmd="get" interface="2" drv="ina219" slv="%(slv)s"'
+        ' subtype="readreg" reg="%(i)s" mux="%(mux)s"'
+        ' fmt="hex">\n</params>') % {'name':name, 'slv':slv,
+                                               'mux':mux, 'sense':sense,
                                                'reg':reg, 'i':i}
+      if reg == "cfg":
+        rsp += (
+          '<params cmd="set" interface="2" drv="ina219" slv="%(slv)s"'
+          ' subtype="writereg" reg="%(i)s" mux="%(mux)s"'
+          ' fmt="hex">\n</params></control>') % {'slv':slv, 'mux':mux,
+                                                 'sense':sense, 'reg':reg,
+                                                 'i':i}
+      else:
+        rsp += ('</control>')
   return rsp
 
 def main():
