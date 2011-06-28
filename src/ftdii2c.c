@@ -255,11 +255,15 @@ int fi2c_reset(struct fi2c_context *fic) {
 int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
                      uint8_t *rbuf, int rcnt) {
   int err;
-  static int retry_count = 0;
+  int ack_retry_count = 0;
+  static int tot_retry_count = 0;
 
  retry:
+  if (ack_retry_count > FI2C_ACK_RETRY_MAX) {
+    return FI2C_ERR_ACK;
+  }
   // flush both buffers to guarantee clean restart
-  if (retry_count) {
+  if (tot_retry_count) {
     CHECK_FTDI(ftdi_usb_purge_buffers(fic->fc), "Purge rx/tx buf", fic->fc);
   }
   if (wcnt && wbuf) {
@@ -273,14 +277,18 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
 #endif
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(WR) Start bit\n");
     err = fi2c_send_slave(fic, 0);
-    if (err == FI2C_ERR_READ) {
-          retry_count++;
-          goto retry;
+    if (err == FI2C_ERR_ACK) {
+      ack_retry_count++;
+      tot_retry_count++;
+      goto retry;
+    } else if (err == FI2C_ERR_READ) {
+      tot_retry_count++;
+      goto retry;
     }
     if (!fic->error && !err) {
       err = fi2c_wr(fic, wbuf, wcnt);
       if (err == FI2C_ERR_READ) {
-          retry_count++;
+          tot_retry_count++;
           goto retry;
     }
       CHECK_FI2C(fic, fi2c_stop_bit_cmds(fic), "(WR) Stop bit\n");
@@ -291,13 +299,17 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     prn_dbg("begin read\n");
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(RD) Start bit\n");
     err = fi2c_send_slave(fic, 1);
-    if (err == FI2C_ERR_READ) {
-      retry_count++;
+    if (err == FI2C_ERR_ACK) {
+      ack_retry_count++;
+      tot_retry_count++;
+      goto retry;
+    } else if (err == FI2C_ERR_READ) {
+      tot_retry_count++;
       goto retry;
     }
     CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
     if (fic->error == FI2C_ERR_READ) {
-      retry_count++;
+      tot_retry_count++;
       goto retry;
     }
 #ifdef DEBUG
@@ -309,7 +321,7 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     printf("\n");
 #endif
   }
-  prn_dbg("done.  Error = %d, Retry count = %d\n", fic->error, retry_count);
+  prn_dbg("done.  Error = %d, Retry count = %d\n", fic->error, tot_retry_count);
   return fic->error;
 }
 
