@@ -260,8 +260,9 @@ class ina219(drv.hw_driver.HwDriver):
       self._logger.debug("writing calibrate to 0x%04x" % (calib_reg))
       self._i2c_obj._write_reg(REG_CALIB, calib_reg)
       self._calib_reg = calib_reg
-      if not self._watch_cnvr():
-        break
+      is_ovf = self._get_next_ovf()
+
+
 
   def _Get_millivolts(self):
     """Retrieve voltage measurement for INA219 in millivolts.
