@@ -1,7 +1,7 @@
 SUBDIRS=src servo/data
 all:
 	for d in $(SUBDIRS); do \
-		make DEBUG=1 -C $$d; \
+		make -C $$d; \
 	done
 
 install:
