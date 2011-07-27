@@ -142,5 +142,8 @@ def main():
                       (get_fx, arg, e, ' '.join(args[argnum+1:])))
         break
 
-if __name__ == "__main__":
-  main()
+if __name__ == '__main__':
+  try:
+    main()
+  except KeyboardInterrupt:
+    sys.exit(0)
