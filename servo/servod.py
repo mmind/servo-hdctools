@@ -7,7 +7,9 @@ import optparse
 import os
 import SimpleXMLRPCServer
 import sys
+import usb
 
+import ftdi_common
 import system_config
 import servo_server
 
@@ -15,6 +17,7 @@ import servo_server
 # TODO(tbroch) determine version string methodology.
 VERSION = "0.0.1"
 
+MAX_ISERIAL_STR = 128
 
 class ServodError(Exception):
   """Exception class for servod server."""
@@ -54,9 +57,9 @@ def _parse_args():
                     help="hostname to start server on")
   parser.add_option("", "--port", default=9999, type=int,
                     help="port for server to listen on")
-  parser.add_option("-v", "--vendor", default=0x0403, type=int,
+  parser.add_option("-v", "--vendor", default=None, type=int,
                     help="vendor id of ftdi device to interface to")
-  parser.add_option("-p", "--product", default=0x6011, type=int,
+  parser.add_option("-p", "--product", default=None, type=int,
                     help="USB product id of ftdi device to interface with")
   parser.add_option("-s", "--serialname", default=None, type=str,
                     help="device serialname stored in eeprom")
@@ -65,6 +68,80 @@ def _parse_args():
   # TODO(tbroch) add arg for declaring interfaces
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
+
+def usb_get_iserial(device):
+  """Get USB device's iSerial string
+
+  Args:
+    device: usb.Device object
+
+  Returns:
+    iserial: USB devices iSerial string
+  """
+  device_handle = device.open()
+  iserial = None
+  try:
+    iserial = device_handle.getString(device.iSerialNumber, MAX_ISERIAL_STR)
+  except usb.USBError, e:
+    # TODO(tbroch) other non-FTDI devices on my host cause following msg
+    #   usb.USBError: error sending control message: Broken pipe
+    # Need to investigate further
+    pass
+  except Exception, e:
+    raise ServodError("failed to retrieve USB serialname")
+  return iserial
+
+def usb_find(vendor, product, serialname):
+  """Find USB devices based on vendor, product and serial identifiers.
+
+  Locates all USB devices that match the criteria of the arguments.  In the
+  case where input arguments are 'None' that argument is a don't care
+
+  Args:
+    vendor: USB vendor id (integer)
+    product: USB product id (integer)
+    serial: USB serial id (string)
+
+  Returns:
+    matched_devices : list of pyusb devices matching input args
+  """
+  matched_devices = []
+  for bus in usb.busses():
+    for device in bus.devices:
+      if (not vendor or device.idVendor == vendor) and \
+            (not product or device.idProduct == product) and \
+            (not serialname or usb_get_iserial(device) == serialname):
+        matched_devices.append(device)
+  return matched_devices
+
+def discover_servo(logger, vendor, product, serialname):
+  """Find unique servo USB device.
+
+  Args:
+    vendor: USB vendor id (integer)
+    product: USB product id (integer)
+    serial: USB serial id (string)
+
+  Returns:
+    device: usb.Device object that is servo board or None if unable to identify
+      unique device
+  """
+  all_servos = []
+  for (vid, pid) in ftdi_common.SERVO_ID_DEFAULTS:
+    if (vendor and vendor != vid) or \
+          (product and product != pid):
+      continue
+    all_servos.extend(usb_find(vid, pid, serialname))
+  if len(all_servos) > 1:
+    logger.error("Found %d servos" % len(all_servos))
+    for device in all_servos:
+      logger.error("\tvid: 0x%04x pid: 0x%04x sid: %s"
+                   % (device.idVendor, device.idProduct,
+                      usb_get_iserial(device)))
+  elif len(all_servos) == 0:
+    logger.error("No servos found")
+
+  return all_servos[0] if len(all_servos) else None
 
 def main():
   (options, args) = _parse_args()
@@ -88,9 +165,19 @@ def main():
 
   logger.debug("\n" + scfg.display_config())
 
-  servod = servo_server.Servod(scfg, vendor=options.vendor,
-                               product=options.product,
-                               serialname=options.serialname)
+  servo_device = discover_servo(logger, options.vendor, options.product,
+                                options.serialname)
+  if not servo_device:
+    logger.error("Use --vendor, --product or --serialname switches to "
+                 "identify servo uniquely")
+    return -1
+
+  logger.debug("Servo is vid:0x%04x pid:0x%04x sid:%s" % \
+                 (servo_device.idVendor, servo_device.idProduct,
+                  usb_get_iserial(servo_device)))
+  servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
+                               product=servo_device.idProduct,
+                               serialname=usb_get_iserial(servo_device))
   server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port))
   server.register_introspection_functions()
   server.register_multicall_functions()

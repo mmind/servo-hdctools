@@ -7,7 +7,6 @@ import logging
 import SimpleXMLRPCServer
 
 # TODO(tbroch) deprecate use of relative imports
-import ftdi_common
 import ftdigpio
 import ftdii2c
 
@@ -18,9 +17,7 @@ class ServodError(Exception):
 
 class Servod(object):
   """Main class for Servo debug/controller Daemon."""
-  def __init__(self, config, vendor=ftdi_common.DEFAULT_VID,
-               product=ftdi_common.DEFAULT_PID,
-               serialname=None):
+  def __init__(self, config, vendor, product, serialname=None):
     """Servod constructor.
 
     Args:
