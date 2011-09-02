@@ -20,7 +20,7 @@ class I2cRegError(Exception):
 class I2cReg(object):
   """Provides methods for devices with registered indexing over i2c."""
   def __init__(self, i2c, slave, addr_len=1, reg_len=2, msb_first=True,
-               use_reg_cache=False):
+               no_read=False, use_reg_cache=False):
     """I2cReg constructor.
 
     Args:
@@ -30,6 +30,7 @@ class I2cReg(object):
       addr_len: length of register address in bytes
       reg_len: length of register in bytes
       msb_first: if True, most significant byte is first
+      no_read: if True, do NOT read value after a write is performed
       use_reg_cache: i2c device remembers last register index internally 
           don't re-write if it matches
 
@@ -42,6 +43,7 @@ class I2cReg(object):
     self._addr_len = addr_len
     self._reg_len = reg_len
     self._msb_first = msb_first
+    self._no_read = no_read
     self._use_reg_cache = use_reg_cache
     self._reg = None
 
@@ -53,7 +55,8 @@ class I2cReg(object):
       raise I2cRegError("slave addr range should be within (8,119)")
 
   @classmethod
-  def get_device(cls, i2c, slave, addr_len, reg_len, msb_first, use_reg_cache):
+  def get_device(cls, i2c, slave, addr_len, reg_len, msb_first, no_read,
+                 use_reg_cache):
     """Get device from module dict or create one if it doesn't exist.
 
     This class method allows sharing of objects that have the same i2c bus and
@@ -74,7 +77,8 @@ class I2cReg(object):
     if key in _devices:
       return _devices[key]
     else:
-      dev_obj = cls(i2c, slave, addr_len, reg_len, msb_first, use_reg_cache)
+      dev_obj = cls(i2c, slave, addr_len, reg_len, msb_first, no_read,
+                    use_reg_cache)
       _devices[key] = dev_obj
     return dev_obj
     
@@ -110,7 +114,9 @@ class I2cReg(object):
       raise ValueError("write reg value larger than register")
     if self._msb_first:
       wlist.reverse()
-    rlist = self._wr_rd(reg, wlist, self._reg_len)
+
+    read_len = 0 if self._no_read else self._reg_len
+    rlist = self._wr_rd(reg, wlist, read_len)
     return self._convert_rd(rlist, self._msb_first)
 
   @staticmethod

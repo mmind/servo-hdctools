@@ -327,6 +327,20 @@
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="6" map="onoff_i"></params>
   </control>
+  <!-- i2c_mux:res, slv 0x18 :  LTC1663 10-bit DAC for USB load on USB J14 -->
+  <control>
+    <name>usb_load_dhub_dac</name>
+    <doc>USB load for the dut's USB hub connection for USB port (TYPE
+    mini-AB/J14)</doc>
+    <params interface="2" drv="ltc1663" slv="0x18"></params>
+  </control>
+  <!-- i2c_mux:res, slv 0x19 :  LTC1663 10-bit DAC for USB load on USB J15 -->
+  <control>
+    <name>usb_load_din_dac</name>
+    <doc>USB load for the dut USB connection for USB port (TYPE
+    mini-AB/J15)</doc>
+    <params interface="2" drv="ltc1663" slv="0x19"></params>
+  </control>
   <!-- ******************** Sequences **************************** -->
   <sequence>
     <name>i2c_mux_seq</name>

@@ -60,7 +60,7 @@ class tca6416(drv.hw_driver.HwDriver):
     (slave, port) = self._get_slave_port()
     self._i2c_obj = drv.i2c_reg.I2cReg.get_device(self._interface, slave,
                                                   addr_len=1, reg_len=1,
-                                                  msb_first=True,
+                                                  msb_first=True, no_read=False,
                                                   use_reg_cache=False)
     self._port = port
 
