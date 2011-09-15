@@ -123,8 +123,8 @@ def discover_servo(logger, vendor, product, serialname):
     serial: USB serial id (string)
 
   Returns:
-    device: usb.Device object that is servo board or None if unable to identify
-      unique device
+    devices: list of usb.Device objects that are servo board(s) or
+      empty list if none
   """
   all_servos = []
   for (vid, pid) in ftdi_common.SERVO_ID_DEFAULTS:
@@ -132,16 +132,7 @@ def discover_servo(logger, vendor, product, serialname):
           (product and product != pid):
       continue
     all_servos.extend(usb_find(vid, pid, serialname))
-  if len(all_servos) > 1:
-    logger.error("Found %d servos" % len(all_servos))
-    for device in all_servos:
-      logger.error("\tvid: 0x%04x pid: 0x%04x sid: %s"
-                   % (device.idVendor, device.idProduct,
-                      usb_get_iserial(device)))
-  elif len(all_servos) == 0:
-    logger.error("No servos found")
-
-  return all_servos[0] if len(all_servos) else None
+  return all_servos
 
 def main():
   (options, args) = _parse_args()
@@ -165,13 +156,19 @@ def main():
 
   logger.debug("\n" + scfg.display_config())
 
-  servo_device = discover_servo(logger, options.vendor, options.product,
-                                options.serialname)
-  if not servo_device:
+  servo_like_devices = discover_servo(logger, options.vendor, options.product,
+                                      options.serialname)
+  for device in servo_like_devices:
+    logger.info("Found servo, vid: 0x%04x pid: 0x%04x sid: %s", device.idVendor,
+                device.idProduct, usb_get_iserial(device))
+  if not servo_like_devices:
+    logger.error("No servos found")
+  if len(servo_like_devices) != 1:
     logger.error("Use --vendor, --product or --serialname switches to "
                  "identify servo uniquely")
-    return -1
+    sys.exit(-1)
 
+  servo_device = servo_like_devices[0]
   logger.debug("Servo is vid:0x%04x pid:0x%04x sid:%s" % \
                  (servo_device.idVendor, servo_device.idProduct,
                   usb_get_iserial(servo_device)))
