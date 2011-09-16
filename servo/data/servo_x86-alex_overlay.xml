@@ -1,0 +1,10 @@
+<root>
+  <control>
+    <name>dev_mode</name>
+    <doc>Developer mode</doc>
+    <params cmd="set" clobber_ok="" interface="4" drv="gpio"
+    offset="2" map="onoff_i"></params>
+    <params cmd="get" clobber_ok="" interface="2" drv="tca6416"
+    slv="0x20" port="1" offset="6" map="onoff_i"></params>
+  </control>
+</root>

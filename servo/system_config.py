@@ -97,6 +97,10 @@ class SystemConfig(object):
     3. specific one for particular version of DUT (evt,dvt,mp)
     4. specific one for a one-off rework done to a system
 
+    Special key parameters in config files:
+      clobber_ok: signifies this control may _clobber_ and existing definition
+        of the same name.  Note, its value is ignored ( clobber_ok='' )
+
     Args:
       filename: string of path to system file ( xml )
 
@@ -156,8 +160,9 @@ class SystemConfig(object):
         else:
           raise SystemConfigError("%s %s has illegal number of params %d\n%s"
                                   % (tag, name, len(params_list), element_str))
-        if name in self.syscfg_dict[tag]:
-          raise SystemConfigError("Duplicate %s %s\n%s"
+        if name in self.syscfg_dict[tag] and ('clobber_ok' not in set_dict or
+                                              'clobber_ok' not in get_dict):
+          raise SystemConfigError("Duplicate %s %s without 'clobber_ok' key\n%s"
                                   % (tag, name, element_str))
         if tag == 'map':
           self.syscfg_dict[tag][name] = {'doc':doc, 'map_params':get_dict}
