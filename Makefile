@@ -1,15 +1,15 @@
 SUBDIRS=src servo/data
 all:
 	for d in $(SUBDIRS); do \
-		make -C $$d; \
+		$(MAKE) -C $$d; \
 	done
 
 install:
 	for d in $(SUBDIRS); do \
-		make -C $$d install; \
+		$(MAKE) -C $$d install; \
 	done
 
 clean:
 	for d in $(SUBDIRS); do \
-		make -C $$d clean; \
+		$(MAKE) -C $$d clean; \
 	done
