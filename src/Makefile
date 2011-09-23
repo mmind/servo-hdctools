@@ -43,14 +43,16 @@ miniservod: miniservod.o $(SERIAL_OBJS)
 servod: servod.o $(SERIAL_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lpthread
 
+BINDIR = /usr/bin
+LIBDIR = /usr/lib
 install:
-	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -p $(DESTDIR)$(BINDIR)
 	for f in $(TARGETS); \
-		do cp $$f $(DESTDIR)/usr/bin/.; \
+		do cp $$f $(DESTDIR)$(BINDIR)/.; \
 	done
-	mkdir -p $(DESTDIR)/usr/lib
+	mkdir -p $(DESTDIR)$(LIBDIR)
 	for f in $(LIBS); \
-		do cp $$f $(DESTDIR)/usr/lib/.; \
+		do cp $$f $(DESTDIR)$(LIBDIR)/.; \
 	done
 
 libftdi%.$(LIB_EXT): ftdi%.o ftdi_common.o
