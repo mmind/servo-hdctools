@@ -1,9 +1,9 @@
 OS_NAME = $(shell uname -s)
 CC ?= gcc
 
-PKG_CONFIG_PATH ?= /usr/lib/pkgconfig
-LIBFTDI_CFLAGS   := $(shell pkg-config --cflags libftdi)
-LIBFTDI_LDFLAGS  := $(shell pkg-config --libs   libftdi)
+PKG_CONFIG ?= pkg-config
+LIBFTDI_CFLAGS   := $(shell $(PKG_CONFIG) --cflags libftdi)
+LIBFTDI_LDFLAGS  := $(shell $(PKG_CONFIG) --libs   libftdi)
 
 CFLAGS  = -Werror -Wall -c $(LIBFTDI_CFLAGS)
 LDFLAGS = $(LIBFTDI_LDFLAGS)
