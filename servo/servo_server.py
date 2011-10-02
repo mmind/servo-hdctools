@@ -9,15 +9,17 @@ import SimpleXMLRPCServer
 # TODO(tbroch) deprecate use of relative imports
 import ftdigpio
 import ftdii2c
+import ftdi_common
 
 MAX_I2C_CLOCK_HZ = 100000
+
 
 class ServodError(Exception):
   """Exception class for servod."""
 
 class Servod(object):
   """Main class for Servo debug/controller Daemon."""
-  def __init__(self, config, vendor, product, serialname=None):
+  def __init__(self, config, vendor, product, serialname=None, interfaces=None):
     """Servod constructor.
 
     Args:
@@ -26,6 +28,10 @@ class Servod(object):
       vendor: usb vendor id of FTDI device
       product: usb product id of FTDI device
       serialname: string of device serialname/number as defined in FTDI eeprom.
+      interfaces: list of strings of interface types the server will instantiate
+
+    Raises:
+      ServodError: if unable to locate init method for particular interface
     """
     self._logger = logging.getLogger("Servod")
     self._logger.debug("")
@@ -40,14 +46,17 @@ class Servod(object):
     # Ex) _drv_dict[name]['get'] = (params, drv)
     self._drv_dict = {}
 
-    # TODO(tbroch) make this configuraeable.  Presently we hardwire these
-    # interfaces with 1,3,4 as Fgpio objects and 2 Fi2c objects.  Future
-    # revisions will provide alternate and perhaps mechanism to re-allocate the
-    # interface altogether.  Note, interface i is (i - 1) in list
-    self._interface_list.append(self._init_gpio(1))
-    self._interface_list.append(self._init_i2c(2))
-    self._interface_list.append(self._init_gpio(3))
-    self._interface_list.append(self._init_gpio(4))
+    # Note, interface i is (i - 1) in list
+    if not interfaces:
+      interfaces = ftdi_common.INTERFACE_DEFAULTS[vendor][product]
+
+    for i, name in enumerate(interfaces):
+      self._logger.info("Initializing FTDI interface %d to %s", i + 1, name)
+      try:
+        func = getattr(self, '_init_%s' % name)
+      except AttributeError:
+        raise ServodError("Unable to locate init for interface %s" % name)
+      self._interface_list.append(func(i + 1))
 
   def _init_gpio(self, interface):
     """Initialize gpio driver interface and open for use.
@@ -246,6 +255,7 @@ class Servod(object):
     """
     self._logger.debug("echo(%s)" % (echo))
     return "ECH0ING: %s" % (echo)
+
 
 def test():
   """Integration testing.

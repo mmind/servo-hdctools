@@ -4,9 +4,14 @@
 """Defines common structures for use with c libraries related to FTDI devices.
 """
 import ctypes
+import collections
 
 SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001)]
 (DEFAULT_VID, DEFAULT_PID) = SERVO_ID_DEFAULTS[0]
+
+INTERFACE_DEFAULTS = collections.defaultdict(dict)
+for vid, pid in SERVO_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['gpio', 'i2c', 'gpio', 'gpio']
 
 (INTERFACE_TYPE_ANY, INTERFACE_TYPE_GPIO, INTERFACE_TYPE_I2C,
  INTERFACE_TYPE_JTAG, INTERFACE_TYPE_SPI, INTERFACE_TYPE_UART) = \
