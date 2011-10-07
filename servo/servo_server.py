@@ -57,7 +57,11 @@ class Servod(object):
         func = getattr(self, '_init_%s' % name)
       except AttributeError:
         raise ServodError("Unable to locate init for interface %s" % name)
-      self._interface_list.append(func(i + 1))
+      result = func(i + 1)
+      if isinstance(result, tuple):
+        self._interface_list.extend(result)
+      else:
+        self._interface_list.append(result)
 
   def _init_gpio(self, interface):
     """Initialize gpio driver interface and open for use.
@@ -108,6 +112,26 @@ class Servod(object):
     fobj.run()
     self._logger.info("%s" % fobj.get_pty())
     return fobj
+
+  def _init_gpiouart(self, interface):
+    """Initialize special gpio + uart interface and open for use
+
+    Note, the uart runs in a separate thread (pthreads).  Users wishing to
+    interact with it will query control for the pty's pathname and connect
+    with there favorite console program.  For example:
+      cu -l /dev/pts/22
+
+    Args:
+      interface: interface number of FTDI device to use
+
+    Returns:
+      Instance objects of interface
+    """
+    fgpio = self._init_gpio(interface)
+    fuart = ftdiuart.Fuart(self._vendor, self._product, interface, fgpio._fc)
+    fuart.run()
+    self._logger.info("uart pty: %s" % fuart.get_pty())
+    return fgpio, fuart
 
   def _get_param_drv(self, control_name, is_get=True):
     """Get access to driver for a given control.

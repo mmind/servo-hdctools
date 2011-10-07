@@ -13,6 +13,13 @@ INTERFACE_DEFAULTS = collections.defaultdict(dict)
 for vid, pid in SERVO_ID_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = ['gpio', 'i2c', 'uart', 'gpio']
 
+# miniservo
+MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]
+for vid, pid in MINISERVO_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['gpiouart']
+
+SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
+
 (INTERFACE_TYPE_ANY, INTERFACE_TYPE_GPIO, INTERFACE_TYPE_I2C,
  INTERFACE_TYPE_JTAG, INTERFACE_TYPE_SPI, INTERFACE_TYPE_UART) = \
  map(ctypes.c_int, xrange(6))

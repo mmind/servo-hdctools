@@ -42,7 +42,8 @@ class FuartContext(ctypes.Structure):
 class Fuart(object):
   """Provide interface to libftdiuart c-library via python ctypes module."""
   def __init__(self, vendor=ftdi_common.DEFAULT_VID,
-               product=ftdi_common.DEFAULT_PID, interface=3):
+               product=ftdi_common.DEFAULT_PID, interface=3,
+               ftdi_context=None):
     """Fuart contstructor.
 
     Loads libraries for libftdi, libftdiuart.  Creates instance objects
@@ -53,6 +54,9 @@ class Fuart(object):
       vendor: usb vendor id of FTDI device
       product: usb product id of FTDI device
       interface: interface number of FTDI device to use
+      ftdi_context: ftdi context created previously or None if one should be
+        allocated here.  This shared context functionality is seen in miniservo
+        which has a uart + 4 gpios (miniservo)
 
     Raises:
       FuartError: If either ftdi or fuart inits fail
@@ -70,11 +74,15 @@ class Fuart(object):
                                              sbits=0 # STOP_BIT_1 in ftdi.h
                                              )
     self._is_closed = True
-    self._fc = ftdi_common.FtdiContext()
     self._fuartc = FuartContext()
-    err = self._flib.ftdi_init(ctypes.byref(self._fc))
-    if err:
-      raise FuartError("Failure with ftdi_init", err)
+    if ftdi_context:
+      self._fc = ftdi_context
+    else:
+      self._fc = ftdi_common.FtdiContext()
+      err = self._flib.ftdi_init(ctypes.byref(self._fc))
+      if err:
+        raise FuartError("Failure with ftdi_init", err)
+
     err = self._lib.fuart_init(ctypes.byref(self._fuartc),
                                ctypes.byref(self._fc))
     if err:
