@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2011 The Chromium OS Authors. All rights reserved. -->
+<!-- Use of this source code is governed by a BSD-style license that -->
+<!-- can be found in the LICENSE file. -->
+<root>
+  <map>
+    <name>waluigi_adc_mux</name>
+    <doc>valid mux values for waluigi's two banks of INA219
+    ADC's</doc>
+    <params bank0="0x1" bank1="0x2"></params>
+  </map>
+  <control>
+    <name>waluigi_adc_mux</name>
+    <doc>4 to 1 mux to steer remote i2c i2c_mux:rem to two sets of
+    16 INA219 ADC's. Note they are only on leg0 and leg1</doc>
+    <params interface="2" drv="pca9546" slv="0x70"
+    map="waluigi_adc_mux"></params>
+  </control>
+</root>

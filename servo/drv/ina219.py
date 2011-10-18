@@ -99,10 +99,12 @@ class ina219(drv.hw_driver.HwDriver):
     super(ina219, self).__init__(interface, params)
     self._logger.debug("")
     self._slave = int(self._params['slv'], 0)
+    # TODO(tbroch) Re-visit enabling use_reg_cache once re-req's are
+    # incorporated into cache's key field ( crosbug.com/p/2678 )
     self._i2c_obj = drv.i2c_reg.I2cReg.get_device(self._interface, self._slave,
                                                   addr_len=1, reg_len=2,
                                                   msb_first=True, no_read=False,
-                                                  use_reg_cache=True)
+                                                  use_reg_cache=False)
     if 'subtype' not in self._params:
       raise Ina219Error("Unable to find subtype param")
     subtype = self._params['subtype']
