@@ -6,14 +6,6 @@
 import drv.hw_driver
 
 
-# base indexes of the input, output, polarity and direction registers
-# respectively.  Base is for port 0, +1 for port 1
-REG_INP = 0
-REG_OUT = 2
-REG_POL = 4
-REG_DIR = 6
-
-
 class Tca6416Error(Exception):
   """Error occurred accessing TCA6416."""
 
@@ -22,6 +14,16 @@ class Tca6416Error(Exception):
 # exception as these get loaded dynamically
 class tca6416(drv.hw_driver.HwDriver):
   """Object to access drv=tca6416 controls."""
+
+
+  # base indexes of the input, output, polarity and direction registers
+  # respectively.  Base is for port 0, +1 for port 1
+  REG_INP = 0
+  REG_OUT = 2
+  REG_POL = 4
+  REG_DIR = 6
+
+
   def __init__(self, interface, params):
     """Constructor.
 
@@ -57,12 +59,13 @@ class tca6416(drv.hw_driver.HwDriver):
     Optional Params:
     """
     super(tca6416, self).__init__(interface, params)
-    (slave, port) = self._get_slave_port()
+    slave = self._get_slave()
     self._i2c_obj = drv.i2c_reg.I2cReg.get_device(self._interface, slave,
                                                   addr_len=1, reg_len=1,
                                                   msb_first=True, no_read=False,
                                                   use_reg_cache=False)
-    self._port = port
+    self._port = self._get_port()
+
 
   def get(self):
     """Get gpio value.
@@ -74,7 +77,7 @@ class tca6416(drv.hw_driver.HwDriver):
       integer in formatted representation
     """
     self._logger.debug("")
-    value = self._i2c_obj._read_reg(REG_INP + self._port)
+    value = self._i2c_obj._read_reg(self.REG_INP + self._port)
     return self._create_logical_value(value)
 
   def set(self, fmt_value):
@@ -96,30 +99,36 @@ class tca6416(drv.hw_driver.HwDriver):
     if fmt_value:
       hw_value = self._create_hw_value(fmt_value)
     # output register handling
-    out_reg = self._i2c_obj._read_reg(REG_OUT + self._port)
-    self._i2c_obj._write_reg(REG_OUT + self._port, 
+    out_reg = self._i2c_obj._read_reg(self.REG_OUT + self._port)
+    self._i2c_obj._write_reg(self.REG_OUT + self._port,
                              hw_value | (out_reg & ~mask))
 
     #TODO(tbroch) cache direction register for speedup
-    dir_reg = self._i2c_obj._read_reg(REG_DIR + self._port)
+    dir_reg = self._i2c_obj._read_reg(self.REG_DIR + self._port)
     if dir_reg & mask:
       # its presently an input ... flip dir bit(s)
-      self._i2c_obj._write_reg(REG_DIR + self._port, dir_reg & ~mask)
+      self._i2c_obj._write_reg(self.REG_DIR + self._port, dir_reg & ~mask)
 
-  def _get_slave_port(self):
+  def _get_slave(self):
     """Check and return needed params to call driver.
-    
+
     Returns:
-      tuple (slave, port) where
-        slave: 7-bit i2c address
-        port: port ( 0 | 1 ) on the tca6416 (used to calc register index)
+      slave: 7-bit i2c address
     """
     if 'slv' not in self._params:
       raise Tca6416Error("getting slave address")
     slave = int(self._params['slv'], 0)
+    return slave
+
+  def _get_port(self):
+    """Check and return needed params to call driver.
+
+    Returns:
+      port: port ( 0 | 1 ) on the tca6416 (used to calc register index)
+    """
     if 'port' not in self._params:
       raise Tca6416Error("getting port")
     port = int(self._params['port'], 0)
     if port & 0x1 != port:
       raise Tca6416Error("port value should be 0 | 1")
-    return (slave, port)
+    return port
