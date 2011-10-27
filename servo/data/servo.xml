@@ -53,9 +53,9 @@
   </control>
   <map>
     <name>kbd_m1</name>
-    <doc>TODO(tbroch) determine what keys these choices hit and
-    name maps accordingly</doc>
-    <params r1_c2="0" r2_c2="1" r3_c2="2"></params>
+    <doc>map of key presses for kbd_m1</doc>
+    <params ctrl_r="0" r1_c2="0" d="1" r2_c2="1" enter="2"
+    r3_c2="2" none="3"></params>
   </map>
   <control>
     <name>kbd_m1</name>
@@ -65,9 +65,9 @@
   </control>
   <map>
     <name>kbd_m2</name>
-    <doc>TODO(tbroch) determine what keys these choices hit and
-    name maps accordingly</doc>
-    <params r1_c1="0" r2_c1="1" r3_c1="2"></params>
+    <doc>map of key presses for kbd_m2</doc>
+    <params ctrl="0" r1_c1="0" refresh="1" r2_c1="1" unused="2"
+    r3_c1="2" none="3"></params>
   </map>
   <control>
     <name>kbd_m2</name>
@@ -330,8 +330,8 @@
   <!-- i2c_mux:res, slv 0x18 :  LTC1663 10-bit DAC for USB load on USB J14 -->
   <control>
     <name>usb_load_dhub_dac</name>
-    <doc>USB load for the dut's USB hub connection for USB port (TYPE
-    mini-AB/J14)</doc>
+    <doc>USB load for the dut's USB hub connection for USB port
+    (TYPE mini-AB/J14)</doc>
     <params interface="2" drv="ltc1663" slv="0x18"></params>
   </control>
   <!-- i2c_mux:res, slv 0x19 :  LTC1663 10-bit DAC for USB load on USB J15 -->
