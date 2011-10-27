@@ -255,6 +255,14 @@ class ina219(drv.hw_driver.HwDriver):
     else:
       (_, is_ovf, _) = self._read_busv()
 
+    #TODO(tbroch): remove read of calibration below once instantiation of ina219
+    #controls resolves that there is only one device for many controls.
+    #Currently it is possible to overflow and adjust calibration say for the
+    #milliwatts but be  unaware of the change for the milliamps calculations as
+    #each control has a separate instance of ina219 object and therefore a
+    #private copy of the calibration register.
+    self._calib_reg = self._i2c_obj._read_reg(REG_CALIB)
+
     while is_ovf:
       calib_reg = (self._calib_reg >> 1) & MAX_CALIB
       if calib_reg == 0:
