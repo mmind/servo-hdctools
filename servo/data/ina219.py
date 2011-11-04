@@ -84,7 +84,7 @@ def main():
   f.write(dump_adcs(module_name))
   f.write("</root>")
   f.close()
-  rv = os.system("tidy -mi -xml %s.xml" % module_name)
+  rv = os.system("tidy -errors -quiet -mi -xml %s.xml" % module_name)
   if rv:
     print "Error tidying xml output"
     sys.exit(rv)

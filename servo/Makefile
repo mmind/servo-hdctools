@@ -1,3 +1,7 @@
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 OS_NAME = $(shell uname -s)
 CC ?= gcc
 
@@ -55,6 +59,3 @@ install:
 
 libftdi%.$(LIB_EXT): ftdi%.o ftdi_common.o
 	$(CC) $(LDFLAGS) $(LD_LIB) -o $@ $^
-
-clean:
-	rm -f *.o *.$(LIB_EXT) $(TARGETS)

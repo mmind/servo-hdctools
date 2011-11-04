@@ -60,6 +60,3 @@ install:
 
 libftdi%.$(LIB_EXT): ftdi%.o ftdi_common.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LD_LIB)
-
-clean:
-	rm -f *.o *.$(LIB_EXT) $(TARGETS)
