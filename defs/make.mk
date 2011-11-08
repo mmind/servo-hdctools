@@ -62,7 +62,7 @@ remake	=								\
 		export REL_DIR=$${REL_DIR}/$(2),			\
 		export REL_DIR=$(2)) &&					\
 	$(call mkdir,$(HDCTOOLS_BUILD_DIR)/$${REL_DIR}) &&		\
-	    $(ECHO) "$(1) $${REL_DIR}";					\
+	    $(MESSAGE) "$(1) $${REL_DIR}";				\
 	    $(MAKE) $(SILENT)						\
 		-f $(HDCTOOLS_DIR)/$${REL_DIR}/Makefile			\
 		-C $(HDCTOOLS_BUILD_DIR)/$${REL_DIR}			\
