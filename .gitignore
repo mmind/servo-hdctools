@@ -13,6 +13,7 @@
 *.so
 *.swp
 *~
+build
 
 # Ignore tags for those using TAGS
 TAGS
