@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+HDCTOOLS_OS_NAME = $(shell uname -s)
 include $(HDCTOOLS_DIR)/defs/utilities.mk
 include $(HDCTOOLS_DIR)/defs/c.mk
 include $(HDCTOOLS_DIR)/defs/make.mk
