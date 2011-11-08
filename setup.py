@@ -9,6 +9,7 @@ from setuptools import setup
 setup(
   name = "servo",
   version = "0.0.1",
+  package_dir = {'' : 'build'},
   py_modules=['servo.servod', 'servo.dut_control'],
   packages=['servo', 'servo.data', 'servo.drv'],
   package_data={'servo.data': ['*.xml']},

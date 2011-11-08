@@ -3,8 +3,8 @@
 # found in the LICENSE file.
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-SUBDIRS		= data drv
-SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
+SUBDIRS		=
+SUBDIRS_INSTALL	=
 PYTHON_SRC	= $(notdir $(wildcard $(HDCTOOLS_SOURCE_DIR)/*.py))
 PYTHON_DST	= $(addprefix $(THIS_BUILD_DIR)/, $(PYTHON_SRC))
 
@@ -12,13 +12,6 @@ $(THIS_BUILD_DIR)/%.py: $(HDCTOOLS_SOURCE_DIR)/%.py
 	$(MESSAGE) "Copying $(notdir $@)"
 	$(CP) $< $@
 
-all: 		$(PYTHON_DST) $(SUBDIRS)
-install:	$(SUBDIRS_INSTALL)
+all: 		$(PYTHON_DST)
 
-$(SUBDIRS):
-	@$(call remake,Building,$@,all)
-
-$(SUBDIRS_INSTALL):
-	@$(call remake,Installing,$(subst -install,,$@),install)
-
-.PHONY:	$(SUBDIRS) $(SUBDIRS_INSTALL)
+install:			# NOP

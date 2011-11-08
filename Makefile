@@ -5,7 +5,7 @@
 export HDCTOOLS_DIR = $(shell pwd)
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-SUBDIRS		= src servo/data
+SUBDIRS		= src servo
 SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
 
 all: 		$(SUBDIRS)
@@ -16,7 +16,10 @@ clean:
 $(SUBDIRS):
 	@$(call remake,Building,$@,all)
 
-$(SUBDIRS_INSTALL):	$(SUBDIRS)
+# No subdirectory 'install' target needs any dependency on building
+# (such as 'all') The explicit dependency on 'all' here ensures that
+# the full source tree is built just once.
+$(SUBDIRS_INSTALL):	all
 	@$(call remake,Installing,$(subst -install,,$@),install)
 
 .PHONY:	$(SUBDIRS) $(SUBDIRS_INSTALL)
