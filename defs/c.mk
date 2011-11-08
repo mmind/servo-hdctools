@@ -3,7 +3,10 @@
 # found in the LICENSE file.
 
 # This file contains definitions which control the C compiler.
-
+ifndef CC
+$(warning CC not defined; assuming gcc.)
+CC	= $(GCC)
+endif
 
 # COPTIONS =					\
 # 	-g					\
@@ -109,6 +112,33 @@
 INCLUDES	=				\
 		-I$(HDCTOOLS_DIR)/include	\
 		-I$(HDCTOOLS_SOURCE_DIR)
+
+ifeq ($(DEBUG),1)
+  CDEBUG	= -DDEBUG
+endif
+
+CFLAGS 	=					\
+	-MD					\
+	-g					\
+	-O2					\
+	-Wall					\
+	-Werror					\
+	$(CDEBUG)
+
+ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
+  LD_LIB = -dynamiclib
+  LIB_EXT = dylib
+  CFLAGS += -DDARWIN
+else
+  ifeq ($(HDCTOOLS_OS_NAME),Linux)
+    LD_LIB = -shared
+    LIB_EXT = so
+    CFLAGS += -fPIC
+  else
+    $(error '$(HDCTOOLS_OS_NAME)' is not supported.)
+  endif
+endif
+
 
 # CFLAGS	=					\
 # 	-std=gnu99				\
