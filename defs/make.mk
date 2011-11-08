@@ -49,18 +49,25 @@ mkdir	= [ ! -d $(1) ] &&			\
 #    being built.  This is used by Makefiles to access files in the
 #    source directory.  It has the same value as VPATH.
 #
+#  THIS_BUILD_DIR:
+#
+#    The build directory which is currently being built.  This is the
+#    same 'pwd', and the directory in which Make is building.
+#
 #  The build is performed in the build directory and VPATH is used to
 #  allow Make to find the source files in the source directory.
 #
-remake	= 							\
-	+($(if $(REL_DIR), 					\
-		export REL_DIR=$${REL_DIR}/$(2), 		\
-		export REL_DIR=$(2)) &&				\
-	$(call mkdir,$(HDCTOOLS_BUILD_DIR)/$${REL_DIR}) &&	\
-	    $(ECHO) "$(1) $${REL_DIR}";				\
-	    $(MAKE) $(SILENT)					\
-		-f $(HDCTOOLS_DIR)/$${REL_DIR}/Makefile		\
-		-C $(HDCTOOLS_BUILD_DIR)/$${REL_DIR}		\
-		VPATH=$(HDCTOOLS_DIR)/$${REL_DIR}		\
-		HDCTOOLS_SOURCE_DIR=$(HDCTOOLS_DIR)/$${REL_DIR}	\
+remake	=								\
+	+($(if $(REL_DIR),						\
+		export REL_DIR=$${REL_DIR}/$(2),			\
+		export REL_DIR=$(2)) &&					\
+	$(call mkdir,$(HDCTOOLS_BUILD_DIR)/$${REL_DIR}) &&		\
+	    $(ECHO) "$(1) $${REL_DIR}";					\
+	    $(MAKE) $(SILENT)						\
+		-f $(HDCTOOLS_DIR)/$${REL_DIR}/Makefile			\
+		-C $(HDCTOOLS_BUILD_DIR)/$${REL_DIR}			\
+		VPATH=$(HDCTOOLS_DIR)/$${REL_DIR}			\
+		HDCTOOLS_SOURCE_DIR=$(HDCTOOLS_DIR)/$${REL_DIR}		\
+		THIS_BUILD_DIR=$(HDCTOOLS_BUILD_DIR)/$${REL_DIR}	\
 		$(3))
+
