@@ -14,6 +14,10 @@
 *.swp
 *~
 build
+cscope.files
+cscope.in.out
+cscope.out
+cscope.po.out
 
 # Ignore tags for those using TAGS
 TAGS
