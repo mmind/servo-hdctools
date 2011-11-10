@@ -29,7 +29,7 @@ int fcom_num_interfaces(struct ftdi_context *fc) {
   return -1;
 }
 
-int fcom_cfg(struct ftdi_context *fc, int interface, 
+int fcom_cfg(struct ftdi_context *fc, int interface,
                    enum ftdi_mpsse_mode mode, int direction) {
 
   if (fcom_num_interfaces(fc) > 1) {
@@ -43,7 +43,7 @@ int fcom_cfg(struct ftdi_context *fc, int interface,
              "Set latency timer", fc);
   CHECK_FTDI(ftdi_set_bitmode(fc, 0, BITMODE_RESET),
   "Resetting", fc);
-  CHECK_FTDI(ftdi_set_bitmode(fc, direction, mode), 
+  CHECK_FTDI(ftdi_set_bitmode(fc, direction, mode),
              "setting mode", fc);
   CHECK_FTDI(ftdi_usb_purge_buffers(fc), "Purge buffers", fc);
   return FCOM_ERR_NONE;
@@ -143,7 +143,7 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
           prn_fatal("Poorly formatted value in -g <dir>:<val> string\n");
           break;
         }
-        
+
         args_consumed += 2;
         break;
       case 'h':
@@ -159,10 +159,12 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
 
 int fcom_lookup_serial(struct ftdi_context *fc, char *name) {
   // TODO(tbroch) implement lookup of serial from eeprom
+  fc   = fc;                    /* Silence compiler warning. */
+  name = name;                  /* Silence compiler warning. */
   prn_fatal("not implemented\n");
 }
 
-int fcom_is_mpsse(struct ftdi_context *fc, 
+int fcom_is_mpsse(struct ftdi_context *fc,
                         struct ftdi_common_args *fargs) {
   switch(fc->type) {
     case(TYPE_2232C):
@@ -181,8 +183,8 @@ int fcom_is_mpsse(struct ftdi_context *fc,
   }
 }
 
-struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *interfaces, 
-                                         unsigned int cnt, 
+struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *interfaces,
+                                         unsigned int cnt,
                                          unsigned int interface_num,
                                          enum ftdi_interface_type itype) {
   if (interface_num > cnt) {

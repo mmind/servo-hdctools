@@ -47,7 +47,6 @@ PTHREAD	= 					\
 #	-Wstrict-overflow			\
 #	-Wstrict-overflow=5			\
 #	-Wtraditional-conversion		\
-#	-Wunused-parameter			\
 
 CWARN	=					\
 	-Waddress				\
@@ -110,6 +109,7 @@ CWARN	=					\
 	-Wvla					\
 	-Wvolatile-register-var			\
 	-Wwrite-strings				\
+	-Wunused-parameter			\
 	-pedantic-errors
 
 INCLUDES	=				\
