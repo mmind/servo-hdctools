@@ -8,10 +8,10 @@ $(warning CC not defined; assuming gcc.)
 CC	= $(GCC)
 endif
 
-# COPTIONS =					\
-# 	-g					\
-# 	-O2					\
-# 	-funit-at-a-time
+COPTIONS =					\
+	-g					\
+	-O2
+
 
 # # Compiler is too old to support
 # #
@@ -24,9 +24,9 @@ endif
 # 	-ffunction-sections			\
 # 	-fdata-sections
 
-# # Also need to link with '-Xlinker --library=pthread'.
-# PTHREAD	= 					\
-# 	-pthread
+# Also need to link with '-Xlinker --library=pthread'.
+PTHREAD	= 					\
+	-pthread
 
 # LDGC	=					\
 # 	-Xlinker --gc-sections
@@ -117,32 +117,30 @@ ifeq ($(DEBUG),1)
   CDEBUG	= -DDEBUG
 endif
 
-CFLAGS 	=					\
-	-MD					\
-	-g					\
-	-O2					\
-	-Wall					\
-	-Werror					\
-	$(CDEBUG)
 
 ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
   LD_LIB = -dynamiclib
   LIB_EXT = dylib
-  CFLAGS += -DDARWIN
+  OS_CFLAGS += -DDARWIN
 else
   ifeq ($(HDCTOOLS_OS_NAME),Linux)
     LD_LIB = -shared
     LIB_EXT = so
-    CFLAGS += -fPIC
+    OS_CFLAGS += -fPIC
   else
-    $(error '$(HDCTOOLS_OS_NAME)' is not supported.)
+    $(error '$(HDCTOOLS_OS_NAME)' is not supported by the hdctools build.)
   endif
 endif
 
 
-# CFLAGS	=					\
-# 	-std=gnu99				\
-# 	-MD \
-# 	$(INCLUDES)				\
-# 	$(PTHREADS)				\
-# 	$(CWARN) $(COPTIONS) $(CGC) $(LDGC)
+CFLAGS 	=					\
+	-std=gnu99				\
+	-MD					\
+	$(COPTIONS)				\
+	$(INCLUDES)				\
+	$(PTHREAD)				\
+	$(CWARN)				\
+	$(CGC)					\
+	$(LDGC)					\
+	$(CDEBUG)				\
+	$(OS_CFLAGS)
