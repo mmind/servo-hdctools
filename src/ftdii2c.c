@@ -21,15 +21,15 @@ static int fi2c_start_bit_cmds(struct fi2c_context *fic) {
     // SCL & SDA high
     FI2C_CFG_IO(fic, 0, 0);
   }
-  
+
   for (i = 0; i < 4; i++) {
     // SCL high, SDA low
     FI2C_CFG_IO(fic, 0, (SDA_POS));
    }
-  
+
   // SCL & SDA low
   FI2C_CFG_IO(fic, 0, (SCL_POS | SDA_POS));
-  
+
   return FI2C_ERR_NONE;
 }
 
@@ -41,7 +41,7 @@ static int fi2c_stop_bit_cmds(struct fi2c_context *fic) {
     // SCL high, SDA low
     FI2C_CFG_IO(fic, 0, (SDA_POS));
   }
-  
+
   for (i = 0; i < 4; i++) {
     // SCL & SDA high
     FI2C_CFG_IO(fic, 0, 0);
@@ -70,7 +70,7 @@ static int fi2c_write_cmds(struct fi2c_context *fic) {
 }
 
 // TODO(tbroch) can we use the WAIT_ON_x cmds to postpone checking and increase
-//              the payload to/from ftdi queues.  At the very least use 
+//              the payload to/from ftdi queues.  At the very least use
 //              WAIT_ON to h/w check the ack for speeds sake
 static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
   int bytes_read;
@@ -83,7 +83,7 @@ static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
 
   // SCL low, SDA release for Ack
   FI2C_CFG_IO(fic, 0, SCL_POS);
-  
+
   // read of the ack (cmd,num of bits)
   FI2C_WBUF(fic, FTDI_CMD_LRE_CLK_BIT_IN);
   FI2C_WBUF(fic, 0x00);
@@ -118,15 +118,15 @@ static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
   return FI2C_ERR_NONE;
 }
 
-static int fi2c_send_slave(struct fi2c_context *fic, int read) {
-  return fi2c_send_byte_and_check(fic, (fic->slv<<1) | (read ? 0x1 : 0x0));
+static int fi2c_send_slave(struct fi2c_context *fic, int rd) {
+  return fi2c_send_byte_and_check(fic, (fic->slv<<1) | (rd ? 0x1 : 0x0));
 }
 
 static int fi2c_wr(struct fi2c_context *fic, uint8_t *wbuf, int wcnt) {
   int i;
 
   for (i = 0; i < wcnt; i++) {
-    CHECK_FI2C(fic, fi2c_send_byte_and_check(fic, wbuf[i]), 
+    CHECK_FI2C(fic, fi2c_send_byte_and_check(fic, wbuf[i]),
                "wr byte look for ack\n");
     if (fic->error)
       return fic->error;
@@ -140,11 +140,11 @@ static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   for (i = 0; i < rcnt; i++) {
     // SCL low
     FI2C_CFG_IO(fic, 0, SCL_POS);
-    
+
     FI2C_WBUF(fic, FTDI_CMD_MRE_CLK_BYTE_IN);
     FI2C_WBUF(fic, 0x00);
     FI2C_WBUF(fic, 0x00);
-    
+
     if (i == rcnt - 1) {
       // last byte ... send NACK
       FI2C_CFG_IO(fic, 0, (SCL_POS));
@@ -161,7 +161,7 @@ static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   }
   FI2C_WBUF(fic, SEND_IMMEDIATE);
   CHECK_FI2C(fic, fi2c_write_cmds(fic), "FTDI cmd write for read\n");
-  if (fic->error) 
+  if (fic->error)
     return fic->error;
 
   int bytes_read;
@@ -218,7 +218,7 @@ int fi2c_open(struct fi2c_context *fic, struct ftdi_common_args *fargs) {
 
 int fi2c_setclock(struct fi2c_context *fic, uint32_t clk) {
   uint8_t  buf[3] = { 0, 0, 0 };
-
+  int divide_result;
 
 
   buf[0] = FTDI_CMD_3PHASE;
@@ -233,14 +233,14 @@ int fi2c_setclock(struct fi2c_context *fic, uint32_t clk) {
                fic->fc);
   }
   // 1.5 due to 3-phase requirement
-  int div = DIV_VALUE((clk*1.5));
-  if (!div) {
+  divide_result = DIV_VALUE((clk*1.5));
+  if (!divide_result) {
     prn_error("Unable to determine clock divisor\n");
     return FI2C_ERR_CLK;
   }
   buf[0] = TCK_DIVISOR;
-  buf[1] = (div >> 0) & 0xFF;
-  buf[2] = (div >> 8) & 0xFF;
+  buf[1] = (divide_result >> 0) & 0xFF;
+  buf[2] = (divide_result >> 8) & 0xFF;
   CHECK_FTDI(ftdi_write_data(fic->fc, buf, 3), "Set clk div", fic->fc);
   return FI2C_ERR_NONE;
 }
@@ -272,7 +272,7 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     int i;
     for (i = 0; i < wcnt; i++) {
       printf("0x%02x ", wbuf[i]);
-    } 
+    }
     printf("\n");
 #endif
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(WR) Start bit\n");
@@ -317,7 +317,7 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
     int i;
     for (i = 0; i < rcnt; i++) {
       printf("0x%02x ", rbuf[i]);
-    } 
+    }
     printf("\n");
 #endif
   }

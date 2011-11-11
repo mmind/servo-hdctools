@@ -38,7 +38,6 @@ PTHREAD	= 					\
 #	-Wextra					\
 #	-Wmissing-noreturn			\
 #	-Wsign-conversion			\
-#	-Wshadow				\
 #	-Wswitch-default			\
 #	-Wsign-compare				\
 #	-Wtraditional-conversion		\
@@ -87,6 +86,7 @@ CWARN	=					\
 	-Wredundant-decls			\
 	-Wreturn-type				\
 	-Wsequence-point			\
+	-Wshadow				\
 	-Wstack-protector			\
 	-Wstrict-aliasing			\
 	-Wstrict-aliasing=3			\
