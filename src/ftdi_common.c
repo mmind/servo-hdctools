@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "ftdi_common.h"
@@ -24,6 +25,9 @@ int fcom_num_interfaces(struct ftdi_context *fc) {
       break;
     case(TYPE_4232H):
       return 4;
+      break;
+  default:
+      assert(((void)"internal error", 0));
       break;
   }
   return -1;

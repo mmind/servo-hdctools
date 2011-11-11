@@ -38,7 +38,6 @@ PTHREAD	= 					\
 #	-Wextra					\
 #	-Wmissing-noreturn			\
 #	-Wsign-conversion			\
-#	-Wswitch-default			\
 #	-Wsign-compare				\
 #	-Wtraditional-conversion		\
 
@@ -94,6 +93,7 @@ CWARN	=					\
 	-Wstrict-overflow=5			\
 	-Wstrict-prototypes			\
 	-Wswitch				\
+	-Wswitch-default			\
 	-Wswitch-enum				\
 	-Wtrigraphs				\
 	-Wtype-limits				\
