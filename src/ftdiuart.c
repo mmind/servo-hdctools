@@ -19,15 +19,13 @@
 #include "ftdiuart.h"
 
 
-// TODO(tbroch) Where are these protos and under what conditions do they 
+// TODO(tbroch) Where are these protos and under what conditions do they
 //              exist across lin/mac/win
 int grantpt(int fd);
 int unlockpt(int fd);
-int ptsname_r(int fd, char *buf, size_t buflen);
-int posix_openpt(int flags);
 
 #ifdef DARWIN
-int ptsname_r(int fd, char *buf, size_t buflen) {
+static int ptsname_r(int fd, char *buf, size_t buflen) {
   char *name = ptsname(fd);
   if (name == NULL) {
     errno = EINVAL;
