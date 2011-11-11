@@ -35,10 +35,8 @@ PTHREAD	= 					\
 #  TBD: These need code changes to enable.
 #	-Wconversion				\
 #	-Wdeclaration-after-statement		\
-#	-Wextra					\
 #	-Wmissing-noreturn			\
 #	-Wsign-conversion			\
-#	-Wsign-compare				\
 #	-Wtraditional-conversion		\
 
 CWARN	=					\
@@ -55,6 +53,7 @@ CWARN	=					\
 	-Wdisabled-optimization			\
 	-Wempty-body				\
 	-Werror					\
+	-Wextra					\
 	-Wfloat-equal				\
 	-Wformat				\
 	-Wformat-nonliteral			\
@@ -86,6 +85,7 @@ CWARN	=					\
 	-Wreturn-type				\
 	-Wsequence-point			\
 	-Wshadow				\
+	-Wsign-compare				\
 	-Wstack-protector			\
 	-Wstrict-aliasing			\
 	-Wstrict-aliasing=3			\

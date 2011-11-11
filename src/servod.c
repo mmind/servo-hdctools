@@ -116,7 +116,7 @@ static int parse_buffer_i2c(char *buf, int *argc,
    */
 
   // do some checking
-  if ((argcnt > 2) && (argcnt < argv[1] + 2)) {
+  if ((argcnt > 2U) && (argcnt < argv[1] + 2U)) {
     prn_error("looks like i2c write w/o enough data\n");
     return -1;
   } else if (argcnt < 2) {

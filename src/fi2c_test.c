@@ -45,7 +45,7 @@ static void prn_output(uint8_t *buf, int cnt) {
 
 static int parse_i2c_args(uint8_t *wbuf, int *wcnt, int *rcnt,
                           uint8_t *slv, unsigned argc, char **argv) {
-  int i;
+  unsigned i;
   int cnt = 0;
   unsigned long int slv_ul;
 
