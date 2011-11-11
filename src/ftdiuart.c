@@ -215,7 +215,7 @@ int fuart_wr_rd(struct fuart_context *fuartc) {
 }
 
 // thread start routine for uart interation/polling
-void *_fuart_run(void *ptr) {
+static void *_fuart_run(void *ptr) {
   int error;
   struct fuart_context *fuartc = (struct fuart_context *)ptr;
 

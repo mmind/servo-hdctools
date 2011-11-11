@@ -15,7 +15,7 @@
 #include "ftdi_common.h"
 #include "ftdigpio.h"
 
-void usage(char *progname) {
+static void usage(char *progname) {
   printf("\n\n%s [switch args]\n", progname);
   printf("\nOnce started input value and direction when prompted.\n");
   printf("<cr> to exit\n");

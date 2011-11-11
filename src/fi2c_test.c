@@ -14,7 +14,7 @@
 
 #define MAX_BUF_SIZE 128
 
-void usage(char *progname) {
+static void usage(char *progname) {
   printf("%s [switch args] <slv> [<reg0> [ <reg1> ] ] rd <cnt>\n", progname);
   puts("\tor");
   printf("%s [switch args] <slv> wr <b0> [<b1> ... <bn>]\n", progname);
@@ -27,7 +27,7 @@ void usage(char *progname) {
   exit(-1);
 }
 
-void prn_output(uint8_t *buf, int cnt) {
+static void prn_output(uint8_t *buf, int cnt) {
   int i;
 
   for (i = 0; i < cnt; i++) {
@@ -43,8 +43,8 @@ void prn_output(uint8_t *buf, int cnt) {
   printf("\n");
 }
 
-int parse_i2c_args(uint8_t *wbuf, int *wcnt, int *rcnt, uint8_t *slv, 
-                   int argc, char **argv) {
+static int parse_i2c_args(uint8_t *wbuf, int *wcnt, int *rcnt,
+                          uint8_t *slv, int argc, char **argv) {
   int i;
   int cnt = 0;
   unsigned long int slv_ul;

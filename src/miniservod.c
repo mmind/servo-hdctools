@@ -24,7 +24,7 @@
 #define MAX_BUF 512
 #define CLIENT_FIELDS 2
 
-void usage(char *progname) {
+static void usage(char *progname) {
   printf("%s [common ftdi args]\n\n", progname);
   exit(-1);
 }
@@ -33,7 +33,7 @@ void usage(char *progname) {
 //
 // fmt is <direction>,<value>
 // ex)    0xff,0xff  -- sets all to output '1'
-int parse_buffer(char *buf, struct gpio_s *gpio) {
+static int parse_buffer(char *buf, struct gpio_s *gpio) {
   char *eptr = NULL;
   
   gpio->direction = strtoul(buf, &eptr, 0);
@@ -65,7 +65,7 @@ int parse_buffer(char *buf, struct gpio_s *gpio) {
 // where:
 //    read value == value read for that bank of 8 gpios
 //    msg == detailed message of error condition
-int process_client(struct fgpio_context *fgc, int client) {
+static int process_client(struct fgpio_context *fgc, int client) {
 
   char buf[MAX_BUF];
   int blen, bcnt;
@@ -105,7 +105,7 @@ CLIENT_RSP:
   return 0;
 }
 
-int init_socket(int port) {
+static int init_socket(int port) {
   struct sockaddr_in server_addr;
 
   prn_dbg("Initializing server\n");
@@ -132,7 +132,7 @@ int init_socket(int port) {
   return sock;
 }
 
-int init_server(int port) {
+static int init_server(int port) {
   int sock = init_socket(port);
 
   assert(listen(sock, 5) == 0);
@@ -140,7 +140,7 @@ int init_server(int port) {
   return sock;
 }
 
-void run_server(struct fgpio_context *fgc, int server_fd) {
+static void run_server(struct fgpio_context *fgc, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
   unsigned int client_len = sizeof(client_addr);

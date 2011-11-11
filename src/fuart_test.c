@@ -15,7 +15,7 @@
 #include "ftdi_common.h"
 #include "ftdiuart.h"
 
-void usage(char *progname) {
+static void usage(char *progname) {
   printf("\n\n%s [switch args]\n", progname);
   exit(-1);
 }

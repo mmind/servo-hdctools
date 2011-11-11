@@ -36,8 +36,6 @@ PTHREAD	= 					\
 #	-Wconversion				\
 #	-Wdeclaration-after-statement		\
 #	-Wextra					\
-#	-Wmissing-prototypes			\
-#	-Wmissing-declarations			\
 #	-Wmissing-noreturn			\
 #	-Wsign-conversion			\
 #	-Wredundant-decls			\
@@ -74,10 +72,12 @@ CWARN	=					\
 	-Wlogical-op				\
 	-Wmain					\
 	-Wmissing-braces			\
+	-Wmissing-declarations			\
 	-Wmissing-field-initializers		\
 	-Wmissing-format-attribute		\
 	-Wmissing-include-dirs			\
 	-Wmissing-parameter-type		\
+	-Wmissing-prototypes			\
 	-Wnested-externs			\
 	-Wold-style-declaration			\
 	-Wold-style-definition			\
@@ -103,13 +103,13 @@ CWARN	=					\
 	-Wunsafe-loop-optimizations		\
 	-Wunused-function			\
 	-Wunused-label				\
+	-Wunused-parameter			\
 	-Wunused-value				\
 	-Wunused-variable			\
 	-Wvariadic-macros			\
 	-Wvla					\
 	-Wvolatile-register-var			\
 	-Wwrite-strings				\
-	-Wunused-parameter			\
 	-pedantic-errors
 
 INCLUDES	=				\

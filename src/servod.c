@@ -23,17 +23,17 @@
 #define MAX_BUF 512
 #define GPIO_FIELDS 3
 
-void usage(char *progname) {
+static void usage(char *progname) {
   printf("%s [common ftdi args]\n\n", progname);
   exit(-1);
 }
 
 // parse_ul_element - parse element return non-zero for error else properly
 // converted value returned in value and buf set to character beyond delimeter
-char *parse_ul_element(unsigned long *value, char *buf, char delim) {
+static char *parse_ul_element(unsigned long *value, char *buf, char delim) {
   char *eptr;
   *value = strtoul(buf, &eptr, 0);
-  if (!delim) { 
+  if (!delim) {
     return eptr;
   } else if (eptr[0] != delim) {
     return NULL;
@@ -44,26 +44,26 @@ char *parse_ul_element(unsigned long *value, char *buf, char delim) {
 // parse_buffer_gpio - parse gpio command from client
 // <interface>,<direction>,<value>[,<mask>]
 // ex)    1,0xff,0xff  -- set all gpios to output '1' on interface 1
-int parse_buffer_gpio(char *buf, struct gpio_s *gpio, 
+static int parse_buffer_gpio(char *buf, struct gpio_s *gpio,
                       unsigned int *interface) {
 
   char *bptr = buf;
   unsigned long tmp_ul;
 
-  if (((bptr = parse_ul_element(&tmp_ul, bptr, ',')) == NULL) || 
+  if (((bptr = parse_ul_element(&tmp_ul, bptr, ',')) == NULL) ||
       (!tmp_ul || (tmp_ul > 4))) {
     prn_error("Malformed interface argument\n");
     return 1;
   }
   *interface = (unsigned int)tmp_ul;
 
-  if (((bptr = parse_ul_element(&tmp_ul, bptr, ',')) == NULL) || 
+  if (((bptr = parse_ul_element(&tmp_ul, bptr, ',')) == NULL) ||
       (tmp_ul > 0xff)) {
     prn_error("Malformed direction argument\n");
     return 1;
   }
   gpio->direction = (uint8_t)tmp_ul;
-  if (((bptr = parse_ul_element(&tmp_ul, bptr, 0)) == NULL) || 
+  if (((bptr = parse_ul_element(&tmp_ul, bptr, 0)) == NULL) ||
       (tmp_ul > 0xff)) {
     prn_error("Malformed value argument\n");
     return 1;
@@ -72,7 +72,7 @@ int parse_buffer_gpio(char *buf, struct gpio_s *gpio,
   if (bptr[0] == ',') {
     bptr++;
     // there's a mask
-    if (((bptr = parse_ul_element(&tmp_ul, bptr, 0)) == NULL) || 
+    if (((bptr = parse_ul_element(&tmp_ul, bptr, 0)) == NULL) ||
         (tmp_ul > 0xff)) {
       prn_error("Malformed mask argument\n");
       return 1;
@@ -87,7 +87,7 @@ int parse_buffer_gpio(char *buf, struct gpio_s *gpio,
 }
 // parse_buffer_i2c - parse i2c command from client
 // ex)    0x40,1,0x0,2 -- for i2c slave 0x40 write 1byte 0, read 2bytes
-int parse_buffer_i2c(char *buf, int *argc, uint8_t *argv) {
+static int parse_buffer_i2c(char *buf, int *argc, uint8_t *argv) {
   int argcnt = 0;
   char *field;
   field = strtok(buf, ",");
@@ -119,7 +119,8 @@ int parse_buffer_i2c(char *buf, int *argc, uint8_t *argv) {
 // where:
 //    read value == value read for that bank of 8 gpios
 //    msg == detailed message of error condition
-int process_client(struct ftdi_itype *interfaces, int int_cnt, int client) {
+static int process_client(struct ftdi_itype *interfaces,
+                          int int_cnt, int client) {
 
   char buf[MAX_BUF];
   char *rsp = buf;
@@ -243,7 +244,7 @@ CLIENT_RSP:
   return 0;
 }
 
-int init_socket(int port) {
+static int init_socket(int port) {
   struct sockaddr_in server_addr;
 
   prn_dbg("Initializing server\n");
@@ -270,7 +271,7 @@ int init_socket(int port) {
   return sock;
 }
 
-int init_server(int port) {
+static int init_server(int port) {
   int sock = init_socket(port);
 
   assert(listen(sock, 5) == 0);
@@ -278,7 +279,7 @@ int init_server(int port) {
   return sock;
 }
 
-void run_server(struct ftdi_itype *interfaces, int int_cnt, int server_fd) {
+static void run_server(struct ftdi_itype *interfaces, int int_cnt, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
   unsigned int client_len = sizeof(client_addr);
@@ -346,7 +347,7 @@ int main(int argc, char **argv) {
     .parity = NONE,
     .sbits = STOP_BIT_1
   };
- 
+
   int args_consumed;
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {
     usage(argv[0]);
