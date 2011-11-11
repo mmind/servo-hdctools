@@ -10,7 +10,9 @@ ifndef VERBOSE
 SILENT	= --silent
 endif
 
+ifndef HDCTOOLS_BUILD_DIR
 export HDCTOOLS_BUILD_DIR	= $(HDCTOOLS_DIR)/build
+endif
 
 LIBS		=							\
 		$(foreach lib,$(MY_LIBS),-l$(lib))
