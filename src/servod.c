@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "hdctools.h"
 #include "ftdi_common.h"
 #include "ftdigpio.h"
 #include "ftdiuart.h"
@@ -87,14 +88,33 @@ static int parse_buffer_gpio(char *buf, struct gpio_s *gpio,
 }
 // parse_buffer_i2c - parse i2c command from client
 // ex)    0x40,1,0x0,2 -- for i2c slave 0x40 write 1byte 0, read 2bytes
-static int parse_buffer_i2c(char *buf, int *argc, uint8_t *argv) {
-  int argcnt = 0;
-  char *field;
+static int parse_buffer_i2c(char *buf, int *argc,
+                            uint8_t *argv, unsigned argv_len) {
+  unsigned  argcnt = 0;
+  char     *field;
+
   field = strtok(buf, ",");
   while (field) {
-    argv[argcnt++] = strtoul(field,  NULL, 0);
-    field = strtok(NULL, ",");
+    if (argcnt < argv_len) {
+        argv[argcnt++] = strtoul(field,  NULL, 0);
+        field = strtok(NULL, ",");
+    } else {
+      prn_error("too many arguments\n");
+      return -1;
+    }
   }
+  /* argv now looks something like this the following:
+   *
+   * argv[0]         : i2c slave number
+   * argv[1]         : number of bytes to write  [N]
+   * argv[2..(1 + N)]: byte to write
+   * argv[2 + N]     : number of bytes to read
+   *
+   * Note that anything beyond argv[1] is optional.  If a read is
+   * desired, but no write, then argv[1] must be 0, and argv[2] is tne
+   * number of bytes to read.
+   */
+
   // do some checking
   if ((argcnt > 2) && (argcnt < argv[1] + 2)) {
     prn_error("looks like i2c write w/o enough data\n");
@@ -175,7 +195,7 @@ static int process_client(struct ftdi_itype *interfaces,
 
     uint8_t args[128];
     uint8_t rbuf[128];
-    if (parse_buffer_i2c(&buf[2], &argcnt, args)) {
+    if (parse_buffer_i2c(&buf[2], &argcnt, args, ARRAY_LENGTH(args))) {
       snprintf(rsp, MAX_BUF, "E:parsing client request.  Should be\n\t%s\n",
                "<slv>,[<bytes to Wr>,<Wr0>,<Wr1>,<WrN>],[<bytes to Rd>]");
       goto CLIENT_RSP;
@@ -279,7 +299,8 @@ static int init_server(int port) {
   return sock;
 }
 
-static void run_server(struct ftdi_itype *interfaces, int int_cnt, int server_fd) {
+static void run_server(struct ftdi_itype *interfaces,
+                       int int_cnt, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
   unsigned int client_len = sizeof(client_addr);

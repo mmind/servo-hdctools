@@ -41,8 +41,6 @@ PTHREAD	= 					\
 #	-Wshadow				\
 #	-Wswitch-default			\
 #	-Wsign-compare				\
-#	-Wstrict-overflow			\
-#	-Wstrict-overflow=5			\
 #	-Wtraditional-conversion		\
 
 CWARN	=					\
@@ -92,6 +90,8 @@ CWARN	=					\
 	-Wstack-protector			\
 	-Wstrict-aliasing			\
 	-Wstrict-aliasing=3			\
+	-Wstrict-overflow			\
+	-Wstrict-overflow=5			\
 	-Wstrict-prototypes			\
 	-Wswitch				\
 	-Wswitch-enum				\
