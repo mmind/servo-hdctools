@@ -136,9 +136,13 @@ else
 endif
 
 
+CDEFINES	=				\
+	-D_GNU_SOURCE=1
+
 CFLAGS 	=					\
 	-std=gnu99				\
 	-MD					\
+	$(CDEFINES)				\
 	$(COPTIONS)				\
 	$(INCLUDES)				\
 	$(PTHREAD)				\
