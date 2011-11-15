@@ -39,19 +39,51 @@ PTHREAD	= 					\
 #	-Wsign-conversion			\
 #	-Wtraditional-conversion		\
 
-CWARN	=					\
+# CWARN_MAC, CWARN_LINUX:
+#
+#  Handle warning options which are specific to Mac or Linux.  This is
+#  normally necessary because different compiler versions are used on
+#  different systems.
+#
+#  If we end up needing more granularity than this, we should list &
+#  use the newer options based on the compiler version being used.
+ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
+  CWARN_MAC	=
+else
+  ifeq ($(HDCTOOLS_OS_NAME),Linux)
+    # Warning options supported only by Linux.
+    CWARN_LINUX	=				\
 	-Waddress				\
+	-Warray-bounds				\
+	-Wclobbered				\
+	-Wempty-body				\
+	-Wignored-qualifiers			\
+	-Wlogical-op				\
+	-Wmissing-parameter-type		\
+	-Wold-style-declaration			\
+	-Woverlength-strings			\
+	-Woverride-init				\
+	-Wstrict-overflow			\
+	-Wstrict-overflow=5			\
+	-Wtype-limits				\
+	-Wunsafe-loop-optimizations		\
+	-Wvla					\
+	-Wvolatile-register-var
+  else
+    # NOP: No warnings for unsupported build, which fails below.
+  endif
+endif
+CWARN	=					\
+	$(CWARN_MAC)				\
+	$(CWARN_LINUX)				\
 	-Waggregate-return			\
 	-Wall					\
-	-Warray-bounds				\
 	-Wbad-function-cast			\
 	-Wcast-align				\
 	-Wcast-qual				\
 	-Wchar-subscripts			\
-	-Wclobbered				\
 	-Wcomment				\
 	-Wdisabled-optimization			\
-	-Wempty-body				\
 	-Werror					\
 	-Wextra					\
 	-Wfloat-equal				\
@@ -59,24 +91,18 @@ CWARN	=					\
 	-Wformat-nonliteral			\
 	-Wformat-security			\
 	-Wformat-y2k				\
-	-Wignored-qualifiers			\
 	-Wimplicit				\
 	-Winit-self				\
 	-Winline				\
-	-Wlogical-op				\
 	-Wmain					\
 	-Wmissing-braces			\
 	-Wmissing-declarations			\
 	-Wmissing-field-initializers		\
 	-Wmissing-format-attribute		\
 	-Wmissing-include-dirs			\
-	-Wmissing-parameter-type		\
 	-Wmissing-prototypes			\
 	-Wnested-externs			\
-	-Wold-style-declaration			\
 	-Wold-style-definition			\
-	-Woverlength-strings			\
-	-Woverride-init				\
 	-Wpacked				\
 	-Wparentheses				\
 	-Wpointer-arith				\
@@ -89,26 +115,20 @@ CWARN	=					\
 	-Wstack-protector			\
 	-Wstrict-aliasing			\
 	-Wstrict-aliasing=3			\
-	-Wstrict-overflow			\
-	-Wstrict-overflow=5			\
 	-Wstrict-prototypes			\
 	-Wswitch				\
 	-Wswitch-default			\
 	-Wswitch-enum				\
 	-Wtrigraphs				\
-	-Wtype-limits				\
 	-Wundef					\
 	-Wuninitialized				\
 	-Wunknown-pragmas			\
-	-Wunsafe-loop-optimizations		\
 	-Wunused-function			\
 	-Wunused-label				\
 	-Wunused-parameter			\
 	-Wunused-value				\
 	-Wunused-variable			\
 	-Wvariadic-macros			\
-	-Wvla					\
-	-Wvolatile-register-var			\
 	-Wwrite-strings				\
 	-pedantic-errors
 
@@ -119,7 +139,6 @@ INCLUDES	=				\
 ifeq ($(DEBUG),1)
   CDEBUG	= -DDEBUG
 endif
-
 
 ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
   LD_LIB = -dynamiclib
@@ -134,7 +153,6 @@ else
     $(error '$(HDCTOOLS_OS_NAME)' is not supported by the hdctools build.)
   endif
 endif
-
 
 CDEFINES	=				\
 	-D_GNU_SOURCE=1
