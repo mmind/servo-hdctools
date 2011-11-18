@@ -65,13 +65,14 @@ static int fuart_init_locked(struct fuart_context *fuartc,
 }
 
 int fuart_init(struct fuart_context *fuartc, struct ftdi_context *fc) {
+  int rv;
   assert(fuartc);
   memset(fuartc, 0, sizeof(*fuartc));
   fuartc->lock = malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(fuartc->lock, NULL);
 
   fuart_get_lock(fuartc);
-  int rv = fuart_init_locked(fuartc, fc);
+  rv = fuart_init_locked(fuartc, fc);
   fuart_release_lock(fuartc);
   return rv;
 }
@@ -79,8 +80,10 @@ int fuart_init(struct fuart_context *fuartc, struct ftdi_context *fc) {
 static int fuart_open_locked(struct fuart_context *fuartc,
                              struct ftdi_common_args *fargs) {
   int rv;
-
+  int fd;
+  struct termios tty_cfg;
   struct ftdi_context *fc = fuartc->fc;
+
   assert(fc);
 
   ftdi_set_interface(fc, fargs->interface);
@@ -114,7 +117,6 @@ static int fuart_open_locked(struct fuart_context *fuartc,
                "uart mode", fc);
   }
 
-  int fd;
   if ((fd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
     perror("opening pty master");
     return FUART_ERR_OPEN;
@@ -145,7 +147,7 @@ static int fuart_open_locked(struct fuart_context *fuartc,
     prn_error("Not a TTY device.\n");
     return FUART_ERR_OPEN;
   }
-  struct termios tty_cfg;
+
   cfmakeraw(&tty_cfg);
   tcsetattr(fd, TCSANOW, &tty_cfg);
 
@@ -157,8 +159,9 @@ static int fuart_open_locked(struct fuart_context *fuartc,
 
 int fuart_open(struct fuart_context *fuartc,
                      struct ftdi_common_args *fargs) {
+  int rv;
   fuart_get_lock(fuartc);
-  int rv = fuart_open_locked(fuartc, fargs);
+  rv = fuart_open_locked(fuartc, fargs);
   fuart_release_lock(fuartc);
   return rv;
 }
@@ -206,8 +209,9 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
 }
 
 int fuart_wr_rd(struct fuart_context *fuartc) {
+  int rv;
   fuart_get_lock(fuartc);
-  int rv = fuart_wr_rd_locked(fuartc);
+  rv = fuart_wr_rd_locked(fuartc);
   fuart_release_lock(fuartc);
   return rv;
 }
@@ -249,8 +253,9 @@ static int fuart_run_locked(struct fuart_context *fuartc, int usecs_to_sleep) {
 }
 
 int fuart_run(struct fuart_context *fuartc, int usecs_to_sleep) {
+  int rv;
   fuart_get_lock(fuartc);
-  int rv = fuart_run_locked(fuartc, usecs_to_sleep);
+  rv = fuart_run_locked(fuartc, usecs_to_sleep);
   fuart_release_lock(fuartc);
   return rv;
 }
@@ -267,8 +272,9 @@ static int fuart_close_locked(struct fuart_context *fuartc) {
 }
 
 int fuart_close(struct fuart_context *fuartc) {
+  int rv;
   fuart_get_lock(fuartc);
-  int rv = fuart_close_locked(fuartc);
+  rv = fuart_close_locked(fuartc);
   fuart_release_lock(fuartc);
   return rv;
 }

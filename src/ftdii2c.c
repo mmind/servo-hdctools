@@ -136,6 +136,7 @@ static int fi2c_wr(struct fi2c_context *fic, uint8_t *wbuf, int wcnt) {
 
 static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   int i;
+  int bytes_read;
 
   for (i = 0; i < rcnt; i++) {
     // SCL low
@@ -164,7 +165,6 @@ static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   if (fic->error)
     return fic->error;
 
-  int bytes_read;
   if ((bytes_read = ftdi_read_data(fic->fc, rbuf, rcnt)) != rcnt) {
     if (bytes_read < 0) {
       ERROR_FTDI("FTDI read bytes", fic->fc);

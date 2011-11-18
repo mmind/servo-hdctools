@@ -34,7 +34,6 @@ PTHREAD	= 					\
 
 #  TBD: These need code changes to enable.
 #	-Wconversion				\
-#	-Wdeclaration-after-statement		\
 #	-Wmissing-noreturn			\
 #	-Wsign-conversion			\
 #	-Wtraditional-conversion		\
@@ -56,6 +55,7 @@ else
 	-Waddress				\
 	-Warray-bounds				\
 	-Wclobbered				\
+	-Wdeclaration-after-statement		\
 	-Wempty-body				\
 	-Wignored-qualifiers			\
 	-Wlogical-op				\

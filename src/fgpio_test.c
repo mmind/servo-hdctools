@@ -24,10 +24,10 @@ static void usage(char *progname) {
 
 int main(int argc, char **argv) {
   int rv = 0;
-
   struct ftdi_context fc;
   struct fgpio_context fgc;
-
+  struct gpio_s gpio;
+  uint8_t rd_val;
   int args_consumed = 0;
   struct ftdi_common_args fargs = {
     .interface = INTERFACE_D,
@@ -53,11 +53,9 @@ int main(int argc, char **argv) {
     prn_fatal("fgpio_open\n");
   }
 
-  struct gpio_s gpio;
-  uint8_t rd_val;
   // just default to allowable maximum
   gpio.mask = fgc.gpio.mask;
-  
+
   if (fargs.direction) {
     gpio.direction = fargs.direction;
     gpio.value = fargs.value;

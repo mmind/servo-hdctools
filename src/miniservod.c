@@ -35,14 +35,15 @@ static void usage(char *progname) {
 // ex)    0xff,0xff  -- sets all to output '1'
 static int parse_buffer(char *buf, struct gpio_s *gpio) {
   char *eptr = NULL;
-  
+  char *bptr;
+
   gpio->direction = strtoul(buf, &eptr, 0);
   if (eptr[0] != ',') {
     prn_error("Malformed direction argument\n");
     return 1;
   }
   eptr++;
-  char *bptr = eptr;
+  bptr = eptr;
   gpio->value = strtoul(bptr, &eptr, 0);
   if (((eptr[0] != '\r') && (eptr[0] != '\n')) ||
       (bptr == eptr)) {
@@ -107,9 +108,10 @@ CLIENT_RSP:
 
 static int init_socket(int port) {
   struct sockaddr_in server_addr;
+  int                sock = socket(AF_INET, SOCK_STREAM, 0);
+  int                tr   = 1;
 
   prn_dbg("Initializing server\n");
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0)
     perror("opening socket");
 
@@ -119,7 +121,6 @@ static int init_socket(int port) {
   server_addr.sin_addr.s_addr = INADDR_ANY;
   server_addr.sin_port = htons(port);
 
-  int tr = 1;
   if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &tr, sizeof(int)) == -1) {
     perror("setting sockopt");
     exit(-1);
@@ -144,23 +145,23 @@ static void run_server(struct fgpio_context *fgc, int server_fd) {
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
   unsigned int client_len = sizeof(client_addr);
+  int max_fd = server_fd;
+  int i;
 
   FD_ZERO(&read_fds);
   FD_ZERO(&master_fds);
-  int max_fd = server_fd;
   FD_SET(server_fd, &master_fds);
 
   prn_dbg("Running server fd=%d\n", server_fd);
   while (1) {
     read_fds = master_fds;
 
-    if(select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
+    if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
       perror("Select test failed");
       exit(1);
     }
     prn_dbg("select ok\n");
 
-    int i;
     for (i = 0; i <= max_fd; i++) {
       if (FD_ISSET(i, &read_fds)) {
 	if (i == server_fd) {
@@ -207,7 +208,7 @@ int main(int argc, char **argv) {
     .parity = NONE,
     .sbits = STOP_BIT_1
   };
- 
+
   int args_consumed;
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {
     usage(argv[0]);

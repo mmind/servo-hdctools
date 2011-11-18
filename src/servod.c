@@ -147,7 +147,6 @@ static int process_client(struct ftdi_itype *interfaces,
   int blen, bcnt, err;
   struct gpio_s new_gpio;
   uint8_t rd_val;
-
   struct ftdi_itype *interface;
 
   memset(rsp, 0, MAX_BUF);
@@ -164,6 +163,8 @@ static int process_client(struct ftdi_itype *interfaces,
   prn_dbg("client cmd: %s",buf);
   if ((buf[0] == 'g') && (buf[1] == ',')) {
     unsigned int interface_num;
+    struct fgpio_context *fgc = NULL;
+
     if (parse_buffer_gpio(&buf[2], &new_gpio, &interface_num)) {
       snprintf(buf, MAX_BUF,
                "E:parsing client request.  Should be\n\t%s\n",
@@ -177,7 +178,6 @@ static int process_client(struct ftdi_itype *interfaces,
       goto CLIENT_RSP;
     }
 
-    struct fgpio_context *fgc = NULL;
     fgc = (struct fgpio_context *)interface->context;
     assert(fgc);
     if ((err = fgpio_wr_rd(fgc, &new_gpio, &rd_val, interface->type))) {
@@ -191,10 +191,15 @@ static int process_client(struct ftdi_itype *interfaces,
     }
     snprintf(rsp, MAX_BUF, "I:0x%02x\nA:\n", rd_val);
   } else if ((buf[0] == 'i') && (buf[1] == ',')) {
+    int rcnt;
     int argcnt = 0;
-
+    int wcnt = 0;
+    int bytes_remaining = MAX_BUF;
+    uint8_t *wbuf = NULL;
     uint8_t args[128];
     uint8_t rbuf[128];
+    struct fi2c_context *fic = NULL;
+
     if (parse_buffer_i2c(&buf[2], &argcnt, args, ARRAY_LENGTH(args))) {
       snprintf(rsp, MAX_BUF, "E:parsing client request.  Should be\n\t%s\n",
                "<slv>,[<bytes to Wr>,<Wr0>,<Wr1>,<WrN>],[<bytes to Rd>]");
@@ -206,14 +211,12 @@ static int process_client(struct ftdi_itype *interfaces,
       snprintf(rsp, MAX_BUF, "E:No i2c at interface 2\n");
       goto CLIENT_RSP;
     }
-    struct fi2c_context *fic = NULL;
+
     fic = (struct fi2c_context *)interface->context;
     assert(fic);
 
     // defaults if read-only
-    uint8_t *wbuf = NULL;
-    int wcnt = 0;
-    int rcnt = args[argcnt-1];
+    rcnt = args[argcnt - 1];
     fic->slv = args[0];
     if (argcnt > 2) {
       wbuf = &args[2];
@@ -227,12 +230,12 @@ static int process_client(struct ftdi_itype *interfaces,
       snprintf(rsp, MAX_BUF, "E:writing/reading i2c\n");
       goto CLIENT_RSP;
     }
-    int bytes_remaining = MAX_BUF;
+
     if (rcnt) {
+      int i;
       snprintf(rsp, bytes_remaining, "I:0x");
       rsp = rsp + 4;
       bytes_remaining-=4;
-      int i;
       for (i = 0; i < rcnt; i++) {
         if (i && !(i % 4)) {
           snprintf(rsp, bytes_remaining, "\nI:0x");
@@ -266,9 +269,10 @@ CLIENT_RSP:
 
 static int init_socket(int port) {
   struct sockaddr_in server_addr;
+  int tr = 1;
+  int sock = socket(AF_INET, SOCK_STREAM, 0);
 
   prn_dbg("Initializing server\n");
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0)
     perror("opening socket");
 
@@ -278,7 +282,6 @@ static int init_socket(int port) {
   server_addr.sin_addr.s_addr = INADDR_ANY;
   server_addr.sin_port = htons(port);
 
-  int tr = 1;
   if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &tr, sizeof(int)) == -1) {
     perror("setting sockopt");
     exit(-1);
@@ -304,14 +307,16 @@ static void run_server(struct ftdi_itype *interfaces,
   struct sockaddr_in client_addr;
   fd_set read_fds, master_fds;
   unsigned int client_len = sizeof(client_addr);
+  int max_fd = server_fd;
 
   FD_ZERO(&read_fds);
   FD_ZERO(&master_fds);
-  int max_fd = server_fd;
   FD_SET(server_fd, &master_fds);
 
   prn_dbg("Running server fd=%d\n", server_fd);
   while (1) {
+    int i;
+
     read_fds = master_fds;
 
     if(select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
@@ -320,7 +325,6 @@ static void run_server(struct ftdi_itype *interfaces,
     }
     prn_dbg("select ok\n");
 
-    int i;
     for (i = 0; i <= max_fd; i++) {
       if (FD_ISSET(i, &read_fds)) {
 	if (i == server_fd) {
@@ -356,7 +360,13 @@ static void run_server(struct ftdi_itype *interfaces,
 
 int main(int argc, char **argv) {
   int sock;
-
+  int args_consumed;
+  int i;
+  struct fuart_context fcc;
+  struct fi2c_context fic;
+  struct ftdi_context fc[NUM_INTERFACES];
+  struct fgpio_context fgs[NUM_GPIOS];
+  struct ftdi_itype interfaces[NUM_INTERFACES];
   struct ftdi_common_args fargs = {
     .interface = 0,
     //.vendor_id = 0x18d1,
@@ -369,14 +379,9 @@ int main(int argc, char **argv) {
     .sbits = STOP_BIT_1
   };
 
-  int args_consumed;
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {
     usage(argv[0]);
   }
-
-  int i;
-  struct ftdi_context fc[NUM_INTERFACES];
-  struct fgpio_context fgs[NUM_GPIOS];
 
   for (i = 0; i < NUM_INTERFACES; i++) {
     if (ftdi_init(&fc[i]) < 0) {
@@ -384,8 +389,6 @@ int main(int argc, char **argv) {
       return 1;
     }
   }
-
-  struct ftdi_itype interfaces[NUM_INTERFACES];
 
   for (i = 0; i < NUM_GPIOS; i++) {
     if (fgpio_init(&fgs[i], &fc[i])) {
@@ -404,7 +407,6 @@ int main(int argc, char **argv) {
   interfaces[fargs.interface - 1].type = GPIO;
 
   // i2c master
-  struct fi2c_context fic;
   fargs.interface = 2;
   if (fi2c_init(&fic, &fc[3])) {
     prn_error("fi2c_init\n");
@@ -424,7 +426,6 @@ int main(int argc, char **argv) {
 
   // DUT console uart
   fargs.interface = 3;
-  struct fuart_context fcc;
   if (fuart_init(&fcc, &fc[2])) {
     prn_error("fuart_init\n");
     return FCOM_ERR;
