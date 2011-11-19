@@ -38,123 +38,42 @@ PTHREAD	= 					\
 #	-Wsign-conversion			\
 #	-Wtraditional-conversion		\
 
-# CWARN_MAC, CWARN_LINUX:
+# The host 'c-$(HDCTOOLS_OS_NAME).mk' file can define the following
+# variables.
 #
-#  Handle warning options which are specific to Mac or Linux.  This is
-#  normally necessary because different compiler versions are used on
-#  different systems.
+#  HOSTOS_CWARN   : A set of compiler flags which turn on the desired
+#                   warnings.
 #
-#  If we end up needing more granularity than this, we should list &
-#  use the newer options based on the compiler version being used.
-ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
-  CWARN_MAC	=
-else
-  ifeq ($(HDCTOOLS_OS_NAME),Linux)
-    # Warning options supported only by Linux.
-    CWARN_LINUX	=				\
-	-Waddress				\
-	-Warray-bounds				\
-	-Wclobbered				\
-	-Wdeclaration-after-statement		\
-	-Wempty-body				\
-	-Wignored-qualifiers			\
-	-Wlogical-op				\
-	-Wmissing-parameter-type		\
-	-Wold-style-declaration			\
-	-Woverlength-strings			\
-	-Woverride-init				\
-	-Wstrict-overflow			\
-	-Wstrict-overflow=5			\
-	-Wtype-limits				\
-	-Wunsafe-loop-optimizations		\
-	-Wvla					\
-	-Wvolatile-register-var
-  else
-    # NOP: No warnings for unsupported build, which fails below.
-  endif
-endif
+#  HOSTOS_INCLUDE : A set of compiler flags which add directories to the
+#                   standard #include search path.
+#
+#  HOSTOS_LD_LIB  : A set of host-os specific values for 'LD_LIB'.
+#
+#  HOSTOS_LIB_EXT : A set of host-os specific values for 'LIB_EXT'
+#
+#  HOSTOS_CFLAGS  : A set of host-os specific compiler flags
+#
+#  HOSTOS_CDEFINES: A set of host-os specific preprocessor defines.
+#
+include $(HDCTOOLS_DIR)/defs/c-$(HDCTOOLS_OS_NAME).mk
+
 CWARN	=					\
-	$(CWARN_MAC)				\
-	$(CWARN_LINUX)				\
-	-Waggregate-return			\
-	-Wall					\
-	-Wbad-function-cast			\
-	-Wcast-align				\
-	-Wcast-qual				\
-	-Wchar-subscripts			\
-	-Wcomment				\
-	-Wdisabled-optimization			\
-	-Werror					\
-	-Wextra					\
-	-Wfloat-equal				\
-	-Wformat				\
-	-Wformat-nonliteral			\
-	-Wformat-security			\
-	-Wformat-y2k				\
-	-Wimplicit				\
-	-Winit-self				\
-	-Winline				\
-	-Wmain					\
-	-Wmissing-braces			\
-	-Wmissing-declarations			\
-	-Wmissing-field-initializers		\
-	-Wmissing-format-attribute		\
-	-Wmissing-include-dirs			\
-	-Wmissing-prototypes			\
-	-Wnested-externs			\
-	-Wold-style-definition			\
-	-Wpacked				\
-	-Wparentheses				\
-	-Wpointer-arith				\
-	-Wpointer-sign				\
-	-Wredundant-decls			\
-	-Wreturn-type				\
-	-Wsequence-point			\
-	-Wshadow				\
-	-Wsign-compare				\
-	-Wstack-protector			\
-	-Wstrict-aliasing			\
-	-Wstrict-aliasing=3			\
-	-Wstrict-prototypes			\
-	-Wswitch				\
-	-Wswitch-default			\
-	-Wswitch-enum				\
-	-Wtrigraphs				\
-	-Wundef					\
-	-Wuninitialized				\
-	-Wunknown-pragmas			\
-	-Wunused-function			\
-	-Wunused-label				\
-	-Wunused-parameter			\
-	-Wunused-value				\
-	-Wunused-variable			\
-	-Wvariadic-macros			\
-	-Wwrite-strings				\
-	-pedantic-errors
+	$(HOSTOS_CWARN)
 
 INCLUDES	=				\
+		$(HOSTOS_INCLUDE)		\
 		-I$(HDCTOOLS_DIR)/include	\
 		-I$(HDCTOOLS_SOURCE_DIR)
+
+LD_LIB		= $(HOSTOS_LD_LIB)
+LIB_EXT		= $(HOSTOS_LIB_EXT)
 
 ifeq ($(DEBUG),1)
   CDEBUG	= -DDEBUG
 endif
 
-ifeq ($(HDCTOOLS_OS_NAME),Darwin) # Mac
-  LD_LIB = -dynamiclib
-  LIB_EXT = dylib
-  OS_CFLAGS += -DDARWIN
-else
-  ifeq ($(HDCTOOLS_OS_NAME),Linux)
-    LD_LIB = -shared
-    LIB_EXT = so
-    OS_CFLAGS += -fPIC
-  else
-    $(error '$(HDCTOOLS_OS_NAME)' is not supported by the hdctools build.)
-  endif
-endif
-
 CDEFINES	=				\
+	$(HOSTOS_CDEFINES) 			\
 	-D_GNU_SOURCE=1
 
 CFLAGS 	=					\
@@ -168,4 +87,4 @@ CFLAGS 	=					\
 	$(CGC)					\
 	$(LDGC)					\
 	$(CDEBUG)				\
-	$(OS_CFLAGS)
+	$(HOSTOS_CFLAGS)
