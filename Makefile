@@ -5,7 +5,7 @@
 export HDCTOOLS_DIR = $(shell pwd)
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-SUBDIRS		= src servo
+SUBDIRS		= lib test src servo
 SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
 
 all: 		$(SUBDIRS)
@@ -23,3 +23,6 @@ $(SUBDIRS_INSTALL):	all
 	@$(call remake,Installing,$(subst -install,,$@),install)
 
 .PHONY:	$(SUBDIRS) $(SUBDIRS_INSTALL)
+
+src:	lib
+test:	src lib
