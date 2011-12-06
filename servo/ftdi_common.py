@@ -54,7 +54,8 @@ class FtdiContext(ctypes.Structure):
     ('eeprom_size', ctypes.c_int),
     ('error_str', ctypes.POINTER(ctypes.c_char)),
     ('asynctypes.c_usb_buffer', ctypes.POINTER(ctypes.c_char)),
-    ('asynctypes.c_usb_buffer_size', ctypes.c_uint)]
+    ('asynctypes.c_usb_buffer_size', ctypes.c_uint),
+    ('module_detach_mode', ctypes.c_int)]
 
 class FtdiCommonArgs(ctypes.Structure):
   """Defines structure of common arguments for FTDI related devices.
