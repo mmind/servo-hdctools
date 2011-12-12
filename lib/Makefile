@@ -17,7 +17,7 @@ all:	$(LIBS)
 	$(MESSAGE) "Compiling $(notdir $<)"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-libftdi%.$(LIB_EXT): ftdi%.o
+libftdi%.$(LIB_EXT): ftdi%.o ftdicommon.o
 	$(MESSAGE) "Building library $(notdir $@)"
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LD_LIB)
 

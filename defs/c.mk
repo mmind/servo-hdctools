@@ -92,6 +92,6 @@ CFLAGS 	=					\
 LIBFTDI_CFLAGS	:= $(shell $(PKG_CONFIG) --cflags libftdi)
 LIBFTDI_LDFLAGS	:= $(shell $(PKG_CONFIG) --libs   libftdi)
 
-SERIAL_IP	= gpio uart i2c common
+SERIAL_IP	= gpio uart i2c
 SERIAL_LIBS	= $(foreach v,${SERIAL_IP},-lftdi$(v))
 
