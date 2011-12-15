@@ -235,7 +235,7 @@ class Servod(object):
     try:
       val = drv.get()
       rd_val = self._syscfg.reformat_val(param, val)
-      self._logger.info("%s = %s" % (name, rd_val))
+      self._logger.debug("%s = %s" % (name, rd_val))
       return rd_val
     except AttributeError, error:
       self._logger.error("Getting %s: %s" % (name, error))

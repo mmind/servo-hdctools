@@ -175,7 +175,8 @@ def main():
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device))
-  server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port))
+  server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
+                                                 logRequests=False)
   server.register_introspection_functions()
   server.register_multicall_functions()
   server.register_instance(servod)
