@@ -1,28 +1,24 @@
 # Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
-export HDCTOOLS_DIR = $(shell pwd)
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-SUBDIRS		= lib test src servo usbkm232
+SUBDIRS		=
 SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
+PYTHON_SRC	= $(notdir $(wildcard $(HDCTOOLS_SOURCE_DIR)/*.py))
+PYTHON_DST	= $(addprefix $(THIS_BUILD_DIR)/, $(PYTHON_SRC))
 
-all: 		$(SUBDIRS)
+$(THIS_BUILD_DIR)/%.py: $(HDCTOOLS_SOURCE_DIR)/%.py
+	$(MESSAGE) "Copying $(notdir $@)"
+	$(CP) $< $@
+
+all: 		$(PYTHON_DST) $(SUBDIRS)
 install:	$(SUBDIRS_INSTALL)
-clean:
-	@rm -rf $(HDCTOOLS_BUILD_DIR)
 
 $(SUBDIRS):
 	@$(call remake,Building,$@,all)
 
-# No subdirectory 'install' target needs any dependency on building
-# (such as 'all') The explicit dependency on 'all' here ensures that
-# the full source tree is built just once.
-$(SUBDIRS_INSTALL):	all
+$(SUBDIRS_INSTALL):
 	@$(call remake,Installing,$(subst -install,,$@),install)
 
 .PHONY:	$(SUBDIRS) $(SUBDIRS_INSTALL)
-
-src:	lib
-test:	src lib
