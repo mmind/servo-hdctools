@@ -35,7 +35,7 @@ setup(
   version = "0.0.1",
   package_dir = {'' : 'build'},
   py_modules=['usbkm232.ctrld', 'usbkm232.ctrlu', 'usbkm232.enter',
-              'usbkm232.space'],
+              'usbkm232.space', 'usbkm232.tab'],
   packages=['usbkm232'],
   url = "http://www.chromium.org",
   maintainer='chromium os',
@@ -49,6 +49,7 @@ setup(
       'usbkm232-ctrlu = usbkm232.ctrlu:main',
       'usbkm232-enter = usbkm232.enter:main',
       'usbkm232-space = usbkm232.space:main',
+      'usbkm232-tab = usbkm232.tab:main',
       'usbkm232-test = usbkm232.usbkm232:main',
     ]
   }

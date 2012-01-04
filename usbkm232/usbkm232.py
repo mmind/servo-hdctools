@@ -275,6 +275,11 @@ class usbkm232(object):
         self._write([self._press(' ')])
 
 
+    def tab(self):
+        """Press and release tab"""
+        self._write([self._press('<tab>')])
+
+
     def close(self):
         """Close usbkm232 device."""
         self.serial.close()
