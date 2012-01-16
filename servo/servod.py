@@ -65,7 +65,10 @@ def _parse_args():
                     help="device serialname stored in eeprom")
   parser.add_option("-c", "--config", type=str, action="append",
                     help="system config files (XML) to read")
-  # TODO(tbroch) add arg for declaring interfaces
+  parser.add_option("-i", "--interfaces", type=str, default='',
+                    help="ordered space-delimited list of interfaces.  " +
+                    "Valid choices are gpio|i2c|uart|gpiouart|dummy")
+
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
 
@@ -174,7 +177,8 @@ def main():
                   usb_get_iserial(servo_device)))
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
                                product=servo_device.idProduct,
-                               serialname=usb_get_iserial(servo_device))
+                               serialname=usb_get_iserial(servo_device),
+                               interfaces=options.interfaces.split())
   server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
                                                  logRequests=False)
   server.register_introspection_functions()

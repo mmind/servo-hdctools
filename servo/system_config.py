@@ -8,7 +8,7 @@ import xml.etree.ElementTree
 
 
 # valid tags in system config xml.  Any others will be ignored
-SYSCFG_TAG_LIST = ["map", "control", "sequence"]
+SYSCFG_TAG_LIST = ["map", "control"]
 
 
 class SystemConfigError(Exception):

@@ -1,0 +1,511 @@
+<?xml version="1.0"?>
+<root>
+  <!-- ********** Maps ********** -->
+  <map>
+    <name>onoff</name>
+    <doc>assertive high map for on/off</doc>
+    <params on="1" off="0"></params>
+  </map>
+  <map>
+    <name>onoff_i</name>
+    <doc>assertive low map for on/off</doc>
+    <params on="0" off="1"></params>
+  </map>
+  <map>
+    <name>yesno</name>
+    <doc>assertive high map for yes/no</doc>
+    <params yes="1" no="0"></params>
+  </map>
+  <map>
+    <name>i2c_mux</name>
+    <doc>4 to 1 mux to steer ftdi i2c bus to different sets of
+    adcs.</doc>
+    <params local_adc_ch0="0" local_adc_ch1="1" remote_adc="2"
+    reserved="3" loc0="0" loc1="1" rem="2" atmega="3"></params>
+  </map>
+  <map>
+    <name>press</name>
+    <doc>map for press and release of buttons</doc>
+    <params press="0" release="1"></params>
+  </map>
+  <map>
+    <name>usbkey</name>
+    <doc>Determines whether DUT or servo sees USB port (TYPE A/J3
+    and TYPE A/J8)</doc>
+    <params dut_sees_usbkey="0" servo_sees_usbkey="1"></params>
+  </map>
+  <map>
+    <name>duthub</name>
+    <doc>Determine whether DUT sees USB hub or Servo via USB port
+    (TYPE MICRO-B/J6)</doc>
+    <params dut_sees_hub="0" dut_sees_servo="1"></params>
+  </map>
+  <map>
+    <name>vref_sel</name>
+    <doc>Determine VREF between pp3300, pp2500, pp1800 and off.
+    Default is off</doc>
+    <params pp3300="0" pp2500="1" pp1800="2" off="3"></params>
+  </map>
+  <!-- *********** FT4232H U29 Interface A gpios ********** -->
+  <!-- only JTAG -->
+  <!-- *********** FT4232H U29 Interface B gpios ********** -->
+  <!-- only I2C -->
+  <!-- *********** FT4232H U29 Interface C gpios ********** -->
+  <!-- only uart -->
+  <!-- *********** FT4232H U29 Interface D gpios ********** -->
+  <!-- only uart -->
+  <!-- ********** I2c related controls ********** -->
+  <!-- slv 0x20 : ioexpander port 0 -->
+  <control>
+    <name>dut_flaga</name>
+    <doc>dut_flaga</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="0" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_flagb</name>
+    <doc>dut_flagb</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>pch_disable</name>
+    <doc></doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="2" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>cold_reset</name>
+    <doc>cold_reset</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="3" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>warm_reset</name>
+    <doc>warm_reset</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dev_mode</name>
+    <doc>dev_mode</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp78</name>
+    <doc>tp78 on U25 pin 10</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="6" map="onoff"></params>
+  </control>
+  <control>
+    <name>sd_detect</name>
+    <doc>SD Card detect</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x23"
+    port="1" offset="7" map="onoff_i"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x20 : ioexpander port 1 -->
+  <control>
+    <name>spi_hold</name>
+    <doc>spi_hold</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_nmi</name>
+    <doc>dut_nmi</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>hpd</name>
+    <doc>hpd</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>mfg_mode</name>
+    <doc>Manufacturing mode AKA firmware write protect</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="3" map="onoff"></params>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x22"
+    port="1" offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>pwr_button</name>
+    <doc>Power button GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="4" map="press"></params>
+  </control>
+  <control>
+    <name>lid_open</name>
+    <doc>lid open GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="5" map="yesno"></params>
+  </control>
+  <control>
+    <name>goog_rec_mode</name>
+    <doc>Google recovery mode</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fw_up</name>
+    <doc>fw_up</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x21 : ioexpander port 0 -->
+  <control>
+    <name>dut_hub_on</name>
+    <doc>Enables DUT's USB hub with ethernet (RJ45/I54) and USB
+    port (Vert TYPE A/J3)</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>usb_mux_oe2</name>
+    <doc>Output enable for USB port (TYPE A/J4) to DUT via USB port
+    (TYPE MICRO-B/J5)</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>usb_mux_oe1</name>
+    <doc>Output enable for USB port (vert TYPE A/J3) to DUT via DUT
+    USB hub</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="2" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>usb_mux_sel1</name>
+    <doc>2to1 mux select for USB port (vert TYPE A/J3). Set either
+    'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="3" map="usbkey"></params>
+  </control>
+  <control>
+    <name>dut_hub1_rst1</name>
+    <doc>Reset DUT's USB hub with ethernet (RJ45/I54) and USB port
+    (TYPE A/J3, TYPE A/J8, TYPE A/J10)</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_usb2_prtctl</name>
+    <doc>power enable for USB port (TYPE A/J4) to DUT via USB port
+    (TYPE MICRO-B/J5)</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_hub_sel</name>
+    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6). Set either
+    'dut_sees_hub' or 'dut_sees_servo'</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="6" map="duthub"></params>
+  </control>
+  <control>
+    <name>prtctl4_pwren</name>
+    <doc>USB port 4 (TYPE A/J3, USB key) power enable</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="7" map="onoff"></params>
+  </control>
+  <!-- slv 0x21 : ioexpander port 1 -->
+  <control>
+    <name>i2c_mux</name>
+    <doc>4to1 mux select which steers i2c bus from FTDI to
+    different banks (16) of ina219 adcs</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="0" width="2" map="i2c_mux" init="rem"></params>
+  </control>
+  <control>
+    <name>i2c_mux_en</name>
+    <doc>Enable pin (ADG804) of 4to1 mux</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="2" map="onoff" init="on"></params>
+  </control>
+  <control>
+    <name>blinky</name>
+    <doc>LED on gpio for blinking</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="3" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>uart3_en</name>
+    <doc>uart3_en</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_hub_pwren</name>
+    <doc>enable power to DUT's USB hub</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>usb_mux_sel3</name>
+    <doc>2to1 mux select for USB port (vert TYPE A/J8). Set either
+    'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="6" map="usbkey"></params>
+  </control>
+  <control>
+    <name>usb_mux_oe3</name>
+    <doc>Output enable for USB port (vert TYPE A/J8) to DUT via DUT
+    USB hub</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x22 : ioexpander port 0 -->
+  <control>
+    <name>ec_spi</name>
+    <doc>Enable power to DUT for programming EC SPI Flash</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>tp24</name>
+    <doc>tp24 on U43 pin 5</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp30</name>
+    <doc>tp30 on U43 pin 6</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp28</name>
+    <doc>tp28 on U43 pin 7</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="3" map="onoff"></params>
+  </control>
+  <control>
+    <name>prtctl4_ocs</name>
+    <doc>USB port 4 (J3, USB key) over current signal (OCS)</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>tp27</name>
+    <doc>tp27 on U43 pin 11</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="7" map="onoff"></params>
+  </control>
+  <!-- slv 0x22 : ioexpander port 1 -->
+  <control>
+    <name>tp36</name>
+    <doc>tp36 on U43 pin 13</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="0" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp35</name>
+    <doc>tp35 on U43 pin 14</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp34</name>
+    <doc>tp34 on U43 pin 15</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp38</name>
+    <doc>tp38 on U43 pin 16</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="3" map="onoff"></params>
+  </control>
+  <control>
+    <name>tp39</name>
+    <doc>tp39 on U43 pin 17</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="4" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_hub_ocs</name>
+    <doc>DUT USB hub over current signal (OCS). This hub supports
+    ethernet (RJ45/I54) and USB port (vert TYPE A/J8)</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="1"
+    offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>sd_en</name>
+    <doc>Enable for SD Card detect</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x22"
+    port="1" offset="7" map="onoff"></params>
+  </control>
+  <!-- slv 0x23 : ioexpander port 0 -->
+  <control>
+    <name>spi1_buf_en</name>
+    <doc>spi1_buf_en</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>spi2_buf_en</name>
+    <doc>spi2_buf_en</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>at_hwb</name>
+    <doc>at_hwb</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="2" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>tp23</name>
+    <doc>tp23 on U38 pin 7</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="3" map="onoff"></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <doc>kbd_m2_a1</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="4" map="onoff"></params>
+  </control>
+  <control>
+    <name>kbd_en</name>
+    <doc>Enable servo to assert certain keypresses via kdb_m1 and
+    kbd_m2</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_usb2_ocs</name>
+    <doc>Over-current signal for USB port (TYPE A/J4) to DUT via
+    USB port (TYPE MICRO-B/J5)</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>usb_mux_oe4</name>
+    <doc>usb_mux_oe4</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="0"
+    offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x23 : ioexpander port 1 -->
+  <control>
+    <name>kbd_m1_a0</name>
+    <doc>kbd_m1_a0</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="0" map="onoff"></params>
+  </control>
+  <control>
+    <name>prtctl3_pwren</name>
+    <doc>USB port 3 (TYPE A/J10) power enable</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>prtctl2_pwren</name>
+    <doc>USB port 2 (TYPE A/J9) power enable</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>prtctl2_ocs</name>
+    <doc>USB port 2 (TYPE A/J9) over current signal (OCS)</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="3" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>prtctl3_ocs</name>
+    <doc>USB port 3 (TYPE A/J10) over current signal (OCS)</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>kbd_m1_a1</name>
+    <doc>kbd_m1_a1</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <doc>kbd_m2_a0</doc>
+    <params interface="2" drv="tca6416" slv="0x23" port="1"
+    offset="6" map="onoff"></params>
+  </control>
+  <!-- slv 0x24 : ioexpander port 0 -->
+  <control>
+    <name>spi1_vref</name>
+    <doc>spi1_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="0" width="2" map="vref_sel"></params>
+  </control>
+  <control>
+    <name>tp16</name>
+    <doc>tp16 on U30 pin 6</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>spi2_vref</name>
+    <doc>spi2_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="3" width="2" map="vref_sel"></params>
+  </control>
+  <control>
+    <name>tp17</name>
+    <doc>tp17 on U30 pin 9</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>uart2_en</name>
+    <doc>uart2_en</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="6" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>uart1_en</name>
+    <doc>uart1_en</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="0"
+    offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x24 : ioexpander port 1 -->
+  <control>
+    <name>jtag_buf_en</name>
+    <doc>jtag_buf_en</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fw_wp_en</name>
+    <doc>fw_wp_en</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>atmega_rst</name>
+    <doc>atmega_rst</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="3" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>at_buf_en</name>
+    <doc>at_buf_en</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>sd_vref_sel</name>
+    <doc>sd_vref_sel</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="5" width="2" map="vref_sel"></params>
+  </control>
+  <control>
+    <name>usb_mux_sel4</name>
+    <doc>usb_mux_sel4</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="7" map="onoff"></params>
+  </control>
+</root>

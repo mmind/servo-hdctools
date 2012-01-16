@@ -63,6 +63,21 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
+  def _init_dummy(self, interface):
+    """Initialize dummy interface.
+
+    Dummy interface is just a mechanism to reserve that interface for non servod
+    interaction.  Typically the interface will be managed by external
+    third-party tools like openOCD or urjtag for JTAG or flashrom for SPI
+    interfaces.
+
+    TODO(tbroch): Investigate merits of incorporating these third-party
+    interfaces into servod or creating a communication channel between them
+
+    Returns: None
+    """
+    return None
+
   def _init_gpio(self, interface):
     """Initialize gpio driver interface and open for use.
 
