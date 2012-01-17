@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
+BINDIR		= /usr/bin
+BIN_DEST	= $(DESTDIR)$(BINDIR)
 CFLAGS  	+= $(LIBFTDI_CFLAGS) -L $(HDCTOOLS_BUILD_DIR)/lib
 LDFLAGS		+= $(LIBFTDI_LDFLAGS)
 
@@ -16,5 +18,8 @@ f%_test: f%_test.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lpthread $(SERIAL_LIBS)
 
 install:
+	$(MKDIR) -p $(BIN_DEST)
+	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"
+	$(CP) -p $(TARGETS) "$(BIN_DEST)"
 
 -include *.d
