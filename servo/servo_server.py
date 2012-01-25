@@ -57,11 +57,15 @@ class Servod(object):
         func = getattr(self, '_init_%s' % name)
       except AttributeError:
         raise ServodError("Unable to locate init for interface %s" % name)
-      result = func(i + 1)
+      result = func((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1)
       if isinstance(result, tuple):
         self._interface_list.extend(result)
       else:
         self._interface_list.append(result)
+
+      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
+      if i and i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE == 0:
+        self._product += 1
 
   def _init_dummy(self, interface):
     """Initialize dummy interface.

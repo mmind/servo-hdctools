@@ -6,8 +6,9 @@
 import ctypes
 import collections
 
-SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001), (0x18d1, 0x5002),
-                     (0x18d1, 0x5003)]
+MAX_FTDI_INTERFACES_PER_DEVICE = 4
+
+SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001), (0x18d1, 0x5002)]
 
 (DEFAULT_VID, DEFAULT_PID) = SERVO_ID_DEFAULTS[0]
 
@@ -18,11 +19,10 @@ INTERFACE_DEFAULTS[0x0403][0x6011] = ['gpio', 'i2c', 'uart', 'gpio']
 # servo v1
 INTERFACE_DEFAULTS[0x18d1][0x5001] = ['gpio', 'i2c', 'uart', 'gpio']
 # servo V2
-# TODO(tbroch) fix limitations to allow for multiple ft4232h devices
-# Interface 0 == JTAG via openocd
-INTERFACE_DEFAULTS[0x18d1][0x5002] = ["dummy", 'i2c', 'uart', 'uart']
-# Interface 0,1 == SPI via flashrom
-INTERFACE_DEFAULTS[0x18d1][0x5003] = ["dummy", "dummy", 'uart', 'uart']
+# Dummy interface 0 == JTAG via openocd
+# Dummy interface 4,5 == SPI via flashrom
+INTERFACE_DEFAULTS[0x18d1][0x5002] = \
+    ["dummy", 'i2c', 'uart', 'uart', "dummy", "dummy", 'uart', 'uart']
 
 # miniservo
 MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]
