@@ -52,6 +52,12 @@ class Servod(object):
       interfaces = ftdi_common.INTERFACE_DEFAULTS[vendor][product]
 
     for i, name in enumerate(interfaces):
+      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
+      if i and ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
+        self._product += 1
+        self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
+                          self._product)
+
       self._logger.info("Initializing FTDI interface %d to %s", i + 1, name)
       try:
         func = getattr(self, '_init_%s' % name)
@@ -63,9 +69,6 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
-      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
-      if i and i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE == 0:
-        self._product += 1
 
   def _init_dummy(self, interface):
     """Initialize dummy interface.
