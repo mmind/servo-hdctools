@@ -99,7 +99,7 @@ def _parse_args():
                     action="store_true", default=False)
   parser.add_option("-r", "--repeat", type=int,
                     help="repeat requested command multiple times", default=1)
-  parser.add_option("-t", "--time_in_secs", help="repeat requested command for"
+  parser.add_option("-t", "--time_in_secs", help="repeat requested command for "
                     + "this many seconds", type='float', default=0.0)
   parser.add_option("-d", "--debug", help="enable debug messages",
                     action="store_true", default=False)

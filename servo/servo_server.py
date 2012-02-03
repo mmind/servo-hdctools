@@ -5,6 +5,7 @@
 import imp
 import logging
 import SimpleXMLRPCServer
+import time
 
 # TODO(tbroch) deprecate use of relative imports
 import ftdigpio
@@ -300,6 +301,10 @@ class Servod(object):
     Raises:
       HwDriverError: Error occurred while using driver
     """
+    if name == 'sleep':
+      time.sleep(float(wr_val_str))
+      return True
+
     self._logger.debug("name(%s) wr_val(%s)" % (name, wr_val_str))
     (params, drv) = self._get_param_drv(name, False)
     wr_val = self._syscfg.resolve_val(params, wr_val_str)

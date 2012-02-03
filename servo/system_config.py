@@ -71,6 +71,9 @@ class SystemConfig(object):
           get: a dictionary for getting values from named control
           set: a dictionary for setting values to named control
   """
+
+  _RESERVED_NAMES = ('sleep')
+
   def __init__(self):
     """SystemConfig constructor."""
     self._logger = logging.getLogger("SystemConfig")
@@ -121,6 +124,9 @@ class SystemConfig(object):
         element_str = xml.etree.ElementTree.tostring(element)
         try:
           name = element.find('name').text
+          if name in self._RESERVED_NAMES:
+            raise SystemConfigError("%s: is a reserved name.  Choose another." %
+                                    name)
         except AttributeError:
           # TODO(tbroch) would rather have lineno but dumping element seems
           # better than nothing.  Utimately a DTD/XSD for the XML schema will
