@@ -35,7 +35,7 @@ extern "C" {
 #define FTDI_CMD_3PH_CLK     0x8d   // enable 3 phase clocking
 
 // MPSSE clocking control commands
-// M(F|R)E == MSB Falling|Rising Edge 
+// M(F|R)E == MSB Falling|Rising Edge
 // L(F|R)E == LSB Falling|Rising Edge
 #define FTDI_CMD_MRE_CLK_BYTE_OUT 0x10
 #define FTDI_CMD_MFE_CLK_BYTE_OUT 0x11
@@ -57,7 +57,7 @@ extern "C" {
       ERROR_FTDI(msg, context);      \
     }                                \
   } while (0)
-    
+
 struct gpio_s {
   uint8_t value;
   uint8_t direction;
@@ -92,66 +92,6 @@ struct ftdi_itype {
   void *context;
 };
 
-#ifdef WITH_TIME
-// TODO(tbroch) switch to clock_gettime
-
-/*
-struct timezone {
-  int tz_minuteswest;     // minutes west of Greenwich 
-  int tz_dsttime;         // type of DST correction 
-};
-*/
-
-struct timeval tv;
-struct timezone tz;
-struct tm *tm;
-
-#define _prn_time()                                                 \
-  gettimeofday(&tv, &tz);                                           \
-  tm=localtime(&tv.tv_sec);                                         \
-  fprintf(stderr, "(%02d:%02d:%02d.%u)", tm->tm_hour, tm->tm_min,   \
-          tm->tm_sec, (unsigned int)tv.tv_usec)
-#else
-#define _prn_time()
-#endif
-
-#define _prn_common(type, ...)                               \
-  fprintf(stderr, "%s %s:%u :: ", type, __FILE__, __LINE__); \
-  fprintf(stderr, __VA_ARGS__)
-
-#define prn_fatal(...)             \
-  _prn_common("-F-", __VA_ARGS__); \
-  exit(-1);
-#define prn_error(...)                          \
-  _prn_common("-E-", __VA_ARGS__)
-#define prn_warn(...)                           \
-  _prn_common("-W-", __VA_ARGS__)
-#define prn_info(...)                          \
-  _prn_time();                                 \
-  _prn_common("-I-", __VA_ARGS__)
-
-#define prn_perror(...)                                 \
-  prn_error("%s (%d): ", strerror(errno), errno);       \
-  fprintf(stderr, __VA_ARGS__)
-
-#ifdef DEBUG
-#define prn_dbg(...)                            \
-  _prn_time();                                  \
-  _prn_common("-D-", __VA_ARGS__)
-#else
-#define prn_dbg(...)
-#endif
-
-#define _prn_ftdi_common(type, rv, context, ...)                         \
-  fprintf(stderr, "%s:", type);                                          \
-  fprintf(stderr, __VA_ARGS__);                                          \
-  fprintf(stderr, " : %d (%s)\n", rv, ftdi_get_error_string(context))
-
-#define prn_ftdi_error(rv, context, ...)               \
-  _prn_ftdi_common("ERROR", rv, context, __VA_ARGS__)
-#define prn_ftdi_warn(rv, context, ...)                \
-  _prn_ftdi_common("WARN", rv, context, __VA_ARGS__)
-
 int fcom_cfg(struct ftdi_context *, int, enum ftdi_mpsse_mode, int);
 int fcom_args(struct ftdi_common_args *, int, char **);
 int fcom_lookup_serial(struct ftdi_context *, char *);
@@ -161,6 +101,18 @@ struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *, unsigned int,
                                          unsigned int,
                                          enum ftdi_interface_type itype);
 
+#define PRINTF_ATTR(_str, _chk) __attribute__((format(printf, _str, _chk)))
+
+void prn_fatal(const char *fmt, ...) PRINTF_ATTR(1, 2) __attribute__((noreturn));
+void prn_error(const char *fmt, ...) PRINTF_ATTR(1, 2);
+void prn_warn(const char *fmt, ...) PRINTF_ATTR(1, 2);
+void prn_info(const char *fmt, ...) PRINTF_ATTR(1, 2);
+void prn_perror(const char *fmt, ...) PRINTF_ATTR(1, 2);
+void prn_dbg(const char *fmt, ...) PRINTF_ATTR(1, 2);
+void prn_ftdi_error(int rv, struct ftdi_context *context,
+                    const char *fmt, ...) PRINTF_ATTR(3, 4);
+void prn_ftdi_warn(int rv, struct ftdi_context *context,
+                   const char *fmt, ...) PRINTF_ATTR(3, 4);
 #ifdef __cplusplus
 }
 #endif

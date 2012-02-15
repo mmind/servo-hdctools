@@ -3,8 +3,12 @@
 // found in the LICENSE file.
 
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
+
 #include "ftdi_common.h"
 
 // return number of interfaces, -1 for error
@@ -200,3 +204,127 @@ struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *interfaces,
   return &interfaces[interface_num-1];
 }
 
+static unsigned debug_enabled(void) __attribute__((pure));
+static unsigned debug_enabled(void)
+{
+    return getenv("SERVOD_DEBUG") != NULL;
+}
+
+static void _prn_time(void)
+{
+  struct timeval tv;
+  struct timezone tz;
+  struct tm *tm;
+
+  gettimeofday(&tv, &tz);
+  tm=localtime(&tv.tv_sec);
+  fprintf(stderr, "(%02d:%02d:%02d.%u)", tm->tm_hour, tm->tm_min,
+          tm->tm_sec, (unsigned int)tv.tv_usec);
+}
+
+static void _prn_common(const char *type,
+                        const char *fmt,
+                        va_list ap) __attribute__((format(printf, 2, 0)));
+static void _prn_common(const char *type,
+                        const char *fmt,
+                        va_list ap)
+{
+  fprintf(stderr, "%s %s:%u :: ", type, __FILE__, __LINE__);
+  vfprintf(stderr, fmt, ap);
+}
+
+void prn_fatal(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_common("-F-", fmt, ap);
+  va_end(ap);
+  exit(-1);
+}
+
+void prn_error(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_common("-E-", fmt, ap);
+  va_end(ap);
+}
+
+void prn_warn(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_common("-W-", fmt, ap);
+  va_end(ap);
+}
+
+void prn_info(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_time();
+  _prn_common("-I-", fmt, ap);
+  va_end(ap);
+}
+
+void prn_perror(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  prn_error("%s (%d): ", strerror(errno), errno);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+}
+
+void prn_dbg(const char *fmt, ...)
+{
+  if (debug_enabled()) {
+    va_list ap;
+
+    va_start(ap, fmt);
+    _prn_time();
+    _prn_common("-D-", fmt, ap);
+    va_end(ap);
+  }
+}
+
+
+static void _prn_ftdi_common(const char *type,
+                             int rv,
+                             struct ftdi_context *context,
+                             const char *fmt,
+                             va_list ap) __attribute__((format(printf, 4, 0)));
+static void _prn_ftdi_common(const char *type,
+                             int rv,
+                             struct ftdi_context *context,
+                             const char *fmt,
+                             va_list ap)
+{
+  fprintf(stderr, "%s:", type);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, " : %d (%s)\n", rv, ftdi_get_error_string(context));
+  va_end(ap);
+}
+
+void prn_ftdi_error(int rv, struct ftdi_context *context, const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_ftdi_common("ERROR", rv, context, fmt, ap);
+  va_end(ap);
+}
+
+void prn_ftdi_warn(int rv, struct ftdi_context *context, const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  _prn_ftdi_common("WARN", rv, context, fmt, ap);
+  va_end(ap);
+}
