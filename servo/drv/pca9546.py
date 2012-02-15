@@ -32,7 +32,7 @@ class pca9546(drv.hw_driver.HwDriver):
   def get(self):
     """Get PCA9546 mux.
     """
-    return self._interface.wr_rd(self._slave, [], 1)
+    return self._interface.wr_rd(self._slave, [], 1)[0]
 
   def set(self, value):
     """Set PCA954 mux.
