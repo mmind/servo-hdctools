@@ -3,14 +3,14 @@
 # found in the LICENSE file.
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-LIBDIR		= /usr/lib
-LIB_DEST	= $(DESTDIR)$(LIBDIR)
+BINDIR		= /usr/bin
+BIN_DEST	= $(DESTDIR)$(BINDIR)
 
 CFLAGS  	+= $(LIBFTDI_CFLAGS)
 LDFLAGS		+= $(LIBFTDI_LDFLAGS)
 LIBS		+= $(SERIAL_LIBS) -lpthread
 
-TARGETS		= servod
+TARGETS		= servod-bin
 
 all: $(TARGETS)
 
@@ -18,7 +18,7 @@ all: $(TARGETS)
 	$(MESSAGE) "Compiling $(notdir $<)"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-servod: servod.o
+servod-bin: servod.o
 	$(MESSAGE) "Building $(notdir $@)"
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^	\
 		-L$(HDCTOOLS_BUILD_DIR)/lib	\
@@ -26,8 +26,8 @@ servod: servod.o
 		$(SERIAL_LIBS)
 
 install:
-	$(MESSAGE) "Installing '$(TARGETS)' to $(LIB_DEST)"
-	$(MKDIR) -p $(LIB_DEST)
-	$(CP) $(TARGETS) "$(LIB_DEST)"
+	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"
+	$(MKDIR) -p $(BIN_DEST)
+	$(CP) $(TARGETS) "$(BIN_DEST)"
 
 -include *.d
