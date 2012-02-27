@@ -488,13 +488,15 @@
   </control>
   <control>
     <name>uart2_en</name>
-    <doc>uart2_en</doc>
+    <alias>cpu_uart_en</alias>
+    <doc>Enable communication with CPU uart</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
     offset="6" map="onoff_i"></params>
   </control>
   <control>
     <name>uart1_en</name>
-    <doc>uart1_en</doc>
+    <alias>ec_uart_en</alias>
+    <doc>Enable communication with EC uart</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
     offset="7" map="onoff_i"></params>
   </control>

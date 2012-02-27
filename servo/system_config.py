@@ -134,9 +134,14 @@ class SystemConfig(object):
           raise SystemConfigError("%s: no name ... see XML\n%s" %
                                   (tag, element_str))
         try:
-          doc = " ".join(element.find("doc").text.split())
+          doc = " ".join(element.find('doc').text.split())
         except AttributeError:
           doc = 'undocumented'
+        try:
+          alias = element.find('alias').text
+        except AttributeError:
+          alias = None
+
         get_dict = None
         set_dict = None
         params_list = element.findall('params')
@@ -172,9 +177,14 @@ class SystemConfig(object):
                                   % (tag, name, element_str))
         if tag == 'map':
           self.syscfg_dict[tag][name] = {'doc':doc, 'map_params':get_dict}
+          if alias:
+            raise SystemConfigError("No aliases for maps allowed")
         else:
           self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
                                           'set_params':set_dict}
+          if alias:
+            self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
+
 
   def hwinit(self):
     """Set each control to its initial value
