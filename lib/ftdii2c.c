@@ -101,11 +101,11 @@ static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
     return FI2C_ERR_FTDI;
   }
   if (bytes_read != 1) {
-    prn_error("bytes read %d != 1\n", bytes_read);
+    prn_dbg("bytes read %d != 1\n", bytes_read);
     return FI2C_ERR_READ;
   } else {
     if ((rdbuf[0] & 0x80) != 0x0) {
-      prn_error("ack read 0x%02x != 0x0\n", (rdbuf[0] & 0x80));
+      prn_dbg("ack read 0x%02x != 0x0\n", (rdbuf[0] & 0x80));
       return FI2C_ERR_ACK;
     }
     prn_dbg("saw the ack 0x%02x\n", rdbuf[0]);
@@ -169,7 +169,7 @@ static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
     if (bytes_read < 0) {
       ERROR_FTDI("FTDI read bytes", fic->fc);
     } else {
-      prn_error("ftdi bytes_read %d != %d expected\n", bytes_read, rcnt);
+      prn_dbg("ftdi bytes_read %d != %d expected\n", bytes_read, rcnt);
     }
     return FI2C_ERR_READ;
   }
@@ -253,12 +253,15 @@ int fi2c_reset(struct fi2c_context *fic) {
 }
 
 int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
-                     uint8_t *rbuf, int rcnt) {
+               uint8_t *rbuf, int rcnt) {
   int err = 0;
   int retry_count = 0;
   static int tot_retry_count = 0;
+#ifdef DEBUG
+  int i;
+#endif
 
- retry:
+retry:
   if (retry_count >= FI2C_ACK_RETRY_MAX) {
     goto WR_RD_DONE;
   }
@@ -270,7 +273,6 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
   if (wcnt && wbuf) {
 #ifdef DEBUG
     printf("begin write of: ");
-    int i;
     for (i = 0; i < wcnt; i++) {
       printf("0x%02x ", wbuf[i]);
     }
@@ -278,53 +280,52 @@ int fi2c_wr_rd(struct fi2c_context *fic, uint8_t *wbuf, int wcnt,
 #endif
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(WR) Start bit\n");
     err = fi2c_send_slave(fic, 0);
-    if (err == FI2C_ERR_ACK) {
-      retry_count++;
-      goto retry;
-    } else if (err == FI2C_ERR_READ) {
+    if ((err == FI2C_ERR_ACK) || (err == FI2C_ERR_READ)) {
       retry_count++;
       goto retry;
     }
     if (!fic->error && !err) {
       err = fi2c_wr(fic, wbuf, wcnt);
       if (err == FI2C_ERR_READ) {
-          retry_count++;
-          goto retry;
-    }
+        retry_count++;
+        goto retry;
+      }
       CHECK_FI2C(fic, fi2c_stop_bit_cmds(fic), "(WR) Stop bit\n");
       CHECK_FI2C(fic, fi2c_write_cmds(fic), "(WR) FTDI write cmds\n");
     }
   }
-  if (rcnt && rbuf && !fic->error) {
+  if (rcnt && rbuf && !fic->error && !err) {
     prn_dbg("begin read\n");
     CHECK_FI2C(fic, fi2c_start_bit_cmds(fic), "(RD) Start bit\n");
     err = fi2c_send_slave(fic, 1);
-    if (err == FI2C_ERR_ACK) {
-      retry_count++;
-      goto retry;
-    } else if (err == FI2C_ERR_READ) {
-      tot_retry_count++;
-      goto retry;
-    }
-    CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
-    if (fic->error == FI2C_ERR_READ) {
+    if ((err == FI2C_ERR_ACK) || (err == FI2C_ERR_READ)) {
       retry_count++;
       goto retry;
     }
+    if (!fic->error && !err) {
+      CHECK_FI2C(fic, fi2c_rd(fic, rbuf, rcnt), "(RD) Payload\n");
+      if (fic->error == FI2C_ERR_READ) {
+        retry_count++;
+        goto retry;
+      }
 #ifdef DEBUG
-    printf("end read: ");
-    int i;
-    for (i = 0; i < rcnt; i++) {
-      printf("0x%02x ", rbuf[i]);
-    }
-    printf("\n");
+      printf("end read: ");
+      for (i = 0; i < rcnt; i++) {
+        printf("0x%02x ", rbuf[i]);
+      }
+      printf("\n");
 #endif
+    }
   }
 WR_RD_DONE:
+  if (fic->error || err) {
+    prn_error("Slave 0x%02x failed wr_rd with fic->error:%d err:%d\n",
+              fic->slv, fic->error, err);
+  }
   tot_retry_count += retry_count;
-  prn_dbg("done.  err = %d, retry_count = %d, tot_retry_count = %d\n", err,
-           retry_count, tot_retry_count);
-  return fic->error;
+  prn_dbg("Done.  retry_count = %d, tot_retry_count = %d\n",
+          retry_count, tot_retry_count);
+  return fic->error || err;
 }
 
 int fi2c_close(struct fi2c_context *fic) {
