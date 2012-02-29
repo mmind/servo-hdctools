@@ -46,14 +46,24 @@
     Default is off</doc>
     <params pp3300="0" pp2500="1" pp1800="2" off="3"></params>
   </map>
-  <!-- *********** FT4232H U29 Interface A gpios ********** -->
-  <!-- only JTAG -->
-  <!-- *********** FT4232H U29 Interface B gpios ********** -->
-  <!-- only I2C -->
-  <!-- *********** FT4232H U29 Interface C gpios ********** -->
-  <!-- only uart -->
-  <!-- *********** FT4232H U29 Interface D gpios ********** -->
-  <!-- only uart -->
+  <!-- *********** FT4232H U29 Interface 1 ********** -->
+  <!-- JTAG -->
+  <!-- *********** FT4232H U29 Interface 2 ********** -->
+  <!-- I2C -->
+  <!-- *********** FT4232H U29 Interface 3 ********** -->
+  <!-- UART -->
+  <control>
+    <name>uart3_pty</name>
+    <doc>uart3_pty</doc>
+    <params type="get" subtype="pty" interface="3" drv="uart"></params>
+  </control>
+  <!-- *********** FT4232H U29 Interface 4 ********** -->
+  <!-- UART -->
+  <control>
+    <name>atmega_pty</name>
+    <doc>atmega_pty</doc>
+    <params type="get" subtype="pty" interface="4" drv="uart"></params>
+  </control>
   <!-- ********** I2c related controls ********** -->
   <!-- slv 0x20 : ioexpander port 0 -->
   <control>
@@ -536,5 +546,23 @@
     <doc>usb_mux_sel4</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="1"
     offset="7" map="onoff"></params>
+  </control>
+  <!-- *********** FT4232H U56 Interface 5 ********** -->
+  <!-- SPI -->
+  <!-- *********** FT4232H U56 Interface 6 ********** -->
+  <!-- SPI -->
+  <!-- *********** FT4232H U56 Interface 7 ********** -->
+  <!-- UART -->
+  <control>
+    <name>uart1_pty</name>
+    <doc>uart1_pty</doc>
+    <params type="get" subtype="pty" interface="7" drv="uart"></params>
+  </control>
+  <!-- *********** FT4232H U56 Interface 8 ********** -->
+  <!-- UART -->
+  <control>
+    <name>uart2_pty</name>
+    <doc>uart2_pty</doc>
+    <params type="get" subtype="pty" interface="8" drv="uart"></params>
   </control>
 </root>

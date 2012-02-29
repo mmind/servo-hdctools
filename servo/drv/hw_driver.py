@@ -42,23 +42,60 @@ class HwDriver(object):
 
   def set(self, logical_value):
     """Set hardware control to a particular value.
-    
+
+    In the case of simpler drivers, a single 'set' method is
+    implemented in the subclass.  If however the driver is deemed
+    worthy of more complication, this method will dispatch to the
+    subclasses "_Set_%s" % params['subtype'] method.
+
     TODO(tbroch) logical_value will need float support for DAC's
 
     Args:
       logical_value: Integer value to write to hardware.
+
+    Returns:
+      Value from subclass method.
+
+    Raises:
+      HwDriverError: If unable to locate subclass method.
+      NotImplementedError: There's no subtype param and set method
+        wasn't implemented in the subclass.
     """
     self._logger.debug("logical_value = %s" % str(logical_value))
-    raise NotImplementedError("Should be implemeted in subclass")
+    if 'subtype' in self._params:
+      fn_name = '_Set_%s' % self._params['subtype']
+      if hasattr(self, fn_name):
+        return getattr(self, fn_name)(logical_value)
+      else:
+        raise HwDriverError("Subtype %s has no get function." % subtype)
+    else:
+      raise NotImplementedError("Set should be implemented in subclass.")
 
   def get(self):
     """Get control value and return it
 
+    In the case of simpler drivers, a single 'get' method is
+    implemented in the subclass.  If however the driver is deemed
+    worthy of more complication, this method will dispatch to the
+    subclasses "_Get_%s" % params['subtype'] method.
+
     Returns:
-      logical value (int | float) to caller.
+      Value from subclass method.
+
+    Raises:
+      HwDriverError: If unable to locate subclass method.
+      NotImplementedError: There's no subtype param and get method
+        wasn't implemented in the subclass.
     """
     self._logger.debug("")
-    raise NotImplementedError("Should be implemeted in subclass")
+    if 'subtype' in self._params:
+      fn_name = '_Get_%s' % self._params['subtype']
+      if hasattr(self, fn_name):
+        return getattr(self, fn_name)()
+      else:
+        raise HwDriverError("Subtype %s has no get method" % subtype)
+    else:
+      raise NotImplementedError("Get method should be implemented in subclass.")
 
   def _create_logical_value(self, hw_value):
     """Create logical value using mask & offset.

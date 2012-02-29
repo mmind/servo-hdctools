@@ -76,25 +76,35 @@ class Ina219Error(Exception):
 
 
 class ina219(drv.hw_driver.HwDriver):
-  """Object to access drv=ina219 controls."""
+  """Object to access drv=ina219 controls.
+
+  Note, instances of this object get dispatched via base class,
+  HwDriver's get/set method.  That method ulitimately calls:
+    "_[GS]et_%s" % params['subtype'] below.
+
+  For example, a control to read the millivolts of an ADC would be
+  dispatched to call _Get_millivolts.
+  """
   def __init__(self, interface, params):
     """Constructor.
 
     Args:
-      interface: FTDI interface object to handle low-level communication to
-          control
-      params: dictionary of params needed to perform operations on ina219
-          devices.  All items are strings initially but should be cast to types
-          detailed below.
+    interface: FTDI interface object to handle low-level communication to
+      control
+    params: dictionary of params needed to perform operations on
+      ina219 devices.  All items are strings initially but should be
+      cast to types detailed below.
 
     Mandatory Params:
       slv: integer, 7-bit i2c slave address
+      subtype: string, used by get/set method of base class to decide
+        how to dispatch request.  Examples are: millivolts, milliamps,
+        milliwatts
+
     Optional Params:
       reg: integer, raw register index [0:5] to read / write.  
       rsense: float, sense resistor size for adc in ohms.  Needed to properly
         compute current and power measurements
-      subtype: string, used by get method to decide retrieval of millivolts |
-          milliamps | milliwatts
     """
     super(ina219, self).__init__(interface, params)
     self._logger.debug("")
@@ -126,51 +136,6 @@ class ina219(drv.hw_driver.HwDriver):
     # so I'm whacking everything stateful
     self._calib_reg = None
     self._reg_cache = None
-
-  def get(self):
-    """Get requested value from INA219 adc.
-
-    Value can be milliamps, millivolts, milliwatts and raw register reads
-    presently.  Actual get depends on 'subtype' in params
-    
-    Returns:
-      float value read from INA219 in requested units.
-    
-    Raises:
-      Ina219Error: Errors pertaining to this class
-    """
-    self._logger.debug("")
-    subtype = self._params['subtype']
-    try:
-      func = getattr(self, '_Get_%s' % subtype)
-    except AttributeError:
-      raise Ina219Error("subtype %s has no function" % subtype)
-    try:
-      value = func()
-    except Exception:
-      raise Ina219Error("Unknown failure calling subtype %s" % subtype)
-    return value
-
-  def set(self, value):
-    """Set value on INA219 device.
-
-    Args:
-      value: integer value to write to device
-
-    Raises:
-      Ina219Error: Errors pertaining to this class
-    """
-    self._logger.debug("value = %s" % str(value))
-    subtype = self._params['subtype']
-    try:
-      func = getattr(self, '_Set_%s' % subtype)
-    except AttributeError:
-      raise Ina219Error("subtype %s has no function" % subtype)
-    try:
-      func(value)
-    except Exception, e:
-      raise Ina219Error("Unknown failure calling subtype %s %s" % (subtype, str(e)))
-    return value
 
   def _read_busv(self):
     """Read the bus voltage register.

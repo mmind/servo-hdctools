@@ -14,3 +14,4 @@ import tca6416
 import ltc1663
 import pca9546
 import pca9537
+import uart
