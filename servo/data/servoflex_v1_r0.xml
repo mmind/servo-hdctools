@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<root>
+  <control>
+    <name>bios_en</name>
+    <doc>Enable BIOS SPI EEPROM writing from servo. Must swing
+    i2c_mux:rem</doc>
+    <params interface="2" drv="pca9537" slv="0x49" offset="0"
+    map="onoff_i"></params>
+  </control>
+  <control>
+    <name>ec_en</name>
+    <doc>Enable EC SPI writing from servo. Must swing
+    i2c_mux:rem</doc>
+    <params interface="2" drv="pca9537" slv="0x49" offset="1"
+    map="onoff_i"></params>
+  </control>
+  <control>
+    <name>rx_en</name>
+    <doc>Enable UART RX. Must swing i2c_mux:rem</doc>
+    <params interface="2" drv="pca9537" slv="0x49" offset="2"
+    map="onoff_i"></params>
+  </control>
+  <control>
+    <name>tx_en</name>
+    <doc>Enable UART TX. Must swing i2c_mux:rem</doc>
+    <params interface="2" drv="pca9537" slv="0x49" offset="3"
+    map="onoff_i"></params>
+  </control>
+</root>
