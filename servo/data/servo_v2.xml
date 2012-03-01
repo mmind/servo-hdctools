@@ -54,7 +54,9 @@
   <!-- UART -->
   <control>
     <name>uart3_pty</name>
-    <doc>uart3_pty</doc>
+    <alias>legacy_uart_pty</alias>
+    <doc>Legacy (v1) uart console.  Typically connected to
+    CPU's uart console for devices which supported it.</doc>
     <params type="get" subtype="pty" interface="3" drv="uart"></params>
   </control>
   <!-- *********** FT4232H U29 Interface 4 ********** -->
@@ -272,7 +274,8 @@
   </control>
   <control>
     <name>uart3_en</name>
-    <doc>uart3_en</doc>
+    <alias>legacy_uart_en</alias>
+    <doc>Enable communication with legacy (v1) uart console.</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="4" map="onoff_i"></params>
   </control>
@@ -499,14 +502,14 @@
   <control>
     <name>uart2_en</name>
     <alias>cpu_uart_en</alias>
-    <doc>Enable communication with CPU uart</doc>
+    <doc>Enable communication with CPU's uart console</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
     offset="6" map="onoff_i"></params>
   </control>
   <control>
     <name>uart1_en</name>
     <alias>ec_uart_en</alias>
-    <doc>Enable communication with EC uart</doc>
+    <doc>Enable communication with EC's uart console</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
     offset="7" map="onoff_i"></params>
   </control>
@@ -555,14 +558,16 @@
   <!-- UART -->
   <control>
     <name>uart1_pty</name>
-    <doc>uart1_pty</doc>
+    <alias>ec_uart_pty</alias>
+    <doc>Psuedo-terminal (pty) thats connnected to EC's uart console</doc>
     <params type="get" subtype="pty" interface="7" drv="uart"></params>
   </control>
   <!-- *********** FT4232H U56 Interface 8 ********** -->
   <!-- UART -->
   <control>
     <name>uart2_pty</name>
-    <doc>uart2_pty</doc>
+    <alias>cpu_uart_pty</alias>
+    <doc>Psuedo-terminal (pty) thats connnected to CPU's uart console</doc>
     <params type="get" subtype="pty" interface="8" drv="uart"></params>
   </control>
 </root>
