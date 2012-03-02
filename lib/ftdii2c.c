@@ -267,6 +267,8 @@ retry:
   }
   // flush both buffers to guarantee clean restart when retrying
   if (retry_count) {
+    fic->error = 0;
+    err = 0;
     prn_dbg("Retry, retry_count = %d\n", retry_count);
     CHECK_FTDI(ftdi_usb_purge_buffers(fic->fc), "Purge rx/tx buf", fic->fc);
   }
