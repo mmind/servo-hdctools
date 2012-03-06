@@ -30,7 +30,7 @@
     <params local_adc_ch0="0" local_adc_ch1="1" remote_adc="2"
     reserved="3" loc0="0" loc1="1" rem="2" res="3"></params>
   </map>
-  <!-- ******************** Interface A gpios ******************** -->
+  <!-- ******************** Interface 1 ******************** -->
   <control>
     <name>warm_reset</name>
     <doc>Reset the device warmly</doc>
@@ -45,7 +45,8 @@
     <params cmd="get" interface="1" drv="gpio" offset="6"
     map="onoff"></params>
   </control>
-  <!-- ******************** Interface B gpios ******************** -->
+  <!-- ******************** Interface 2 ******************** -->
+  <!-- I2C + GPIOS -->
   <control>
     <name>tp6</name>
     <doc>test point 6</doc>
@@ -75,9 +76,15 @@
     <params interface="2" drv="gpio" offset="6" width="2"
     map="kbd_m2"></params>
   </control>
-  <!-- ******************** Interface C gpios ******************** -->
-  <!-- TODO(tbroch) implement uart + gpio controls -->
-  <!-- TODO(jguerin) hacks for now so I can do EC SPI -->
+  <!-- ******************** Interface 3 ******************** -->
+  <!-- TODO(tbroch) As implemented its either UART or GPIOs not both -->
+  <!-- UART -->
+  <control>
+    <name>cpu_uart_pty</name>
+    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
+    <params cmd="get" interface="3" subtype="pty" drv="uart"></params>
+  </control>
+  <!-- GPIOS -->
   <control>
     <name>servo_dut_tx</name>
     <doc>Make input when in EC SPI programming mode</doc>
@@ -111,7 +118,7 @@
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="0" map="onoff"></params>
   </control>
-  <!-- ******************** Interface D gpios ******************** -->
+  <!-- ******************** Interface 4 ******************** -->
   <control>
     <name>kbd_en</name>
     <doc>Enable servo to assert certain keypresses via kdb_m1 and

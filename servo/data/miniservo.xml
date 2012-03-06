@@ -28,6 +28,13 @@
     <doc>map for press and release of buttons</doc>
     <params press="0" release="1"></params>
   </map>
+  <!-- UART -->
+  <control>
+    <name>cpu_uart_pty</name>
+    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
+    <params cmd="get" interface="2" subtype="pty" drv="uart"></params>
+  </control>
+  <!-- GPIOS -->
   <control>
     <name>gpio0</name>
     <doc>gpio0.  Can be chosen by developer to be one of 6 gpios by shorting

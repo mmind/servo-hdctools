@@ -57,14 +57,14 @@
     <alias>legacy_uart_pty</alias>
     <doc>Legacy (v1) uart console.  Typically connected to
     CPU's uart console for devices which supported it.</doc>
-    <params type="get" subtype="pty" interface="3" drv="uart"></params>
+    <params cmd="get" subtype="pty" interface="3" drv="uart"></params>
   </control>
   <!-- *********** FT4232H U29 Interface 4 ********** -->
   <!-- UART -->
   <control>
     <name>atmega_pty</name>
     <doc>atmega_pty</doc>
-    <params type="get" subtype="pty" interface="4" drv="uart"></params>
+    <params cmd="get" subtype="pty" interface="4" drv="uart"></params>
   </control>
   <!-- ********** I2c related controls ********** -->
   <!-- slv 0x20 : ioexpander port 0 -->
@@ -559,15 +559,15 @@
   <control>
     <name>uart1_pty</name>
     <alias>ec_uart_pty</alias>
-    <doc>Psuedo-terminal (pty) thats connnected to EC's uart console</doc>
-    <params type="get" subtype="pty" interface="7" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connected to EC's uart console</doc>
+    <params cmd="get" subtype="pty" interface="7" drv="uart"></params>
   </control>
   <!-- *********** FT4232H U56 Interface 8 ********** -->
   <!-- UART -->
   <control>
     <name>uart2_pty</name>
     <alias>cpu_uart_pty</alias>
-    <doc>Psuedo-terminal (pty) thats connnected to CPU's uart console</doc>
-    <params type="get" subtype="pty" interface="8" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
+    <params cmd="get" subtype="pty" interface="8" drv="uart"></params>
   </control>
 </root>
