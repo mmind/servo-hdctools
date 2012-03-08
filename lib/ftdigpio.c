@@ -61,20 +61,20 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
     // direction register is changing
     if (new_gpio->mask & (gpio->direction ^ new_gpio->direction)) {
       dir_chg = 1;
-      gpio->direction = (new_gpio->mask & new_gpio->direction) | 
+      gpio->direction = (new_gpio->mask & new_gpio->direction) |
                         (~new_gpio->mask & gpio->direction);
       prn_dbg("Changing direction register to 0x%02x\n", gpio->direction);
     }
     // value is changing
     if (new_gpio->mask & (gpio->value ^ new_gpio->value)) {
       val_chg = 1;
-      gpio->value = (new_gpio->mask & new_gpio->value) | 
+      gpio->value = (new_gpio->mask & new_gpio->value) |
                     (~new_gpio->mask & gpio->value);
       prn_dbg("Changing value register to 0x%02x\n", gpio->value);
     }
 
     if ((fgc->fc->type == TYPE_R) && (val_chg || dir_chg)) {
-      buf[0] = ((0xf & gpio->direction)<<4) | (0xf & gpio->value);
+      buf[0] = FGPIO_CBUS_GPIO(gpio->direction, gpio->value);
       prn_dbg("cbus write of 0x%02x\n", buf[0]);
       CHECK_FTDI(ftdi_set_bitmode(fc, buf[0], BITMODE_CBUS),
                  "write cbus gpio", fc);
@@ -86,7 +86,7 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
         return FGPIO_ERR_NOIMP;
       }
       if ((itype == GPIO) && dir_chg) {
-        CHECK_FTDI(ftdi_set_bitmode(fc, gpio->direction, BITMODE_BITBANG), 
+        CHECK_FTDI(ftdi_set_bitmode(fc, gpio->direction, BITMODE_BITBANG),
                    "re-cfg gpio direction", fc);
         prn_dbg("Wrote direction to 0x%02x\n", gpio->direction);
       }
@@ -130,4 +130,3 @@ int fgpio_close(struct fgpio_context *fgc) {
   ftdi_deinit(fgc->fc);
   return rv;
 }
-

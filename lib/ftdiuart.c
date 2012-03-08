@@ -17,14 +17,10 @@
 
 #include "ftdi_common.h"
 #include "ftdiuart.h"
+#include "ftdigpio.h"
 
 
 #ifdef DARWIN
-// TODO(tbroch) Where are these protos and under what conditions do they
-//              exist across lin/mac/win
-int grantpt(int fd);
-int unlockpt(int fd);
-
 static int ptsname_r(int fd, char *buf, size_t buflen) {
   char *name = ptsname(fd);
   if (name == NULL) {
@@ -60,6 +56,10 @@ static int fuart_init_locked(struct fuart_context *fuartc,
 
   fuartc->is_open = 0;
   fuartc->usecs_to_sleep = 0;
+  fuartc->cfg.baudrate = 0;
+  fuartc->cfg.bits = 0;
+  fuartc->cfg.sbits = 0;
+  fuartc->cfg.parity = 0;
   fuartc->error = FUART_ERR_NONE;
   return FUART_ERR_NONE;
 }
@@ -77,12 +77,72 @@ int fuart_init(struct fuart_context *fuartc, struct ftdi_context *fc) {
   return rv;
 }
 
+// TODO(tbroch) Do some checking of reasonable cfg/buadrate
+static int fuart_stty_locked(struct fuart_context *fuartc,
+                             const struct uart_cfg *new_cfg) {
+
+  struct ftdi_context *fc = fuartc->fc;
+  struct uart_cfg *fcfg = &(fuartc->cfg);
+  int errors = 0;
+  int baudrate_input = new_cfg->baudrate;
+
+  if ((new_cfg->bits != fcfg->bits) || (new_cfg->sbits != fcfg->sbits) ||
+      (new_cfg->parity != fcfg->parity)) {
+    prn_dbg("new line_props: bits = %d parity = %d sbits = %d\n",
+            new_cfg->bits, new_cfg->parity, new_cfg->sbits);
+    if (ftdi_set_line_property(fc, new_cfg->bits, new_cfg->sbits,
+                               new_cfg->parity)) {
+      ERROR_FTDI("line props", fc);
+      errors += 1;
+    } else {
+      fcfg->bits = new_cfg->bits;
+      fcfg->parity = new_cfg->parity;
+      fcfg->sbits = new_cfg->sbits;
+    }
+  }
+
+  if ((new_cfg->baudrate != fcfg->baudrate)) {
+
+    prn_dbg("new baudrate = %d\n", new_cfg->baudrate);
+    // For devices that support uart + GPIOs (CBUS mode (FT232R, FT245R)) the
+    // baudrate is multiplied by 4 in ftdi_set_baudrate (libftdi <= 0.19).
+    // For that reason, must divide the requested baudrate by 4
+    //
+    // TODO(tbroch) Understand why libftdi does this in more detail and
+    // potentially submit patch to remove workaround below.
+    if (fc->bitbang_enabled)
+      baudrate_input /= 4;
+
+    if (ftdi_set_baudrate(fc, baudrate_input)) {
+      ERROR_FTDI("baudrate", fc);
+      errors += 1;
+    } else {
+      fcfg->baudrate = new_cfg->baudrate;
+    }
+  }
+
+  if (errors)
+    return FUART_ERR_STTY;
+  else
+    return FUART_ERR_NONE;
+}
+
+int fuart_stty(struct fuart_context *fuartc, struct uart_cfg *new_cfg) {
+  int rv;
+  fuart_get_lock(fuartc);
+  rv = fuart_stty_locked(fuartc, new_cfg);
+  fuart_release_lock(fuartc);
+  return rv;
+}
+
 static int fuart_open_locked(struct fuart_context *fuartc,
                              struct ftdi_common_args *fargs) {
   int rv;
   int fd;
   struct termios tty_cfg;
   struct ftdi_context *fc = fuartc->fc;
+  int bitmode = BITMODE_RESET;
+  int gpio_cfg = TX_POS;
 
   assert(fc);
 
@@ -103,19 +163,19 @@ static int fuart_open_locked(struct fuart_context *fuartc,
       return FUART_ERR_FTDI;
     }
   }
-  CHECK_FTDI(ftdi_set_bitmode(fc, TX_POS, BITMODE_RESET),
-             "uart mode", fc);
-
-  // TODO(tbroch) Do some checking of reasonable cfg/buadrate
-  CHECK_FTDI(ftdi_set_line_property(fc, fargs->bits, fargs->sbits,
-                                    fargs->parity), "line props", fc);
-  CHECK_FTDI(ftdi_set_baudrate(fc, fargs->speed), "baudrate", fc);
 
   if (fc->type == TYPE_R) {
-    int gpio_cfg = fargs->direction<<4 | fargs->value;
-    CHECK_FTDI(ftdi_set_bitmode(fc, gpio_cfg, BITMODE_CBUS),
-               "uart mode", fc);
+    bitmode = BITMODE_CBUS;
+    gpio_cfg = FGPIO_CBUS_GPIO(fargs->direction, fargs->value);
   }
+
+  if (ftdi_set_bitmode(fc, gpio_cfg, bitmode)) {
+    ERROR_FTDI("uart mode", fc);
+    return FUART_ERR_OPEN;
+  }
+
+  if (fuart_stty_locked(fuartc, &fargs->uart_cfg))
+    return FUART_ERR_OPEN;
 
   if ((fd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
     perror("opening pty master");
@@ -173,10 +233,6 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
   struct ftdi_context *fc = fuartc->fc;
 
   if ((bytes = read(fuartc->fd, fuartc->buf, sizeof(fuartc->buf))) > 0) {
-#ifdef DEBUG
-    fuartc->buf[bytes] = '\0';
-    printf("about to write %d bytes to ftdi %s\n", bytes, fuartc->buf);
-#endif
     bytes_written = ftdi_write_data(fc, fuartc->buf, bytes);
     if (bytes_written != bytes) {
       ERROR_FTDI("writing to uart", fc);

@@ -112,7 +112,7 @@ int main (int argc, char **argv) {
   fargs.product_id = 0x6011;
   fargs.interface = INTERFACE_B;
   fargs.serialname = NULL;
-  fargs.speed = 100000;
+
 
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {
     usage(argv[0]);
@@ -134,7 +134,7 @@ int main (int argc, char **argv) {
   if ((rv = fi2c_open(&fic, &fargs)))
     return rv;
 
-  if ((rv = fi2c_setclock(&fic, fargs.speed)))
+  if ((rv = fi2c_setclock(&fic, 100000)))
     return rv;
   fic.slv = slv;
 

@@ -23,6 +23,21 @@ class FuartError(Exception):
   pass
 
 
+class UartCfg(ctypes.Structure):
+  """Defines uart configuration values.
+
+  These values are supplied to the libftdi API:
+    ftdi_set_line_property
+    ftdi_set_baudrate
+
+  Declared in ftdi_common.h and named uart_cfg.
+  """
+  _fields_ = [("baudrate", ctypes.c_uint),
+              ("bits", ctypes.c_uint),
+              ("parity", ctypes.c_uint),
+              ("sbits", ctypes.c_uint)]
+
+
 class FuartContext(ctypes.Structure):
   """Defines primary context structure for libftdiuart.
 
@@ -31,6 +46,7 @@ class FuartContext(ctypes.Structure):
   _fields_ = [("fc", ctypes.POINTER(ftdi_common.FtdiContext)),
               ("gpio", ftdi_common.Gpio),
               ("name", ctypes.c_char * FUART_NAME_SIZE),
+              ("cfg", UartCfg),
               ("is_open", ctypes.c_int),
               ("usecs_to_sleep", ctypes.c_int),
               ("fd", ctypes.c_int),
@@ -56,7 +72,7 @@ class Fuart(object):
       interface: interface number of FTDI device to use
       ftdi_context: ftdi context created previously or None if one should be
         allocated here.  This shared context functionality is seen in miniservo
-        which has a uart + 4 gpios (miniservo)
+        which has a uart + 4 gpios
 
     Raises:
       FuartError: If either ftdi or fuart inits fail
@@ -64,7 +80,6 @@ class Fuart(object):
     self._logger = logging.getLogger("Fuart")
     self._logger.debug("")
     (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdiuart")
-    # TODO(tbroch) allow configuration of uart options via kwargs
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
                                              interface=interface,
@@ -122,6 +137,65 @@ class Fuart(object):
     if err:
       raise FuartError("Failure with fuart_run", err)
 
+  def get_uart_props(self):
+    """Get the uart's properties.
+
+    Returns:
+      dict where:
+        baudrate: integer of uarts baudrate
+        bits: integer, number of bits of data Can be 5|6|7|8 inclusive
+        parity: integer, parity of 0-2 inclusive where:
+          0: no parity
+          1: odd parity
+          2: even parity
+        sbits: integer, number of stop bits.  Can be 0|1|2 inclusive where:
+          0: 1 stop bit
+          1: 1.5 stop bits
+          2: 2 stop bits
+    """
+    self._logger.debug("")
+    return {'baudrate': self._fuartc.cfg.baudrate,
+            'bits': self._fuartc.cfg.bits,
+            'parity': self._fuartc.cfg.parity,
+            'sbits': self._fuartc.cfg.sbits}
+
+  def set_uart_props(self, line_props):
+    """Set the uart's properties.
+
+    Args:
+      line_props: dict where:
+        baudrate: integer of uarts baudrate
+        bits: integer, number of bits of data ( prior to stop bit)
+        parity: integer, parity of 0-2 inclusive where
+          0: no parity
+          1: odd parity
+          2: even parity
+        sbits: integer, number of stop bits.  Can be 0|1|2 inclusive where:
+          0: 1 stop bit
+          1: 1.5 stop bits
+          2: 2 stop bits
+
+    Raises:
+      FuartError: If failed to set line properties
+    """
+    self._logger.debug("")
+    if line_props['bits'] not in (5,6,7,8):
+      raise FuartError("Data bits must be 5|6|7|8")
+    if line_props['sbits'] not in (0,1,2):
+      raise FuartError("Stop bits must be 0|1|2.  Where 0==1bit," + \
+                         "1==1.5bits 2==2bits")
+    if line_props['parity'] not in (0,1,2):
+      raise FuartError("Parity must be 0|1|2.  Where 0==none, 1==odd, 2==even")
+
+    cfg = UartCfg()
+    cfg.baudrate = line_props['baudrate']
+    cfg.bits = line_props['bits']
+    cfg.parity = line_props['parity']
+    cfg.sbits = line_props['sbits']
+
+    if self._lib.fuart_stty(ctypes.byref(self._fuartc), ctypes.byref(cfg)):
+      raise FuartError("Failed to set line properties requested")
+
   def get_pty(self):
     """Gets path to pty for communication to/from uart.
 
@@ -129,8 +203,6 @@ class Fuart(object):
       String path to the pty connected to the uart
     """
     self._logger.debug("")
-    while self._fuartc.lock == 1:
-      self._logger.info("Waiting for fuart lock")
     return self._fuartc.name
 
   def close(self):

@@ -28,38 +28,82 @@
     <doc>map for press and release of buttons</doc>
     <params press="0" release="1"></params>
   </map>
+  <map>
+    <name>uart_parity</name>
+    <doc>Parity of uart line properties</doc>
+    <params none="0" odd="1" even="2"></params>
+  </map>
+  <map>
+    <name>uart_sbits</name>
+    <doc>Number of stop bits for uart line properties</doc>
+    <params one="0" oneandhalf="1" two="2"></params>
+  </map>
+  <map>
+    <name>uart_bits</name>
+    <doc>Number of data bits for uart line properties</doc>
+    <params five="5" six="6" seven="7" eight="8"></params>
+  </map>
   <!-- UART -->
   <control>
     <name>cpu_uart_pty</name>
-    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
-    <params cmd="get" interface="2" subtype="pty" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connected to CPU's uart
+    console</doc>
+    <params cmd="get" interface="2" subtype="pty" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>cpu_uart_baudrate</name>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="2"></params>
+  </control>
+  <control>
+    <name>cpu_uart_parity</name>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="2" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>cpu_uart_sbits</name>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="2" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>cpu_uart_bits</name>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="2" map="uart_bits"></params>
   </control>
   <!-- GPIOS -->
   <control>
     <name>gpio0</name>
-    <doc>gpio0.  Can be chosen by developer to be one of 6 gpios by shorting
-    pins on header J1</doc>
-    <params interface="1" drv="gpio" offset="0" map="onoff"></params>
+    <doc>gpio0.  Can be chosen by developer to be one of 6 gpios by
+    shorting pins on header J1</doc>
+    <params interface="1" drv="gpio" offset="0" map="onoff">
+    </params>
   </control>
   <control>
     <name>gpio1</name>
-    <doc>gpio1.  Can be chosen by developer to be one of 6 gpios by shorting
-    pins on header J2</doc>
-    <params interface="1" drv="gpio" offset="1" map="onoff"></params>
+    <doc>gpio1.  Can be chosen by developer to be one of 6 gpios by
+    shorting pins on header J2</doc>
+    <params interface="1" drv="gpio" offset="1" map="onoff">
+    </params>
   </control>
   <control>
     <name>pwr_button</name>
     <doc>power button gpio</doc>
-    <params interface="1" drv="gpio" offset="2" map="press"></params>
+    <params interface="1" drv="gpio" offset="2" map="press">
+    </params>
   </control>
   <control>
     <name>lid_open</name>
     <doc>lid open gpio</doc>
-    <params interface="1" drv="gpio" offset="3" map="yesno"></params>
+    <params interface="1" drv="gpio" offset="3" map="yesno">
+    </params>
   </control>
   <sequence>
     <name>bogus</name>
-    <params cmdlist="">
-    </params>
+    <params cmdlist=""></params>
   </sequence>
 </root>

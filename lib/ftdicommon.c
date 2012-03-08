@@ -72,8 +72,6 @@ static void usage(struct ftdi_common_args *fargs) {
   USG_DEFAULT("%d\n", fargs->dev_id);
   puts("       -i <interface>      : interface id for FTDI port");
   USG_DEFAULT("%d\n", fargs->interface);
-  puts("       -s <num>            : speed ( buadrate ) in hertz");
-  USG_DEFAULT("%d\n", fargs->speed);
   puts("       -g <dir>:<val>      : initial gpio configuration");
   puts("       -h                  : this message");
   puts("\nWhere:");
@@ -135,10 +133,6 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
       case 'd':
         fargs->serialname = malloc(strlen(optarg)+1);
         strcpy(fargs->serialname, optarg);
-      case 's':
-        fargs->speed = strtoul(optarg, NULL, 0);
-        args_consumed += 2;
-        break;
       case 'g':
         fargs->direction = strtoul(optarg, &ptr, 0);
         if (ptr[0] != ':') {

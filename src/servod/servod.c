@@ -373,10 +373,12 @@ int main(int argc, char **argv) {
     //.product_id = 0x5001,
     .vendor_id = 0x0403,
     .product_id = 0x6011,
-    .speed = 115200,
-    .bits = BITS_8,
-    .parity = NONE,
-    .sbits = STOP_BIT_1
+    .uart_cfg = {
+      .baudrate = 115200,
+      .bits = BITS_8,
+      .parity = NONE,
+      .sbits = STOP_BIT_1
+    }
   };
 
   if ((args_consumed = fcom_args(&fargs, argc, argv)) < 0) {

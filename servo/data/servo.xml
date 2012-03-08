@@ -30,6 +30,21 @@
     <params local_adc_ch0="0" local_adc_ch1="1" remote_adc="2"
     reserved="3" loc0="0" loc1="1" rem="2" res="3"></params>
   </map>
+  <map>
+    <name>uart_parity</name>
+    <doc>Parity of uart line properties</doc>
+    <params none="0" odd="1" even="2"></params>
+  </map>
+  <map>
+    <name>uart_sbits</name>
+    <doc>Number of stop bits for uart line properties</doc>
+    <params one="0" oneandhalf="1" two="2"></params>
+  </map>
+  <map>
+    <name>uart_bits</name>
+    <doc>Number of data bits for uart line properties</doc>
+    <params five="5" six="6" seven="7" eight="8"></params>
+  </map>
   <!-- ******************** Interface 1 ******************** -->
   <control>
     <name>warm_reset</name>
@@ -81,8 +96,34 @@
   <!-- UART -->
   <control>
     <name>cpu_uart_pty</name>
-    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
-    <params cmd="get" interface="3" subtype="pty" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connected to CPU's uart
+    console</doc>
+    <params cmd="get" interface="3" subtype="pty" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>cpu_uart_baudrate</name>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="3"></params>
+  </control>
+  <control>
+    <name>cpu_uart_parity</name>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="3" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>cpu_uart_sbits</name>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="3" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>cpu_uart_bits</name>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="3" map="uart_bits"></params>
   </control>
   <!-- GPIOS -->
   <control>
@@ -217,7 +258,7 @@
   </control>
   <control>
     <name>dut_hub_ocs</name>
-    <doc>DUT USB hub over current signal (OCS). This hub supports
+    <doc>DUT USB hub over current signal (OCS).  This hub supports
     ethernet (RJ45/I79) and USB port (vert TYPE A/J19)</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="0" map="onoff_i"></params>
@@ -252,7 +293,7 @@
   </map>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J19). Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J19).  Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="3" map="usbkey"></params>
@@ -334,14 +375,14 @@
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="6" map="onoff_i"></params>
   </control>
-  <!-- i2c_mux:res, slv 0x18 :  LTC1663 10-bit DAC for USB load on USB J14 -->
+  <!-- i2c_mux:res, slv 0x18 : LTC1663 10-bit DAC for USB load on USB J14 -->
   <control>
     <name>usb_load_dhub_dac</name>
     <doc>USB load for the dut's USB hub connection for USB port
     (TYPE mini-AB/J14)</doc>
     <params interface="2" drv="ltc1663" slv="0x18"></params>
   </control>
-  <!-- i2c_mux:res, slv 0x19 :  LTC1663 10-bit DAC for USB load on USB J15 -->
+  <!-- i2c_mux:res, slv 0x19 : LTC1663 10-bit DAC for USB load on USB J15 -->
   <control>
     <name>usb_load_din_dac</name>
     <doc>USB load for the dut USB connection for USB port (TYPE

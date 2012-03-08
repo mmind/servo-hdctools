@@ -203,10 +203,12 @@ int main(int argc, char **argv) {
     .interface = 0,
     .vendor_id = 0x18d1,
     .product_id = 0x5000,
-    .speed = 115200,
-    .bits = BITS_8,
-    .parity = NONE,
-    .sbits = STOP_BIT_1
+    .uart_cfg = {
+      .baudrate = 115200,
+      .bits = BITS_8,
+      .parity = NONE,
+      .sbits = STOP_BIT_1
+    }
   };
 
   int args_consumed;

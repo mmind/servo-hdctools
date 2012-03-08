@@ -20,11 +20,11 @@ extern "C" {
 #define FGPIO_ERR_RD     2
 #define FGPIO_ERR_MASK   3
 #define FGPIO_ERR_NOIMP  4
-  
+
 #define ERROR_FGPIO(ecode, ...)                 \
   fprintf(stderr, "-E- (%d) ", ecode);          \
-  fprintf(stderr, __VA_ARGS__)                 
-  
+  fprintf(stderr, __VA_ARGS__)
+
 #ifndef DEBUG
 #define DEBUG_FGPIO(...)
 #else
@@ -32,7 +32,7 @@ extern "C" {
   fprintf(stderr, "DEBUG: %s:%u ", __FILE__, __LINE__);		\
   fprintf(stderr, __VA_ARGS__)
 #endif
-  
+
 #define CHECK_FGPIO(fgpioc, fx, ...) do {           \
     DEBUG_FGPIO(__VA_ARGS__);                       \
     if ((fgpioc->error = fx) < 0) {                 \
@@ -45,7 +45,15 @@ enum fgpio_type {
   TYPE_CBUS
 };
 
-struct fgpio_context { 
+// Format direction and value bits for FTDI devices supporting UART + GPIO's
+// (CBUS mode).
+// The direction bits occupy the upper nibble.  A '1' means GPIO is an output a
+// '0' means input
+// The value bits occupy the lower nibble and are only applicable when the GPIO
+// is an output.
+#define FGPIO_CBUS_GPIO(dir, val) (((0xf & dir)<<4) | (0xf & val))
+
+struct fgpio_context {
   // v--- DO NOT REORDER ---v
   struct ftdi_context *fc;
   struct gpio_s gpio;

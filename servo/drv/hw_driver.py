@@ -67,7 +67,7 @@ class HwDriver(object):
       if hasattr(self, fn_name):
         return getattr(self, fn_name)(logical_value)
       else:
-        raise HwDriverError("Subtype %s has no get function." % subtype)
+        raise HwDriverError("Finding set function %s" % fn_name)
     else:
       raise NotImplementedError("Set should be implemented in subclass.")
 
@@ -93,7 +93,7 @@ class HwDriver(object):
       if hasattr(self, fn_name):
         return getattr(self, fn_name)()
       else:
-        raise HwDriverError("Subtype %s has no get method" % subtype)
+        raise HwDriverError("Finding get function %s" % fn_name)
     else:
       raise NotImplementedError("Get method should be implemented in subclass.")
 

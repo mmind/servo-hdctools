@@ -46,6 +46,21 @@
     Default is off</doc>
     <params pp3300="0" pp2500="1" pp1800="2" off="3"></params>
   </map>
+  <map>
+    <name>uart_parity</name>
+    <doc>Parity for uart line properties</doc>
+    <params none="0" odd="1" even="2"></params>
+  </map>
+  <map>
+    <name>uart_sbits</name>
+    <doc>Number of stop bits for uart line properties</doc>
+    <params one="0" oneandhalf="1" two="2"></params>
+  </map>
+  <map>
+    <name>uart_bits</name>
+    <doc>Number of data bits for uart line properties</doc>
+    <params five="5" six="6" seven="7" eight="8"></params>
+  </map>
   <!-- *********** FT4232H U29 Interface 1 ********** -->
   <!-- JTAG -->
   <!-- *********** FT4232H U29 Interface 2 ********** -->
@@ -55,16 +70,46 @@
   <control>
     <name>uart3_pty</name>
     <alias>legacy_uart_pty</alias>
-    <doc>Legacy (v1) uart console.  Typically connected to
-    CPU's uart console for devices which supported it.</doc>
-    <params cmd="get" subtype="pty" interface="3" drv="uart"></params>
+    <doc>Legacy (v1) uart console.  Typically connected to CPU's
+    uart console for devices which supported it.</doc>
+    <params cmd="get" subtype="pty" interface="3" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart3_baudrate</name>
+    <alias>legacy_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="3"></params>
+  </control>
+  <control>
+    <name>uart3_parity</name>
+    <alias>legacy_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="3" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart3_sbits</name>
+    <alias>legacy_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="3" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart3_bits</name>
+    <alias>legacy_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="3" map="uart_bits"></params>
   </control>
   <!-- *********** FT4232H U29 Interface 4 ********** -->
   <!-- UART -->
   <control>
     <name>atmega_pty</name>
     <doc>atmega_pty</doc>
-    <params cmd="get" subtype="pty" interface="4" drv="uart"></params>
+    <params cmd="get" subtype="pty" interface="4" drv="uart">
+    </params>
   </control>
   <!-- ********** I2c related controls ********** -->
   <!-- slv 0x20 : ioexpander port 0 -->
@@ -82,7 +127,7 @@
   </control>
   <control>
     <name>pch_disable</name>
-    <doc>DUT specific. Note, is aliased to jtag_buf_on_flex_en
+    <doc>DUT specific.  Note, is aliased to jtag_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="2" map="onoff_i"></params>
@@ -90,7 +135,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>jtag_buf_on_flex_en</name>
-    <doc>Enables JTAG buffer on servo flex. Note, is aliased to
+    <doc>Enables JTAG buffer on servo flex.  Note, is aliased to
     pch_disable GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="2" map="onoff_i"></params>
@@ -109,7 +154,7 @@
   </control>
   <control>
     <name>dev_mode</name>
-    <doc>dev_mode GPIO. Note, is aliased to spi1_buf_on_flex_en
+    <doc>dev_mode GPIO.  Note, is aliased to spi1_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="5" map="onoff"></params>
@@ -117,7 +162,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>spi1_buf_on_flex_en</name>
-    <doc>Enables SPI1 buffers on servo flex. NOTE, is same as
+    <doc>Enables SPI1 buffers on servo flex.  NOTE, is same as
     dev_mode GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="5" map="onoff_i"></params>
@@ -171,7 +216,7 @@
   </control>
   <control>
     <name>lid_open</name>
-    <doc>lid open GPIO. Note, is aliased to spi2_buf_on_flex_en
+    <doc>lid open GPIO.  Note, is aliased to spi2_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="5" map="yesno"></params>
@@ -179,7 +224,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>spi2_buf_on_flex_en</name>
-    <doc>Enables SPI2 buffers on servo flex. Note, is aliased to
+    <doc>Enables SPI2 buffers on servo flex.  Note, is aliased to
     lid_open GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="5" map="onoff_i"></params>
@@ -220,7 +265,7 @@
   </control>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J3). Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J3).  Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="3" map="usbkey"></params>
@@ -241,7 +286,7 @@
   </control>
   <control>
     <name>dut_hub_sel</name>
-    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6). Set either
+    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6).  Set either
     'dut_sees_hub' or 'dut_sees_servo'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="6" map="duthub"></params>
@@ -287,7 +332,7 @@
   </control>
   <control>
     <name>usb_mux_sel3</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J8). Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J8).  Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="6" map="usbkey"></params>
@@ -369,7 +414,7 @@
   </control>
   <control>
     <name>dut_hub_ocs</name>
-    <doc>DUT USB hub over current signal (OCS). This hub supports
+    <doc>DUT USB hub over current signal (OCS).  This hub supports
     ethernet (RJ45/I54) and USB port (vert TYPE A/J8)</doc>
     <params interface="2" drv="tca6416" slv="0x22" port="1"
     offset="6" map="onoff_i"></params>
@@ -559,15 +604,75 @@
   <control>
     <name>uart1_pty</name>
     <alias>ec_uart_pty</alias>
-    <doc>Psuedo-terminal (pty) thats connected to EC's uart console</doc>
-    <params cmd="get" subtype="pty" interface="7" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connnected to EC's uart
+    console</doc>
+    <params cmd="get" subtype="pty" interface="7" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart1_baudrate</name>
+    <alias>ec_uart_baudrate</alias>
+    <doc>Baudrate for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="7"></params>
+  </control>
+  <control>
+    <name>uart1_parity</name>
+    <alias>ec_uart_parity</alias>
+    <doc>Parity for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="7" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart1_sbits</name>
+    <alias>ec_uart_sbits</alias>
+    <doc>Number of stop bits for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="7" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart1_bits</name>
+    <alias>ec_uart_bits</alias>
+    <doc>Numbe of data bits for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="7" map="uart_bits"></params>
   </control>
   <!-- *********** FT4232H U56 Interface 8 ********** -->
   <!-- UART -->
   <control>
     <name>uart2_pty</name>
     <alias>cpu_uart_pty</alias>
-    <doc>Psuedo-terminal (pty) thats connected to CPU's uart console</doc>
-    <params cmd="get" subtype="pty" interface="8" drv="uart"></params>
+    <doc>Psuedo-terminal (pty) thats connnected to CPU's uart
+    console</doc>
+    <params cmd="get" subtype="pty" interface="8" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart2_baudrate</name>
+    <alias>cpu_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_parity</name>
+    <alias>cpu_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="8" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart2_sbits</name>
+    <alias>cpu_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="8" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart2_bits</name>
+    <alias>cpu_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="8" map="uart_bits"></params>
   </control>
 </root>

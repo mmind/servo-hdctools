@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "ftdi_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,6 +34,7 @@ extern "C" {
 #define FUART_ERR_WR     -3
 #define FUART_ERR_RD     -4
 #define FUART_ERR_THREAD -5
+#define FUART_ERR_STTY   -6
 
 #define ERROR_FUART(ecode, ...)                 \
   fprintf(stderr, "-E- (%d) ", ecode);          \
@@ -52,13 +55,6 @@ extern "C" {
     }                                               \
   } while (0)
 
-struct fuart_cfg {
-  int baudrate;
-  enum ftdi_bits_type bits;
-  enum ftdi_stopbits_type sbits;
-  enum ftdi_parity_type parity;
-};
-
 // Primary structure for the fuart library.
 // IMPORTANT: any changes need to be replicated in corresponding
 // python ctypes.Structure in servo/ftdiuart.py
@@ -68,6 +64,7 @@ struct fuart_context {
   struct gpio_s gpio;
   // ^--- DO NOT REORDER ---^
   char name[FUART_NAME_SIZE];
+  struct uart_cfg cfg;
   int is_open;
   int usecs_to_sleep;
   int fd;
@@ -78,6 +75,7 @@ struct fuart_context {
 
 int fuart_init(struct fuart_context *, struct ftdi_context *);
 int fuart_open(struct fuart_context *, struct ftdi_common_args *);
+int fuart_stty(struct fuart_context *, struct uart_cfg *);
 int fuart_wr_rd(struct fuart_context *);
 int fuart_run(struct fuart_context *, int);
 int fuart_close(struct fuart_context *);

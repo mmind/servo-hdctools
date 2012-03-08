@@ -51,11 +51,12 @@ extern "C" {
 #define ERROR_FTDI(msg, context)                                \
   prn_error("%s: %s\n", msg, ftdi_get_error_string(context))
 
-#define CHECK_FTDI(fx, msg, context) \
-  do {                               \
-    if (fx < 0) {                    \
-      ERROR_FTDI(msg, context);      \
-    }                                \
+#define CHECK_FTDI(fx, msg, context)                \
+  do {                                              \
+    prn_dbg("CHECK_FTDI err:%d for %s\n", fx, msg); \
+    if (fx < 0) {                                   \
+      ERROR_FTDI(msg, context);                     \
+    }                                               \
   } while (0)
 
 struct gpio_s {
@@ -64,16 +65,20 @@ struct gpio_s {
   uint8_t mask;
 };
 
+struct uart_cfg {
+  unsigned int baudrate;
+  unsigned int bits;
+  unsigned int parity;
+  unsigned int sbits;
+};
+
 struct ftdi_common_args {
   unsigned int vendor_id;
   unsigned int product_id;
   unsigned int dev_id;
   enum ftdi_interface interface;
   char *serialname;
-  unsigned int speed;
-  enum ftdi_bits_type bits;
-  enum ftdi_parity_type parity;
-  enum ftdi_stopbits_type sbits;
+  struct uart_cfg uart_cfg;
   uint8_t value;
   uint8_t direction;
 };
