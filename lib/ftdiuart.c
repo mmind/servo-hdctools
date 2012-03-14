@@ -208,6 +208,7 @@ static int fuart_open_locked(struct fuart_context *fuartc,
     return FUART_ERR_OPEN;
   }
 
+  tcgetattr(fd, &tty_cfg);
   cfmakeraw(&tty_cfg);
   tcsetattr(fd, TCSANOW, &tty_cfg);
 
