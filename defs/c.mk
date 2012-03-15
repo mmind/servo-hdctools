@@ -90,7 +90,7 @@ CFLAGS 	=					\
 	$(HOSTOS_CFLAGS)
 
 LIBFTDI_CFLAGS	:= $(shell $(PKG_CONFIG) --cflags libftdi)
-LIBFTDI_LDFLAGS	:= $(shell $(PKG_CONFIG) --libs   libftdi)
+LIBFTDI_LDLIBS	:= $(shell $(PKG_CONFIG) --libs   libftdi)
 
 SERIAL_IP	= gpio uart i2c
 SERIAL_LIBS	= $(foreach v,${SERIAL_IP},-lftdi$(v))

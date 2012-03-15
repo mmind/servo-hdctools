@@ -7,8 +7,8 @@ BINDIR		= /usr/bin
 BIN_DEST	= $(DESTDIR)$(BINDIR)
 
 CFLAGS  	+= $(LIBFTDI_CFLAGS)
-LDFLAGS		+= $(LIBFTDI_LDFLAGS)
-LIBS		+= $(SERIAL_LIBS) -lpthread
+LDLIBS		+= $(LIBFTDI_LDLIBS) -lpthread \
+	-L$(HDCTOOLS_BUILD_DIR)/lib $(SERIAL_LIBS)
 
 TARGETS		= servod-bin
 
@@ -20,10 +20,7 @@ all: $(TARGETS)
 
 servod-bin: servod.o
 	$(MESSAGE) "Building $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^	\
-		-L$(HDCTOOLS_BUILD_DIR)/lib	\
-		-lpthread			\
-		$(SERIAL_LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
 	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"

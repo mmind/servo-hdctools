@@ -7,7 +7,8 @@ BINDIR		= /usr/bin
 BIN_DEST	= $(DESTDIR)$(BINDIR)
 
 CFLAGS  	+= $(LIBFTDI_CFLAGS)
-LDFLAGS		+= $(LIBFTDI_LDFLAGS)
+LDLIBS		+= $(LIBFTDI_LDLIBS) -lpthread \
+	-L$(HDCTOOLS_BUILD_DIR)/lib $(SERIAL_LIBS)
 
 TARGETS		= miniservod
 
@@ -19,10 +20,7 @@ all: $(TARGETS)
 
 miniservod: miniservod.o
 	$(MESSAGE) "Building $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^	\
-		-L$(HDCTOOLS_BUILD_DIR)/lib	\
-		-lpthread			\
-		$(SERIAL_LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
 	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"

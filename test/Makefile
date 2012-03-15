@@ -5,8 +5,10 @@ include $(HDCTOOLS_DIR)/defs/definitions.mk
 
 BINDIR		= /usr/bin
 BIN_DEST	= $(DESTDIR)$(BINDIR)
-CFLAGS  	+= $(LIBFTDI_CFLAGS) -L $(HDCTOOLS_BUILD_DIR)/lib
-LDFLAGS		+= $(LIBFTDI_LDFLAGS)
+
+CFLAGS  	+= $(LIBFTDI_CFLAGS)
+LDLIBS		+= $(LIBFTDI_LDLIBS) -lpthread \
+	-L$(HDCTOOLS_BUILD_DIR)/lib $(SERIAL_LIBS)
 
 TESTS_SRC	= $(wildcard $(HDCTOOLS_SOURCE_DIR)/*_test.c)
 TARGETS		= $(subst $(HDCTOOLS_SOURCE_DIR)/,,$(TESTS_SRC:.c=))
@@ -15,7 +17,7 @@ all: $(TARGETS)
 
 f%_test: f%_test.c
 	$(MESSAGE) "Building test $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lpthread $(SERIAL_LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
 	$(MKDIR) -p $(BIN_DEST)

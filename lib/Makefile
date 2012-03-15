@@ -5,8 +5,9 @@ include $(HDCTOOLS_DIR)/defs/definitions.mk
 
 LIBDIR		= /usr/lib
 LIB_DEST	= $(DESTDIR)$(LIBDIR)
+
 CFLAGS  	+= $(LIBFTDI_CFLAGS)
-LDFLAGS		+= $(LIBFTDI_LDFLAGS)
+LDLIBS		+= $(LIBFTDI_LDLIBS)
 
 SERIAL_OBJS	= $(SERIAL_IP:%=ftdi%.o)
 LIBS		= $(SERIAL_IP:%=libftdi%.$(LIB_EXT))
@@ -19,7 +20,7 @@ all:	$(LIBS)
 
 libftdi%.$(LIB_EXT): ftdi%.o ftdicommon.o
 	$(MESSAGE) "Building library $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LD_LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS) $(LD_LIB)
 
 install:
 	$(MKDIR) -p $(LIB_DEST)
