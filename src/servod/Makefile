@@ -15,12 +15,10 @@ TARGETS		= servod-bin
 all: $(TARGETS)
 
 %.o : %.c Makefile
-	$(MESSAGE) "Compiling $(notdir $<)"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(COMPILE.c)
 
 servod-bin: servod.o
-	$(MESSAGE) "Building $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(LINK.c)
 
 install:
 	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"

@@ -15,12 +15,10 @@ TARGETS		= miniservod
 all: $(TARGETS)
 
 %.o : %.c Makefile
-	$(MESSAGE) "Compiling $(notdir $<)"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(COMPILE.c)
 
 miniservod: miniservod.o
-	$(MESSAGE) "Building $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(LINK.c)
 
 install:
 	$(MESSAGE) "Installing '$(TARGETS)' to $(BIN_DEST)"

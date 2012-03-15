@@ -15,13 +15,11 @@ LIBS		= $(SERIAL_IP:%=libftdi%.$(LIB_EXT))
 all:	$(LIBS)
 
 %.o : %.c Makefile
-	$(MESSAGE) "Compiling $(notdir $<)"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(COMPILE.c)
 
 $(LIBS): ftdicommon.o
 libftdi%.$(LIB_EXT): ftdi%.o
-	$(MESSAGE) "Building library $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS) $(LD_LIB)
+	$(LINK.c) $(LD_LIB)
 
 install:
 	$(MKDIR) -p $(LIB_DEST)

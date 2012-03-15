@@ -15,9 +15,11 @@ TARGETS		= $(subst $(HDCTOOLS_SOURCE_DIR)/,,$(TESTS_SRC:.c=))
 
 all: $(TARGETS)
 
-f%_test: f%_test.c
-	$(MESSAGE) "Building test $(notdir $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+%.o : %.c Makefile
+	$(COMPILE.c)
+
+$(TARGETS): %: %.o
+	$(LINK.c)
 
 install:
 	$(MKDIR) -p $(BIN_DEST)

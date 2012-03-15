@@ -8,7 +8,7 @@ $(warning CC not defined; assuming gcc.)
 CC	= $(GCC)
 endif
 
-COPTIONS =					\
+CFLAGS	?=					\
 	-g					\
 	-O2
 
@@ -53,7 +53,7 @@ PTHREAD	= 					\
 #
 #  HOSTOS_CFLAGS  : A set of host-os specific compiler flags
 #
-#  HOSTOS_CDEFINES: A set of host-os specific preprocessor defines.
+#  HOSTOS_CPPFLAGS: A set of host-os specific preprocessor defines.
 #
 include $(HDCTOOLS_DIR)/defs/c-$(HDCTOOLS_OS_NAME).mk
 
@@ -72,22 +72,27 @@ ifeq ($(DEBUG),1)
   CDEBUG	= -DDEBUG
 endif
 
-CDEFINES	=				\
-	$(HOSTOS_CDEFINES) 			\
-	-D_GNU_SOURCE=1
+CPPFLAGS	+=				\
+	$(HOSTOS_CPPFLAGS) 			\
+	-D_GNU_SOURCE=1				\
+	$(INCLUDES)
 
-CFLAGS 	=					\
+CFLAGS 	+=					\
 	-std=gnu99				\
 	-MD					\
-	$(CDEFINES)				\
-	$(COPTIONS)				\
-	$(INCLUDES)				\
 	$(PTHREAD)				\
 	$(CWARN)				\
 	$(CGC)					\
 	$(LDGC)					\
 	$(CDEBUG)				\
 	$(HOSTOS_CFLAGS)
+
+COMPILE.c	= \
+	$(MESSAGE) "Compiling $(notdir $<)" ; \
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+LINK.c		= \
+	$(MESSAGE) "Linking $(notdir $@)" ; \
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 LIBFTDI_CFLAGS	:= $(shell $(PKG_CONFIG) --cflags libftdi)
 LIBFTDI_LDLIBS	:= $(shell $(PKG_CONFIG) --libs   libftdi)
