@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -81,6 +81,6 @@ HOSTOS_CWARN	=				\
 	-Wwrite-strings				\
 	-pedantic-errors
 
-HOSTOS_LD_LIB	= -shared
+HOSTOS_LD_LIB	= -shared -Wl,-soname,$@
 HOSTOS_LIB_EXT	= so
 HOSTOS_CFLAGS	= -fPIC
