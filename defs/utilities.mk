@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -10,10 +10,10 @@
 # This makes it easy to ensure there are no host OS utility
 # dependencies when cross compiling.
 
-ECHO		= /bin/echo
+ECHO		= echo
 MESSAGE		= $(ECHO) "$(foreach v,$(shell seq $(MAKELEVEL))," ") [$(MAKELEVEL)] "
-CP		= /bin/cp
-MKDIR		= /bin/mkdir
-AR		= /usr/bin/ar
-PKG_CONFIG	= /usr/bin/pkg-config
-GCC		= /usr/bin/gcc
+CP		= cp
+MKDIR		= mkdir
+AR		?= ar
+PKG_CONFIG	?= pkg-config
+GCC		?= gcc
