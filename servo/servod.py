@@ -63,8 +63,10 @@ def _parse_args():
                     help="USB product id of ftdi device to interface with")
   parser.add_option("-s", "--serialname", default=None, type=str,
                     help="device serialname stored in eeprom")
-  parser.add_option("-c", "--config", type=str, action="append",
+  parser.add_option("-c", "--config", default=None, type=str, action="append",
                     help="system config files (XML) to read")
+  parser.add_option("--noautoconfig", action="store_true", default=False,
+                    help="Disable automatic determination of config files")
   parser.add_option("-i", "--interfaces", type=str, default='',
                     help="ordered space-delimited list of interfaces.  " +
                     "Valid choices are gpio|i2c|uart|gpiouart|dummy")
@@ -137,6 +139,38 @@ def discover_servo(logger, vendor, product, serialname):
     all_servos.extend(usb_find(vid, pid, serialname))
   return all_servos
 
+def get_board_version(lot_id):
+  """Get board version string.
+
+  Typically this will be a string of format <boardname>_<version>.
+  For example, servo_v2.
+
+  Args:
+    lot_id: string, identifying which lot device was fabbed from
+
+  Returns:
+    board_version: string, board & version or None if not found
+  """
+  for (board_version, lot_ids) in ftdi_common.SERVO_LOT_ID_DEFAULTS.iteritems():
+    if lot_id in lot_ids:
+      return board_version
+
+  return None
+
+def get_auto_configs(servo):
+  """Get xml configs that should be loaded.
+
+  Args:
+    servo: usb.Device object
+
+  Returns:
+    configs: list of XML config files that should be loaded
+  """
+  iserial = usb_get_iserial(servo)
+  (lot_id, _) = iserial.split('-')
+  board_version = get_board_version(lot_id)
+  return ftdi_common.SERVO_CONFIG_DEFAULTS[board_version]
+
 def main():
   (options, args) = _parse_args()
   loglevel = logging.INFO
@@ -149,15 +183,6 @@ def main():
 
   logger = logging.getLogger(os.path.basename(sys.argv[0]))
   logger.info("Start")
-
-  scfg = system_config.SystemConfig()
-  if options.config is None:
-    raise ServodError("Must supply at least one config file ( -c <file> )")
-
-  for cfg_file in options.config:
-    scfg.add_cfg_file(cfg_file)
-
-  logger.debug("\n" + scfg.display_config())
 
   servo_like_devices = discover_servo(logger, options.vendor, options.product,
                                       options.serialname)
@@ -172,6 +197,27 @@ def main():
     sys.exit(-1)
 
   servo_device = servo_like_devices[0]
+
+  all_configs = []
+  if not options.noautoconfig:
+    all_configs += get_auto_configs(servo_device)
+
+  if options.config:
+    for config in options.config:
+      # quietly ignore duplicate configs for backwards compatibility
+      if config not in all_configs:
+        all_configs.append(config)
+
+  if len(all_configs) == 0:
+    raise ServodError("Must supply at least one config file ( -c <file> )")
+
+  scfg = system_config.SystemConfig()
+  for cfg_file in all_configs:
+    logger.info("Loading XML config %s", cfg_file)
+    scfg.add_cfg_file(cfg_file)
+
+  logger.debug("\n" + scfg.display_config())
+
   logger.debug("Servo is vid:0x%04x pid:0x%04x sid:%s" % \
                  (servo_device.idVendor, servo_device.idProduct,
                   usb_get_iserial(servo_device)))

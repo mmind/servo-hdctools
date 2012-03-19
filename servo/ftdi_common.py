@@ -35,6 +35,20 @@ SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
  INTERFACE_TYPE_JTAG, INTERFACE_TYPE_SPI, INTERFACE_TYPE_UART) = \
  map(ctypes.c_int, xrange(6))
 
+# key == <board>_<version>
+# value == list of lot identifiers (lot_id)
+SERVO_LOT_ID_DEFAULTS = \
+    {'miniservo_v1': ['001', '540052'],
+     'servo_v1': ['483881', '498432'],
+     'servo_v2': ['609600', '629871'],
+     }
+
+SERVO_CONFIG_DEFAULTS = \
+    {'miniservo_v1': ['miniservo.xml'],
+     'servo_v1': ['servo.xml'],
+     'servo_v2': ['servo_v2.xml'],
+     }
+
 class FtdiContext(ctypes.Structure):
   """Defines primary context structure for libftdi.
 
