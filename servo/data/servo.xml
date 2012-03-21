@@ -70,8 +70,7 @@
   <map>
     <name>kbd_m1</name>
     <doc>map of key presses for kbd_m1</doc>
-    <params ctrl_r="0" r1_c2="0" d="1" r2_c2="1" enter="2"
-    r3_c2="2" none="3"></params>
+    <params ctrl_r="0" d="1" enter="2" none="3"></params>
   </map>
   <control>
     <name>kbd_m1</name>
@@ -79,17 +78,40 @@
     <params interface="2" drv="gpio" offset="4" width="2"
     map="kbd_m1"></params>
   </control>
+  <control>
+    <name>kbd_m1_a1</name>
+    <doc>kbd_m1_a1</doc>
+    <params interface="2" drv="gpio" offset="5" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>kbd_m1_a0</name>
+    <doc>kbd_m1_a0</doc>
+    <params interface="2" drv="gpio" offset="4" map="onoff">
+    </params>
+  </control>
   <map>
     <name>kbd_m2</name>
     <doc>map of key presses for kbd_m2</doc>
-    <params ctrl="0" r1_c1="0" refresh="1" r2_c1="1" unused="2"
-    r3_c1="2" none="3"></params>
+    <params ctrl="0" refresh="1" unused="2" none="3"></params>
   </map>
   <control>
     <name>kbd_m2</name>
     <doc>create key presses row1|row2|row3 and col1</doc>
     <params interface="2" drv="gpio" offset="6" width="2"
     map="kbd_m2"></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <doc>kbd_m2_a1</doc>
+    <params interface="2" drv="gpio" offset="7" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <doc>kbd_m2_a0</doc>
+    <params interface="2" drv="gpio" offset="6" map="onoff">
+    </params>
   </control>
   <!-- ******************** Interface 3 ******************** -->
   <!-- TODO(tbroch) As implemented its either UART or GPIOs not both -->
@@ -258,7 +280,7 @@
   </control>
   <control>
     <name>dut_hub_ocs</name>
-    <doc>DUT USB hub over current signal (OCS).  This hub supports
+    <doc>DUT USB hub over current signal (OCS). This hub supports
     ethernet (RJ45/I79) and USB port (vert TYPE A/J19)</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="0" map="onoff_i"></params>
@@ -293,7 +315,7 @@
   </map>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J19).  Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J19). Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="3" map="usbkey"></params>

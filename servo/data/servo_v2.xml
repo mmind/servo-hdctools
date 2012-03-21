@@ -230,7 +230,7 @@
     offset="5" map="onoff_i"></params>
   </control>
   <control>
-    <name>goog_rec_mode</name>
+    <name>rec_mode</name>
     <doc>Google recovery mode</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="6" map="onoff_i"></params>
