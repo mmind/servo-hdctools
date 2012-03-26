@@ -157,7 +157,7 @@ def get_board_version(lot_id):
 
   return None
 
-def get_auto_configs(servo):
+def get_auto_configs(logger, servo):
   """Get xml configs that should be loaded.
 
   Args:
@@ -169,6 +169,11 @@ def get_auto_configs(servo):
   iserial = usb_get_iserial(servo)
   (lot_id, _) = iserial.split('-')
   board_version = get_board_version(lot_id)
+  logger.debug('iserial = %s board_version = %s', iserial, board_version)
+  if board_version not in ftdi_common.SERVO_CONFIG_DEFAULTS:
+    logger.warning('Unable to determine configs to load for board version = %s',
+                 board_version)
+    return []
   return ftdi_common.SERVO_CONFIG_DEFAULTS[board_version]
 
 def main():
@@ -200,7 +205,7 @@ def main():
 
   all_configs = []
   if not options.noautoconfig:
-    all_configs += get_auto_configs(servo_device)
+    all_configs += get_auto_configs(logger, servo_device)
 
   if options.config:
     for config in options.config:
