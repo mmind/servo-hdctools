@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """System configuration module."""
+import collections
 import logging
 import os
 import xml.etree.ElementTree
@@ -24,7 +25,16 @@ class SystemConfig(object):
   multiple SystemConfig files and treat them as one unified structure
 
 
-  SystemConfig files are written in xml and consist of three main elements
+  SystemConfig files are written in xml and consist of four main elements
+
+  0. Include : Ability to include other config files
+
+  <include>
+    <name>servo_loc.xml</name>
+  </include>
+
+  NOTE, All includes in a file WILL be sourced prior to any other elements in
+  the XML.
 
   1. Map : Allow user-friendly naming for things to abstract
   certain things like on=0 for things that are assertive low on
@@ -81,10 +91,7 @@ class SystemConfig(object):
 
     # system filename (xml) to be parsed
     self._systemfiles = []
-
-    self.syscfg_dict = {}
-    for tag in SYSCFG_TAG_LIST:
-      self.syscfg_dict[tag] = {}
+    self.syscfg_dict = collections.defaultdict(dict)
 
   def add_cfg_file(self, filename):
     """Add system config file to the system config object
@@ -119,6 +126,8 @@ class SystemConfig(object):
         raise SystemConfigError("Unable to find system file %s" % filename)
     self._systemfiles.append(filename)
     root = xml.etree.ElementTree.parse(filename).getroot()
+    for element in root.findall('include'):
+      self.add_cfg_file(element.find('name').text)
     for tag in SYSCFG_TAG_LIST:
       for element in root.findall(tag):
         element_str = xml.etree.ElementTree.tostring(element)

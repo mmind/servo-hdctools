@@ -41,12 +41,14 @@ SERVO_LOT_ID_DEFAULTS = \
     {'miniservo_v1': ['001', '540052'],
      'servo_v1': ['483881', '498432'],
      'servo_v2': ['609600', '629871'],
+     'servo_v2_r1': ['641220'],
      }
 
 SERVO_CONFIG_DEFAULTS = \
     {'miniservo_v1': ['miniservo.xml'],
      'servo_v1': ['servo.xml'],
      'servo_v2': ['servo_v2.xml'],
+     'servo_v2_r1': ['servo_v2_r1.xml'],
      }
 
 class FtdiContext(ctypes.Structure):
