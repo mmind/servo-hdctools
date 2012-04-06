@@ -243,12 +243,12 @@
     port="0" offset="2" map="onoff_i"></params>
   </control>
   <control>
-    <name>mfg_mode</name>
-    <doc>Manufacturing mode</doc>
+    <name>fw_wp</name>
+    <doc>Firmware write-protect GPIO</doc>
     <params cmd="set" interface="4" drv="gpio" offset="7"
-    map="onoff"></params>
+    map="onoff_i"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
-    port="1" offset="2" map="onoff"></params>
+    port="1" offset="2" map="onoff_i"></params>
   </control>
   <!-- ******************** I2c related controls ******************** -->
   <!-- slv 0x20 : ioexpander port 0 -->

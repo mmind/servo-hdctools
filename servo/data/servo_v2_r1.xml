@@ -4,7 +4,7 @@
   <!-- This XML provides additional controls added to servo_v2 rev1. -->
   <!-- ============================================================= -->
   <include>
-    <name>servo_v2.xml</name>
+    <name>servo_v2_r0.xml</name>
   </include>
   <!-- ********** Maps ********** -->
   <map>
