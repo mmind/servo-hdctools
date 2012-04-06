@@ -88,9 +88,6 @@ class SystemConfig(object):
     """SystemConfig constructor."""
     self._logger = logging.getLogger("SystemConfig")
     self._logger.debug("")
-
-    # system filename (xml) to be parsed
-    self._systemfiles = []
     self.syscfg_dict = collections.defaultdict(dict)
 
   def add_cfg_file(self, filename):
@@ -111,6 +108,8 @@ class SystemConfig(object):
       clobber_ok: signifies this control may _clobber_ and existing definition
         of the same name.  Note, its value is ignored ( clobber_ok='' )
 
+    NOTE, method is recursive when parsing 'include' elements from XML.
+
     Args:
       filename: string of path to system file ( xml )
 
@@ -124,7 +123,6 @@ class SystemConfig(object):
       else:
         self._logger.error("Unable to find system file %s" % (filename))
         raise SystemConfigError("Unable to find system file %s" % filename)
-    self._systemfiles.append(filename)
     root = xml.etree.ElementTree.parse(filename).getroot()
     for element in root.findall('include'):
       self.add_cfg_file(element.find('name').text)
@@ -358,9 +356,9 @@ class SystemConfig(object):
     if 'map' in params:
       map_dict = self._lookup("map", params['map'])
       if map_dict:
-        for k,v in map_dict['map_params'].iteritems():
-          if v == reformat_value:
-            reformat_value = k
+        for keyname, val in map_dict['map_params'].iteritems():
+          if val == reformat_value:
+            reformat_value = keyname
             break
     elif 'fmt' in params:
       fmt = params['fmt']
@@ -432,17 +430,19 @@ def test():
       raise Exception("Unable to find map %s", map_name)
 
     logging.info("")
-    for k,v in map_dict['map_params'].iteritems():
-      resolved_val = str(scfg.resolve_val(control_params, k))
-      if resolved_val != v:
-        logging.error("resolve failed for %s -> %s != %s" %
-                      (k, v, resolved_val))
+    for keyname, val in map_dict['map_params'].iteritems():
+      resolved_val = str(scfg.resolve_val(control_params, keyname))
+      if resolved_val != val:
+        logging.error("resolve failed for %s -> %s != %s", keyname, val,
+                      resolved_val)
+
       # try re-mapping
-      reformat_val = scfg.reformat_val(control_params, int(v))
-      reformat_val = scfg.reformat_val(control_params, v)
-      if reformat_val != k:
-        logging.error("reformat failed for %s -> %s != %s" %
-                      (v, k, reformat_val))
+      reformat_val = scfg.reformat_val(control_params, int(val))
+      reformat_val = scfg.reformat_val(control_params, val)
+      if reformat_val != keyname:
+        logging.error("reformat failed for %s -> %s != %s", val, keyname,
+                      reformat_val)
+
 
 if __name__ == '__main__':
   test()
