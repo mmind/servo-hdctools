@@ -39,7 +39,7 @@ extern "C" {
 #define FI2C_ERR_WRITE  5
 
 #define FI2C_ACK_RETRY_MAX 10
-
+#define FI2C_READ_ATTEMPTS 5
   
 #define ERROR_FI2C(ecode, ...)                  \
   fprintf(stderr, "-E- (%d) ", ecode);          \

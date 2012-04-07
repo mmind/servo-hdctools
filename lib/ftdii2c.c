@@ -69,11 +69,37 @@ static int fi2c_write_cmds(struct fi2c_context *fic) {
   return FI2C_ERR_NONE;
 }
 
+static int fi2c_read_from_ftdi(struct ftdi_context *fc, uint8_t *rdbuf,
+                               unsigned int rdcnt) {
+  int rv = 0;
+  unsigned int bytes_read = 0;
+  unsigned int read_attempts = 0;
+  uint8_t *buf = rdbuf;
+
+  while ((bytes_read < rdcnt) &&
+         (read_attempts < FI2C_READ_ATTEMPTS)) {
+    rv = ftdi_read_data(fc, buf, (rdcnt - bytes_read));
+    if (rv < 0) {
+      ERROR_FTDI("read of ftdi", fc);
+      return FI2C_ERR_FTDI;
+    }
+    buf += rv;
+    bytes_read += rv;
+    read_attempts++;
+    prn_dbg("bytes read %d of %d\n", bytes_read, rdcnt);
+  }
+
+  if (bytes_read != rdcnt) {
+    prn_dbg("bytes read %d != %d\n", bytes_read, rdcnt);
+    return FI2C_ERR_READ;
+  }
+  return FI2C_ERR_NONE;
+}
+
 // TODO(tbroch) can we use the WAIT_ON_x cmds to postpone checking and increase
 //              the payload to/from ftdi queues.  At the very least use
 //              WAIT_ON to h/w check the ack for speeds sake
 static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
-  int bytes_read;
   uint8_t rdbuf[1];
 
   // clk the single byte out
@@ -95,21 +121,17 @@ static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
   prn_dbg("bufcnt after write = %d\n", fic->bufcnt);
 
   // TODO(tbroch) this is s/w ACK should be doable via h/w WAIT_ON_x
-  bytes_read = ftdi_read_data(fic->fc, rdbuf, 1);
-  if (bytes_read < 0) {
+
+  if (fi2c_read_from_ftdi(fic->fc, rdbuf, 1)) {
     ERROR_FTDI("read of ack", fic->fc);
     return FI2C_ERR_FTDI;
   }
-  if (bytes_read != 1) {
-    prn_dbg("bytes read %d != 1\n", bytes_read);
-    return FI2C_ERR_READ;
-  } else {
-    if ((rdbuf[0] & 0x80) != 0x0) {
-      prn_dbg("ack read 0x%02x != 0x0\n", (rdbuf[0] & 0x80));
-      return FI2C_ERR_ACK;
-    }
-    prn_dbg("saw the ack 0x%02x\n", rdbuf[0]);
+
+  if ((rdbuf[0] & 0x80) != 0x0) {
+    prn_dbg("ack read 0x%02x != 0x0\n", (rdbuf[0] & 0x80));
+    return FI2C_ERR_ACK;
   }
+  prn_dbg("saw the ack 0x%02x\n", rdbuf[0]);
 
   // TODO(tbroch) : shouldn't need to pull SDA high here but get strange results
   // otherwise.  Needs investigation
@@ -136,7 +158,6 @@ static int fi2c_wr(struct fi2c_context *fic, uint8_t *wbuf, int wcnt) {
 
 static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   int i;
-  int bytes_read;
 
   for (i = 0; i < rcnt; i++) {
     // SCL low
@@ -165,12 +186,7 @@ static int fi2c_rd(struct fi2c_context *fic, uint8_t *rbuf, int rcnt) {
   if (fic->error)
     return fic->error;
 
-  if ((bytes_read = ftdi_read_data(fic->fc, rbuf, rcnt)) != rcnt) {
-    if (bytes_read < 0) {
-      ERROR_FTDI("FTDI read bytes", fic->fc);
-    } else {
-      prn_dbg("ftdi bytes_read %d != %d expected\n", bytes_read, rcnt);
-    }
+  if (fi2c_read_from_ftdi(fic->fc, rbuf, rcnt)) {
     return FI2C_ERR_READ;
   }
   return FI2C_ERR_NONE;

@@ -39,6 +39,7 @@ int fcom_num_interfaces(struct ftdi_context *fc) {
 
 int fcom_cfg(struct ftdi_context *fc, int interface,
                    enum ftdi_mpsse_mode mode, int direction) {
+  unsigned char latency;
 
   if (fcom_num_interfaces(fc) > 1) {
     prn_dbg("setting interface to %d\n", interface);
@@ -49,6 +50,12 @@ int fcom_cfg(struct ftdi_context *fc, int interface,
   }
   CHECK_FTDI(ftdi_set_latency_timer(fc, FCOM_USB_LATENCY_TIMER),
              "Set latency timer", fc);
+  CHECK_FTDI(ftdi_get_latency_timer(fc, &latency),
+             "Get latency timer", fc);
+  if (latency != FCOM_USB_LATENCY_TIMER)
+    prn_error("Latency timer = %d but tried to set to %d",
+              latency, FCOM_USB_LATENCY_TIMER);
+
   CHECK_FTDI(ftdi_set_bitmode(fc, 0, BITMODE_RESET),
   "Resetting", fc);
   CHECK_FTDI(ftdi_set_bitmode(fc, direction, mode),
