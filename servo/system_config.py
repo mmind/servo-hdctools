@@ -10,7 +10,7 @@ import xml.etree.ElementTree
 
 # valid tags in system config xml.  Any others will be ignored
 SYSCFG_TAG_LIST = ["map", "control"]
-
+ALLOWABLE_INPUT_TYPES = {"float": float, "int": int, "str": str}
 
 class SystemConfigError(Exception):
   """Error class for SystemConfig."""
@@ -297,29 +297,34 @@ class SystemConfig(object):
     Raises:
       SystemConfigError: mapping issues found
     """
-    # TODO(tbroch) : should probably type-cast control values instead
-    # of just trying float & int
-    map_value = None
-    try:
-      return int(str(map_vstr), 0)
-    except ValueError:
-      pass
-    try:
-      return float(str(map_vstr))
-    except ValueError:
-      pass
-    if map_value is None:
-      # its a map
-      if 'map' not in params:
-        raise SystemConfigError("No map for control but value is a string")
-      map_dict = self._lookup("map", params['map'])
-      if map_dict is None:
-        raise SystemConfigError("Map %s isn't defined" % params['map'])
+    if 'input_type' in params:
+      if params['input_type'] in ALLOWABLE_INPUT_TYPES:
+        input_type = ALLOWABLE_INPUT_TYPES[params['input_type']]
+        return input_type(map_vstr)
+      else:
+        logger.error('Unrecognized input type.')
+    else:
+      # TODO(tbroch): deprecate below once all controls have input_type params
       try:
-        map_value = map_dict['map_params'][map_vstr]
-      except KeyError:
-        raise SystemConfigError("Map %s doesn't contain key %s" %
-                                (params['map'], map_vstr))
+        return int(str(map_vstr), 0)
+      except ValueError:
+        pass
+      try:
+        return float(str(map_vstr))
+      except ValueError:
+        pass
+
+    # its a map
+    if 'map' not in params:
+      raise SystemConfigError("No map for control but value is a string")
+    map_dict = self._lookup("map", params['map'])
+    if map_dict is None:
+      raise SystemConfigError("Map %s isn't defined" % params['map'])
+    try:
+      map_value = map_dict['map_params'][map_vstr]
+    except KeyError:
+      raise SystemConfigError("Map %s doesn't contain key %s" %
+                              (params['map'], map_vstr))
     # TODO(tbroch) likely that maps are only integers but what if ...
     return int(map_value, 0)
 

@@ -17,7 +17,14 @@ GPIO:
   - Reading the control register returns the current value of the pin.
 
 EEPROM:
-  TODO(tbroch) Implement EEPROM functionality
+  writes:
+   - page write: slave wr + byte addr byte + 1-4 bytes to write
+  reads:
+   - byte N read: slave wr + byte addr byte to set addr
+                  slave rd + read N bytes
+
+  Note, EEPROM has an active low write control (WC#) which must be
+  asserted to write the device.
 """
 import logging
 
@@ -26,7 +33,8 @@ import drv.hw_driver
 
 
 REG_CTRL_LEN = 1
-
+EEPROM_BYTES = 256
+PAGE_BYTES = 4
 
 class pca9500Error(Exception):
   """Error class for pca9500 class."""
@@ -34,6 +42,8 @@ class pca9500Error(Exception):
 
 class pca9500(drv.hw_driver.HwDriver):
   """Object to access type=pca9500 controls."""
+
+  _byte_addr = 0
 
   def __init__(self, interface, params):
     """Constructor.
@@ -102,20 +112,109 @@ class pca9500(drv.hw_driver.HwDriver):
     """
     return self._interface.wr_rd(self._slave, [], REG_CTRL_LEN)[0]
 
-  def _Set_eeprom(self):
-    """Write the pca9500 EEPROM.
+  def _write_byte_addr(self, byte_addr):
+    """Write EEPROM byte address.
 
-    TODO(tbroch): implement this.  Need to define format for the
-    eeprom.  Likely candidate some form of TLV.  In all likelihood
-    we'll simply store key=value strings in here where they consist
-    of information that will uniquely identify the DUT where connected
-    to.
+    Byte address will be used by the next EEPROM operation providing its not
+    altered by a write operation.
+
+    Args:
+      byte_addr: integer, byte address to be set in EEPROM
     """
-    raise NotImplementedError("pca9500 eeprom write not implemented.")
+    self._interface.wr_rd(self._slave, [byte_addr], 0)
+
+  def _Set_byte_addr(self, byte_addr):
+    """Write the EEPROM's byte address.
+
+    Args:
+      byte_addr: integer, byte address to be set in EEPROM
+
+    Raises:
+      pca9500Error: if byte_addr > EEPROM_BYTES
+
+    """
+    self._logger.debug('')
+    if byte_addr > EEPROM_BYTES:
+      raise pca9500Error, 'Byte address not valid'
+    pca9500._byte_addr = byte_addr
+
+  def _Set_eeprom(self, value):
+    """Write the EEPROM.
+
+    Accepts a string of space-delimited bytes that can be up to EEPROM_BYTES
+    long.  These bytes are split into page writes starting at byte_addr.
+
+    For example the following string with byte_addr == 0x10
+      '0x00 0x01 0x02 0x03 0x04 0x05'
+
+    would turn into I2C page writes of:
+      <slv> 0x10 0x00 0x01 0x02 0x03
+      <slv> 0x14 0x04 0x05
+
+    Note, as this operation upsets the EEPROM byte address it must be restored
+    at the completion of writing.
+
+    Args:
+      value: space-delimited list of bytes to be written to EEPROM at
+        the EEPROM byte address
+
+    Raises:
+      pca9500Error: if number of bytes to write is more than EEPROM_BYTES
+      pca9500Error: if I2c write failed to complete successfully
+
+    """
+    self._logger.debug('')
+    byte_list = [int(byte_str, 0) for byte_str in value.split()]
+    self._write_byte_addr(pca9500._byte_addr)
+
+    if (len(byte_list) + pca9500._byte_addr) > EEPROM_BYTES:
+      raise pca9500Error, 'Writing %d Bytes from addr %d will be > %d' % \
+          (len(byte_list), pca9500._byte_addr, EEPROM_BYTES)
+    page_list = [byte_list[i:(i + PAGE_BYTES)]
+                 for i in xrange(0, len(byte_list), PAGE_BYTES)]
+    # insert idx for writing
+    for i, page in enumerate(page_list):
+      page.insert(0, pca9500._byte_addr + (i * PAGE_BYTES))
+      try:
+        self._interface.wr_rd(self._slave, page, 0)
+      except Fi2cError:
+        self._logger.error("page write of %i:%s", i, page)
+        raise pca9500Error, 'Setting PCA9500 EEPROM'
+
 
   def _Get_eeprom(self):
-    """Read the pca9500 EEPROM.
+    """Read the EEPROM.
 
-    TODO(tbroch): implement this
+    Reads and returns a space-delimited string of EEPROM_BYTES bytes.  Note, as
+    this operation upsets the EEPROM byte address it must be restored.
+
+    TODO(tbroch): May want to provide facility to read less than entire device.
+
+    Returns:
+      string, space-delimited of current bytes in EEPROM.
+
+        id_eeprom:
+          0x00 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0a 0x0b 0x0c ...
+          .
+          .
+          .
+          0xf0 0xf1 0xf2 0xf3 0xf4 0xf5 0xf6 0xf7 0xf8 0xf9 0xfa 0xfb 0xfc ...
+
+    Raises:
+      pca9500Error: if I2c read failed to complete successfully
     """
-    raise NotImplementedError("pca9500 eeprom read not implemented.")
+    self._logger.debug('')
+    error = False
+    self._write_byte_addr(0)
+    try:
+      byte_list = self._interface.wr_rd(self._slave, [], EEPROM_BYTES)
+    except Fi2cError:
+      self._logger.error("eeprom read")
+      raise pca9500Error, 'Getting PCA9500 EEPROM'
+
+    lines = []
+    for i in xrange(0, len(byte_list), 16):
+      line = ' '.join('0x%02x' % byte for byte in byte_list[i:i+16])
+      lines.append(line)
+
+    return '\n%s' % '\n'.join(lines)

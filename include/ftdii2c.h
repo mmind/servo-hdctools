@@ -28,7 +28,7 @@ extern "C" {
 #define GP3_POS 0x40
 #define GP4_POS 0x80
 
-#define FI2C_BUF_SIZE (1<<8)
+#define FI2C_BUF_SIZE (1<<12)
 #define FI2C_CHUNKSIZE (1<<12)
 
 #define FI2C_ERR_NONE   0

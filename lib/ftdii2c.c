@@ -58,6 +58,7 @@ static int fi2c_write_cmds(struct fi2c_context *fic) {
   int bufcnt = fic->bufcnt;
 
   fic->bufcnt = 0;
+  assert(bufcnt <= FI2C_BUF_SIZE);
   bytes_wrote = ftdi_write_data(fic->fc, fic->buf, bufcnt);
 
   if (bytes_wrote < 0) {
