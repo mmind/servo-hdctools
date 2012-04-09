@@ -139,20 +139,28 @@ def discover_servo(logger, vendor, product, serialname):
     all_servos.extend(usb_find(vid, pid, serialname))
   return all_servos
 
-def get_board_version(lot_id):
+def get_board_version(lot_id, product_id):
   """Get board version string.
 
   Typically this will be a string of format <boardname>_<version>.
   For example, servo_v2.
 
   Args:
-    lot_id: string, identifying which lot device was fabbed from
+    lot_id: string, identifying which lot device was fabbed from or None
+    product_id: integer, USB product id
 
   Returns:
     board_version: string, board & version or None if not found
   """
-  for (board_version, lot_ids) in ftdi_common.SERVO_LOT_ID_DEFAULTS.iteritems():
-    if lot_id in lot_ids:
+  if lot_id:
+    for (board_version, lot_ids) in \
+          ftdi_common.SERVO_LOT_ID_DEFAULTS.iteritems():
+      if lot_id in lot_ids:
+        return board_version
+
+  for (board_version, vids) in \
+        ftdi_common.SERVO_PID_DEFAULTS.iteritems():
+    if product_id in vids:
       return board_version
 
   return None
@@ -166,9 +174,17 @@ def get_auto_configs(logger, servo):
   Returns:
     configs: list of XML config files that should be loaded
   """
+  lot_id = None
   iserial = usb_get_iserial(servo)
-  (lot_id, _) = iserial.split('-')
-  board_version = get_board_version(lot_id)
+  if not iserial:
+    logger.warn("Servo device has no iserial value")
+  else:
+    try:
+      (lot_id, _) = iserial.split('-')
+    except ValueError:
+      logger.warn("Servo device's iserial was unrecognized.")
+
+  board_version = get_board_version(lot_id, servo.idProduct)
   logger.debug('iserial = %s board_version = %s', iserial, board_version)
   if board_version not in ftdi_common.SERVO_CONFIG_DEFAULTS:
     logger.warning('Unable to determine configs to load for board version = %s',

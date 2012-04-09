@@ -20,7 +20,16 @@ FUART_USEC_SLEEP = 1000
 
 class FuartError(Exception):
   """Class for exceptions of Fuart."""
-  pass
+  def __init__(self, msg, value=0):
+    """FuartError constructor.
+
+    Args:
+      msg: string, message describing error in detail
+      value: integer, value of error when non-zero status returned.  Default=0
+    """
+    super(FuartError, self).__init__(msg, value)
+    self.msg = msg
+    self.value = value
 
 
 class UartCfg(ctypes.Structure):
@@ -96,12 +105,12 @@ class Fuart(object):
       self._fc = ftdi_common.FtdiContext()
       err = self._flib.ftdi_init(ctypes.byref(self._fc))
       if err:
-        raise FuartError("Failure with ftdi_init", err)
+        raise FuartError("doing ftdi_init", err)
 
     err = self._lib.fuart_init(ctypes.byref(self._fuartc),
                                ctypes.byref(self._fc))
     if err:
-      raise FuartError("Failure with fuart_init", err)
+      raise FuartError("doing fuart_init", err)
 
   def __del__(self):
     """Fuart destructor."""
@@ -116,12 +125,23 @@ class Fuart(object):
       FuartError: If open fails
     """
     self._logger.debug("")
-    if self._is_closed:
-      err = self._lib.fuart_open(ctypes.byref(self._fuartc),
-                                 ctypes.byref(self._fargs))
-      if err:
-        raise FuartError("Failure with fuart_open", err)
-      self.is_closed = False
+    err = self._lib.fuart_open(ctypes.byref(self._fuartc),
+                               ctypes.byref(self._fargs))
+    if err:
+      raise FuartError("doing fuart_open", err)
+    self._is_closed = False
+
+  def close(self):
+    """Closes connection to FTDI uart interface.
+
+    Raises:
+      FuartError: If close fails
+    """
+    self._logger.debug("")
+    err = self._lib.fuart_close(ctypes.byref(self._fuartc))
+    if err:
+      raise FuartError("doing fuart_close", err)
+    self._is_closed = True
 
   def run(self):
     """Creates a pthread to poll FTDI & PTY for data.
@@ -204,18 +224,6 @@ class Fuart(object):
     """
     self._logger.debug("")
     return self._fuartc.name
-
-  def close(self):
-    """Closes connection to FTDI uart interface.
-
-    Raises:
-      FuartError: If close fails
-    """
-    self._logger.debug("")
-    err = self._lib.fuart_close(ctypes.byref(self._fuartc))
-    if err:
-      raise FuartError("Failure with fuart_close", err)
-    self.is_closed = True
 
 def test():
   (options, args) = ftdi_utils.parse_common_args(interface=3)

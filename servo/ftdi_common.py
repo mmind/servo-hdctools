@@ -44,6 +44,12 @@ SERVO_LOT_ID_DEFAULTS = \
      'servo_v2_r1': ['641220'],
      }
 
+SERVO_PID_DEFAULTS = \
+    {'miniservo_v1': [0x5000],
+     'servo_v1': [0x5001],
+     'servo_v2': [0x5002],
+     }
+
 SERVO_CONFIG_DEFAULTS = \
     {'miniservo_v1': ['miniservo.xml'],
      'servo_v1': ['servo.xml'],

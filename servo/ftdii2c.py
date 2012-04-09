@@ -11,9 +11,17 @@ import ftdi_utils
 
 
 class Fi2cError(Exception):
-  """Class for exceptions of Fi2c.
-  """
-  pass
+  """Class for exceptions of Fi2c."""
+  def __init__(self, msg, value=0):
+    """Fi2cError constructor.
+
+    Args:
+      msg: string, message describing error in detail
+      value: integer, value of error when non-zero status returned.  Default=0
+    """
+    super(Fi2cError, self).__init__(msg, value)
+    self.msg = msg
+    self.value = value
 
 
 class Fi2cContext(ctypes.Structure):
@@ -65,10 +73,14 @@ class Fi2c(object):
     self._fic = Fi2cContext()
     self._gpio = ftdi_common.Gpio()
     self._is_closed = True
-    if self._flib.ftdi_init(ctypes.byref(self._fc)):
-      raise Fi2cError("doing ftdi_init")
-    if self._lib.fi2c_init(ctypes.byref(self._fic), ctypes.byref(self._fc)):
-      raise Fi2cError("doing fi2c_init")
+    err = self._flib.ftdi_init(ctypes.byref(self._fc))
+    if err:
+      raise Fi2cError("ftdi_init", err)
+
+    err = self._lib.fi2c_init(ctypes.byref(self._fic), ctypes.byref(self._fc))
+    if err:
+      raise Fi2cError("fi2c_init", err)
+
     self._i2c_mask = ~self._fic.gpio.mask
 
   def __del__(self):
@@ -85,9 +97,22 @@ class Fi2c(object):
     Raises:
       Fi2cError: If open fails
     """
-    if self._lib.fi2c_open(ctypes.byref(self._fic), ctypes.byref(self._fargs)):
-      raise Fi2cError("doing fi2c_open")
-    self.is_closed = False
+    err = self._lib.fi2c_open(ctypes.byref(self._fic),
+                                ctypes.byref(self._fargs))
+    if err:
+      raise Fi2cError("fi2c_open", err)
+    self._is_closed = False
+
+  def close(self):
+    """Close connection to FTDI device and cleanup.
+
+    Raises:
+      Fi2cError: If close fails
+    """
+    err = self._lib.fi2c_close(ctypes.byref(self._fic))
+    if err:
+      raise Fi2cError("fi2c_close", err)
+    self._is_closed = True
 
   def setclock(self, speed=100000):
     """Sets i2c clock speed.
@@ -96,7 +121,7 @@ class Fi2c(object):
       speed: clock speed in hertz.  Default is 100kHz
     """
     if self._lib.fi2c_setclock(ctypes.byref(self._fic), speed):
-      raise Fi2cError("doing fi2c_setclock")
+      raise Fi2cError("fi2c_setclock")
 
   def wr_rd(self, slv, wlist, rcnt):
     """Write and/or read a slave i2c device.
@@ -122,9 +147,10 @@ class Fi2c(object):
     rbuf = rbuf_type()
     for i, wval in enumerate(wbuf):
       self._logger.debug("wbuf[%i] = 0x%02x" % (i, wval))
-    if self._lib.fi2c_wr_rd(ctypes.byref(self._fic), ctypes.byref(wbuf), wcnt,
-                            ctypes.byref(rbuf), rcnt):
-      raise Fi2cError("doing fi2c_wr_rd")
+      err = self._lib.fi2c_wr_rd(ctypes.byref(self._fic), ctypes.byref(wbuf),
+                                 wcnt, ctypes.byref(rbuf), rcnt)
+      if err:
+        raise Fi2cError("fi2c_wr_rd", err)
     for i, rval in enumerate(rbuf):
       self._logger.debug("rbuf[%i] = 0x%02x" % (i, rval))
     return list(rbuf)
@@ -173,12 +199,6 @@ class Fi2c(object):
     self._logger.debug("mask:0x%x val:%s returned %d" %
                        (self._gpio.mask, str(wr_val), rd_val.value))
     return (rd_val.value & self._gpio.mask) >> offset
-
-  def close(self):
-    """Close connection to FTDI device and cleanup.
-    """
-    if self._lib.fi2c_close(ctypes.byref(self._fic)):
-      raise Fi2cError("doing fi2c_close")
 
 
 def test():

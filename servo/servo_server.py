@@ -94,10 +94,17 @@ class Servod(object):
 
     Returns:
       Instance object of interface.
+
+    Raises:
+      ServodError: If init fails
     """
     fobj = ftdigpio.Fgpio(self._vendor, self._product, interface,
                           self._serialname)
-    fobj.open()
+    try:
+      fobj.open()
+    except ftdigpio.FgpioError as e:
+      raise ServodError('Opening gpio interface. %s ( %d )' % (e.msg, e.value))
+
     return fobj
 
   def _init_i2c(self, interface):
@@ -108,13 +115,21 @@ class Servod(object):
 
     Returns:
       Instance object of interface
+
+    Raises:
+      ServodError: If init fails
     """
     fobj = ftdii2c.Fi2c(self._vendor, self._product, interface,
                         self._serialname)
-    fobj.open()
+    try:
+      fobj.open()
+    except ftdii2c.Fi2cError as e:
+      raise ServodError('Opening i2c interface. %s ( %d )' % (e.msg, e.value))
+
     # Set the frequency of operation of the i2c bus.
     # TODO(tbroch) make configureable
     fobj.setclock(MAX_I2C_CLOCK_HZ)
+
     return fobj
 
   def _init_uart(self, interface):
@@ -130,9 +145,16 @@ class Servod(object):
 
     Returns:
       Instance object of interface
+
+    Raises:
+      ServodError: If init fails
     """
     fobj = ftdiuart.Fuart(self._vendor, self._product, interface)
-    fobj.run()
+    try:
+      fobj.run()
+    except ftdiuart.FuartError as e:
+      raise ServodError('Running uart interface. %s ( %d )' % (e.msg, e.value))
+
     self._logger.info("%s" % fobj.get_pty())
     return fobj
 
@@ -149,10 +171,17 @@ class Servod(object):
 
     Returns:
       Instance objects of interface
+
+    Raises:
+      ServodError: If init fails
     """
     fgpio = self._init_gpio(interface)
     fuart = ftdiuart.Fuart(self._vendor, self._product, interface, fgpio._fc)
-    fuart.run()
+    try:
+      fuart.run()
+    except ftdiuart.FuartError as e:
+      raise ServodError('Running uart interface. %s ( %d )' % (e.msg, e.value))
+
     self._logger.info("uart pty: %s" % fuart.get_pty())
     return fgpio, fuart
 

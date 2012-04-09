@@ -11,9 +11,17 @@ import ftdi_common
 
 
 class FgpioError(Exception):
-  """Class for exceptions of Fgpio.
-  """
-  pass
+  """Class for exceptions of Fgpio."""
+  def __init__(self, msg, value=0):
+    """FgpioError constructor.
+
+    Args:
+      msg: string, message describing error in detail
+      value: integer, value of error when non-zero status returned.  Default=0
+    """
+    super(FgpioError, self).__init__(msg, value)
+    self.msg = msg
+    self.value = value
 
 
 class FgpioContext(ctypes.Structure):
@@ -52,6 +60,7 @@ class Fgpio(object):
                                              product_id=product,
                                              interface=interface,
                                              serialname=serialname)
+    self._is_closed = True
     self._gpio = ftdi_common.Gpio()
     self._fc = ftdi_common.FtdiContext()
     self._fgc = FgpioContext()
@@ -61,14 +70,34 @@ class Fgpio(object):
     if self._lib.fgpio_init(ctypes.byref(self._fgc), ctypes.byref(self._fc)):
       raise FgpioError("doing fgpio_init")
 
+  def __del__(self):
+    """Fgpio destructor."""
+    self._logger.debug("")
+    if not self._is_closed:
+      self.close()
+
   def open(self):
     """Opens access to FTDI interface as a GPIO (bitbang).
 
     Raises:
-      FgpioError: An error accessing Fgpio object
+      FgpioError: If open fails
     """
-    if self._lib.fgpio_open(ctypes.byref(self._fgc), ctypes.byref(self._fargs)):
-      raise FgpioError("doing fgpio_open")
+    err = self._lib.fgpio_open(ctypes.byref(self._fgc),
+                               ctypes.byref(self._fargs))
+    if err:
+      raise FgpioError("doing fgpio_open", err)
+    self._is_closed = False
+
+  def close(self):
+    """Close access to FTDI interface as a GPIO (bitbang).
+
+    Raises:
+      FgpioError: If close fails
+    """
+    err = self._lib.fgpio_close(ctypes.byref(self._fgc))
+    if err:
+      raise FgpioError("doing fgpio_close", err)
+    self._is_closed = True
 
   def wr_rd(self, offset, width, dir_val=None, wr_val=None):
     """Write and/or read GPIO bit.
@@ -100,15 +129,6 @@ class Fgpio(object):
     self._logger.debug("dir:%s val:%s returned %d" %
                        (str(dir_val), str(wr_val), rd_val.value))
     return (rd_val.value & self._gpio.mask) >> offset
-
-  def close(self):
-    """Close access to FTDI interface as a GPIO (bitbang).
-
-    Raises:
-      FgpioError: An error accessing Fgpio object
-    """
-    if self._lib.fgpio_close(ctypes.byref(self._fgc)):
-      raise FgpioError("doing fgpio_close")
 
 
 def test():
