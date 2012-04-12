@@ -3,47 +3,15 @@
 <!-- control : gets used inside sequences -->
 <!-- sequence : can take argument list like seq:arg0:arg1:arg2 -->
 <root>
-  <map>
-    <name>onoff</name>
-    <doc>assertive high map for on/off</doc>
-    <params on="1" off="0"></params>
-  </map>
-  <map>
-    <name>onoff_i</name>
-    <doc>assertive low map for on/off</doc>
-    <params on="0" off="1"></params>
-  </map>
-  <map>
-    <name>yesno</name>
-    <doc>assertive high map for yes/no</doc>
-    <params yes="1" no="0"></params>
-  </map>
-  <map>
-    <name>yesno_i</name>
-    <doc>assertive low map for yes/no</doc>
-    <params yes="0" no="1"></params>
-  </map>
+  <include>
+    <name>common.xml</name>
+  </include>
   <map>
     <name>i2c_mux</name>
     <doc>4 to 1 mux to steer ftdi i2c bus to different sets of
     adcs.</doc>
     <params local_adc_ch0="0" local_adc_ch1="1" remote_adc="2"
     reserved="3" loc0="0" loc1="1" rem="2" res="3"></params>
-  </map>
-  <map>
-    <name>uart_parity</name>
-    <doc>Parity of uart line properties</doc>
-    <params none="0" odd="1" even="2"></params>
-  </map>
-  <map>
-    <name>uart_sbits</name>
-    <doc>Number of stop bits for uart line properties</doc>
-    <params one="0" oneandhalf="1" two="2"></params>
-  </map>
-  <map>
-    <name>uart_bits</name>
-    <doc>Number of data bits for uart line properties</doc>
-    <params five="5" six="6" seven="7" eight="8"></params>
   </map>
   <!-- ******************** Interface 1 ******************** -->
   <control>
@@ -213,11 +181,6 @@
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="5" map="yesno"></params>
   </control>
-  <map>
-    <name>press</name>
-    <doc>map for press and release of buttons</doc>
-    <params press="0" release="1"></params>
-  </map>
   <control>
     <name>pwr_button</name>
     <doc>power button gpio</doc>

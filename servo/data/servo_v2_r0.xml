@@ -1,32 +1,15 @@
 <?xml version="1.0"?>
 <root>
   <!-- ********** Maps ********** -->
-  <map>
-    <name>onoff</name>
-    <doc>assertive high map for on/off</doc>
-    <params on="1" off="0"></params>
-  </map>
-  <map>
-    <name>onoff_i</name>
-    <doc>assertive low map for on/off</doc>
-    <params on="0" off="1"></params>
-  </map>
-  <map>
-    <name>yesno</name>
-    <doc>assertive high map for yes/no</doc>
-    <params yes="1" no="0"></params>
-  </map>
+  <include>
+    <name>common.xml</name>
+  </include>
   <map>
     <name>i2c_mux</name>
     <doc>4 to 1 mux to steer ftdi i2c bus to different sets of
     adcs.</doc>
     <params local_adc_ch0="0" local_adc_ch1="1" remote_adc="2"
     reserved="3" loc0="0" loc1="1" rem="2" atmega="3"></params>
-  </map>
-  <map>
-    <name>press</name>
-    <doc>map for press and release of buttons</doc>
-    <params press="0" release="1"></params>
   </map>
   <map>
     <name>usbkey</name>
@@ -46,21 +29,6 @@
     Default is off</doc>
     <params pp3300="0" pp2500="1" pp1800="2" off="3"></params>
   </map>
-  <map>
-    <name>uart_parity</name>
-    <doc>Parity for uart line properties</doc>
-    <params none="0" odd="1" even="2"></params>
-  </map>
-  <map>
-    <name>uart_sbits</name>
-    <doc>Number of stop bits for uart line properties</doc>
-    <params one="0" oneandhalf="1" two="2"></params>
-  </map>
-  <map>
-    <name>uart_bits</name>
-    <doc>Number of data bits for uart line properties</doc>
-    <params five="5" six="6" seven="7" eight="8"></params>
-  </map>
   <!-- *********** FT4232H U29 Interface 1 ********** -->
   <!-- JTAG -->
   <!-- *********** FT4232H U29 Interface 2 ********** -->
@@ -70,7 +38,7 @@
   <control>
     <name>uart3_pty</name>
     <alias>legacy_uart_pty</alias>
-    <doc>Legacy (v1) uart console.  Typically connected to CPU's
+    <doc>Legacy (v1) uart console. Typically connected to CPU's
     uart console for devices which supported it.</doc>
     <params cmd="get" subtype="pty" interface="3" drv="uart">
     </params>
@@ -127,7 +95,7 @@
   </control>
   <control>
     <name>pch_disable</name>
-    <doc>DUT specific.  Note, is aliased to jtag_buf_on_flex_en
+    <doc>DUT specific. Note, is aliased to jtag_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="2" map="onoff_i"></params>
@@ -135,7 +103,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>jtag_buf_on_flex_en</name>
-    <doc>Enables JTAG buffer on servo flex.  Note, is aliased to
+    <doc>Enables JTAG buffer on servo flex. Note, is aliased to
     pch_disable GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="2" map="onoff_i"></params>
@@ -154,7 +122,7 @@
   </control>
   <control>
     <name>dev_mode</name>
-    <doc>dev_mode GPIO.  Note, is aliased to spi1_buf_on_flex_en
+    <doc>dev_mode GPIO. Note, is aliased to spi1_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="5" map="onoff"></params>
@@ -162,7 +130,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>spi1_buf_on_flex_en</name>
-    <doc>Enables SPI1 buffers on servo flex.  NOTE, is same as
+    <doc>Enables SPI1 buffers on servo flex. Note, is aliased to
     dev_mode GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
     offset="5" map="onoff_i"></params>
@@ -216,7 +184,7 @@
   </control>
   <control>
     <name>lid_open</name>
-    <doc>lid open GPIO.  Note, is aliased to spi2_buf_on_flex_en
+    <doc>lid open GPIO. Note, is aliased to spi2_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="5" map="yesno"></params>
@@ -224,7 +192,7 @@
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
     <name>spi2_buf_on_flex_en</name>
-    <doc>Enables SPI2 buffers on servo flex.  Note, is aliased to
+    <doc>Enables SPI2 buffers on servo flex. Note, is aliased to
     lid_open GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="5" map="onoff_i"></params>
@@ -265,7 +233,7 @@
   </control>
   <control>
     <name>usb_mux_sel1</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J3).  Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J3). Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="3" map="usbkey"></params>
@@ -286,7 +254,7 @@
   </control>
   <control>
     <name>dut_hub_sel</name>
-    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6).  Set either
+    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6). Set either
     'dut_sees_hub' or 'dut_sees_servo'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="0"
     offset="6" map="duthub"></params>
@@ -332,7 +300,7 @@
   </control>
   <control>
     <name>usb_mux_sel3</name>
-    <doc>2to1 mux select for USB port (vert TYPE A/J8).  Set either
+    <doc>2to1 mux select for USB port (vert TYPE A/J8). Set either
     'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="6" map="usbkey"></params>
@@ -414,7 +382,7 @@
   </control>
   <control>
     <name>dut_hub_ocs</name>
-    <doc>DUT USB hub over current signal (OCS).  This hub supports
+    <doc>DUT USB hub over current signal (OCS). This hub supports
     ethernet (RJ45/I54) and USB port (vert TYPE A/J8)</doc>
     <params interface="2" drv="tca6416" slv="0x22" port="1"
     offset="6" map="onoff_i"></params>
