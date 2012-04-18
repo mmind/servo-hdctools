@@ -147,10 +147,12 @@ class Fi2c(object):
     rbuf = rbuf_type()
     for i, wval in enumerate(wbuf):
       self._logger.debug("wbuf[%i] = 0x%02x" % (i, wval))
-      err = self._lib.fi2c_wr_rd(ctypes.byref(self._fic), ctypes.byref(wbuf),
-                                 wcnt, ctypes.byref(rbuf), rcnt)
-      if err:
-        raise Fi2cError("fi2c_wr_rd", err)
+
+    err = self._lib.fi2c_wr_rd(ctypes.byref(self._fic), ctypes.byref(wbuf),
+                               wcnt, ctypes.byref(rbuf), rcnt)
+    if err:
+      raise Fi2cError("fi2c_wr_rd", err)
+
     for i, rval in enumerate(rbuf):
       self._logger.debug("rbuf[%i] = 0x%02x" % (i, rval))
     return list(rbuf)
