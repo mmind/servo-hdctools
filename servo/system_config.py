@@ -80,6 +80,9 @@ class SystemConfig(object):
           doc: string describing the map,control or sequence
           get: a dictionary for getting values from named control
           set: a dictionary for setting values to named control
+
+    _alias_dict: dict where key = alias control name and value = real control
+      name
   """
 
   _RESERVED_NAMES = ('sleep')
@@ -89,6 +92,7 @@ class SystemConfig(object):
     self._logger = logging.getLogger("SystemConfig")
     self._logger.debug("")
     self.syscfg_dict = collections.defaultdict(dict)
+    self._alias_dict = {}
 
   def add_cfg_file(self, filename):
     """Add system config file to the system config object
@@ -191,6 +195,7 @@ class SystemConfig(object):
                                           'set_params':set_dict}
           if alias:
             self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
+            self._alias_dict[alias] = name
 
 
   def hwinit(self):
@@ -208,13 +213,18 @@ class SystemConfig(object):
     Intialization is not mandatory but must be done for controls that if not
     intialized might leave the system in an dangerous state.
 
-    TODO(tbroch) implement init functionality
+    Returns:
+      init_list: list of tuples where tuple is (control name, value)
     """
-    self._logger.warn("tbroch needs to implement init calls")
+    self._logger.debug('')
+    init_list = []
     for name, control_dict in self.syscfg_dict['control'].iteritems():
-      if 'init' in control_dict['set_params']:
+      if 'init' in control_dict['set_params'] and name not in self._alias_dict:
         init_value = control_dict['set_params']['init']
         self._logger.debug("hwinit for %s is %s" % (name, init_value))
+        init_list.append((name, init_value))
+
+    return init_list
 
   def lookup_control_params(self, name, is_get=True):
     """Lookup & return control parameter dictionary.
@@ -302,7 +312,7 @@ class SystemConfig(object):
         input_type = ALLOWABLE_INPUT_TYPES[params['input_type']]
         return input_type(map_vstr)
       else:
-        logger.error('Unrecognized input type.')
+        self._logger.error('Unrecognized input type.')
     else:
       # TODO(tbroch): deprecate below once all controls have input_type params
       try:

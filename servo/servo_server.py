@@ -70,6 +70,10 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
+    for control_name, value in self._syscfg.hwinit():
+      self.set(control_name, value)
+      self._logger.info('Initialized %s to %s', control_name, value)
+
 
   def _init_dummy(self, interface):
     """Initialize dummy interface.

@@ -518,14 +518,14 @@
     <alias>cpu_uart_en</alias>
     <doc>Enable communication with CPU's uart console</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="6" map="onoff_i"></params>
+    offset="6" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>uart1_en</name>
     <alias>ec_uart_en</alias>
     <doc>Enable communication with EC's uart console</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="7" map="onoff_i"></params>
+    offset="7" map="onoff_i" init="on"></params>
   </control>
   <!-- slv 0x24 : ioexpander port 1 -->
   <control>
