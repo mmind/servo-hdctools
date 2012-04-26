@@ -16,3 +16,4 @@ import pca9500
 import pca9546
 import pca9537
 import uart
+import ec

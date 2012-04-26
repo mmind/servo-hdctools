@@ -1,0 +1,47 @@
+<root>
+  <control>
+    <name>kbd_en</name>
+    <doc>Enable servo to assert certain keypresses via kbd_m1 and
+    kbd_m2</doc>
+    <params subtype="kbd_en" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m1_a0</name>
+    <doc>kbd_m1_a0</doc>
+    <params subtype="kbd_m1_a0" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m1_a1</name>
+    <doc>kbd_m1_a1</doc>
+    <params subtype="kbd_m1_a1" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <doc>kbd_m2_a0</doc>
+    <params subtype="kbd_m2_a0" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <doc>kbd_m2_a1</doc>
+    <params subtype="kbd_m2_a1" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>dev_mode</name>
+    <doc>fake_dev_switch on ec.
+    TODO: Remove when EC keyboard controlled developer switch lands.
+    See crosbug.com/p/9341.</doc>
+  <params subtype="dev_sw" interface="7" drv="ec" map="onoff"
+  clobber_ok=""></params>
+  </control>
+  <control>
+    <name>lid_open</name>
+    <doc>emulated lid switch on ec</doc>
+    <params subtype="lid_open" interface="7" drv="ec" map="yesno"
+    clobber_ok=""></params>
+  </control>
+</root>
