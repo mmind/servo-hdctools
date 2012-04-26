@@ -17,49 +17,108 @@ import xmlrpclib
 VERSION = "0.0.1"
 
 # used to aide sorting of dict keys
-KEY_PREFIX='__'
+KEY_PREFIX = '__'
+STATS_PREFIX = '@@'
+GNUPLOT_PREFIX = '##'
 # dict key for tracking sampling time
 TIME_KEY = KEY_PREFIX + 'sample_msecs'
 
+class ServoClientError(Exception):
+  """Error class for ServoRequest"""
+
+
 class ServoClient(object):
   """Class to link client to servod via xmlrpc.
-  """
-  def __init__(self):
-    self.logger = logging.getLogger("dut-control")
 
-  def initialize(self, servo_host='', servo_port='', verbose=False):
-    """Initialize the client connection.
+  Beyond method initialize, the remaining methods (doc_all, doc, get, get_all,
+  set) have a corresponding method implmented in servod's server.
+  """
+  def __init__(self, host='', port='', verbose=False):
+    """Constructor for ServoClient Class
 
     Args:
-      servo_host: name or IP address of servo server host
-      servo_port: TCP port on which servod is listening on
+      host: name or IP address of servo server host
+      port: TCP port on which servod is listening on
       verbose: enable verbose messaging across xmlrpclib.ServerProxy
     """
-    self.logger.debug('initialize')
-    self.verbose = verbose
-    self.remote = 'http://' + servo_host + ':' + servo_port
-    self.server = xmlrpclib.ServerProxy(self.remote, verbose=self.verbose,
-                                        allow_none=True)
+    self.logger = logging.getLogger("dut-control")
+    self._verbose = verbose
+    remote = 'http://' + host + ':' + port
+    self._server = xmlrpclib.ServerProxy(remote, verbose=self._verbose,
+                                         allow_none=True)
 
   def doc_all(self):
+    """Get the doc string for all controls from servo.
+
+    Returns:
+     string of all doc strings of controls from servo.
+    """
     self.logger.debug("")
-    return self.server.doc_all()
+    return self._server.doc_all()
 
   def doc(self, name):
+    """Get the doc string from servo for control name.
+
+    Args:
+      name: string, name of control to retrieve doc string for.
+
+    Returns:
+     doc string for control name
+
+    Raises:
+      ServoClientError: If error occurs retrieving doc string.
+    """
     self.logger.debug("")
-    return self.server.doc(name)
+    try:
+      return self._server.doc(name)
+    except  xmlrpclib.Fault, e:
+      raise ServoClientError("Problem docstring %s :: %s" % (name, e))
 
   def get(self, name):
-    self.logger.debug("")
-    return self.server.get(name)
+    """Get the value from servo for control name.
 
-  def get_all(self, verbose=False):
+    Args:
+      name: string, name of control to get value for.
+
+    Returns:
+     value currently set on control name
+
+    Raises:
+      ServoClientError: If error occurs getting value.
+    """
     self.logger.debug("")
-    return self.server.get_all(verbose)
+    try:
+      return self._server.get(name)
+    except xmlrpclib.Fault, e:
+      raise ServoClientError("Problem getting %s :: %s" % (name, e))
+
+  def get_all(self):
+    """Get all controls current values.
+
+    Returns:
+      String of all controls and their current values
+    """
+    self.logger.debug("")
+    return self._server.get_all(self._verbose)
 
   def set(self, name, value):
+    """Set the value from servo for control name.
+
+    Args:
+      name: string, name of control to set.
+      value: string, value to set control to.
+
+    Raises:
+      ServoClientError: If error occurs setting value.
+    """
     self.logger.debug("")
-    return self.server.set(name, value)
+    try:
+      self._server.set(name, value)
+    except xmlrpclib.Fault, e:
+      # TODO(tbroch) : more detail of failure.  Note xmlrpclib only
+      #                passes one exception above
+      raise ServoClientError("Problem setting %s to %s :: %s" %
+                              (name, value, e))
 
 
 def _parse_args():
@@ -84,6 +143,13 @@ def _parse_args():
     "   %prog -r 100 i2c_mux\n\tgets value for 'i2c_mux' control 100 times\n"
     "   %prog -t 2 loc_0x40_mv\n\tgets value for 'loc_0x40_mv' control for 2 "
     "seconds\n"
+    "   %prog -y -t 2 loc_0x40_mv\n\tgets value for 'loc_0x40_mv' control for "
+    "2 seconds and prepends time in seconds to results\n"
+    "   %prog -g -y -t 2 loc_0x40_mv loc_0x41_mv\n"
+    "\tgets value for 'loc_0x4[0|1]_mv' control for 2 seconds with gnuplot "
+    "style"
+    "   %prog -z 100 -t 2 loc_0x40_mv\n\tgets value for 'loc_0x40_mv' control "
+    "for 2 seconds sampling every 100ms\n"
     "   %prog -v i2c_mux\n\tgets value for 'i2c_mux' control verbosely\n"
     "   %prog i2c_mux:remote_adcs\n\tsets 'i2c_mux' to value 'remote_adcs'\n"
     )
@@ -101,13 +167,19 @@ def _parse_args():
                     help="repeat requested command multiple times", default=1)
   parser.add_option("-t", "--time_in_secs", help="repeat requested command for "
                     + "this many seconds", type='float', default=0.0)
+  parser.add_option("-z", "--sleep_msecs", help="sleep for this many " +
+                    "milliseconds between queries", type='float', default=0.0)
+  parser.add_option("-y", "--print_time", help="print time in seconds with " +
+                    "queries to stdout", action="store_true", default=False)
+  parser.add_option("-g", "--gnuplot", help="gnuplot style to stdout.  Implies "
+                    "print_time", action="store_true", default=False)
   parser.add_option("-d", "--debug", help="enable debug messages",
                     action="store_true", default=False)
 
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
 
-def display_table(table, prefix='@@'):
+def display_table(table, prefix):
   """Display a two-dimensional array ( list-of-lists ) as a table.
 
   The table will be spaced out.
@@ -158,7 +230,7 @@ def display_table(table, prefix='@@'):
       out_str += row[i].rjust(max_col_width[i] + 2)
     print prefix, out_str
 
-def display_stats(stats):
+def display_stats(stats, prefix=STATS_PREFIX):
   """Display various statistics for data captured in a table.
   >>> stats = {}
   >>> stats[TIME_KEY] = [50.0, 25.0, 40.0, 10.0]
@@ -175,6 +247,7 @@ def display_stats(stats):
         list of floating point values to show stats for.  See doctest.
         Any key starting with '__' will be sorted first and have its prefix
         stripped.
+    prefix: All lines will be prefixed with this and a space.
   """
   table = [['NAME', 'COUNT', 'AVERAGE', 'STDDEV', 'MAX', 'MIN']]
   for key in sorted(stats.keys()):
@@ -187,14 +260,126 @@ def display_stats(stats):
       row.append("%.2f" % stats_np.max())
       row.append("%.2f" % stats_np.min())
       table.append(row)
-  display_table(table)
+  display_table(table, prefix)
 
 def timed_loop(time_in_secs):
+  """Pause for time_in_secs."""
   start_time = time.time()
   secs_so_far = 0.0
   while secs_so_far <= time_in_secs:
     yield secs_so_far
     secs_so_far = time.time() - start_time
+
+def _print_gnuplot_header(control_args):
+  """Prints gnuplot header.
+
+  Args:
+    control_args: list of controls to get or set
+
+  Note, calls sys.exit()
+  """
+  hdr = []
+  # Don't put setting of controls into gnuplot output
+  hdr.extend(arg for arg in control_args if ':' not in arg)
+  if not hdr:
+    logging.critical("Can't use --gnuplot without supplying controls to read "
+                     "on command line")
+    sys.exit(-1)
+  print GNUPLOT_PREFIX + ' seconds ' + ' seconds '.join(hdr)
+
+def do_iteration(requests, options, sclient, stats):
+  """Perform one iteration across the controls.
+
+  Args:
+    requests: list of strings to make requests to servo about
+      Example = ['dev_mode', 'dev_mode:on', 'dev_mode']
+    options: optparse object options
+    sclient: ServoRequest object
+    stats: dict of key=control name, value=control value for stats calcs
+
+  Returns:
+    out_str: results string from iteration based on formats in options
+  """
+  out_list = []
+  time_str = ''
+  sample_start = time.time()
+  for request_str in requests:
+    logging.debug("cmd = %s", request_str)
+    control = request_str
+    if options.info:
+      if ':' in request_str:
+        logging.warn("Ignoring %s, can't perform set with --info", request_str)
+        continue
+      request_type = 'doc'
+      result = sclient.doc(control)
+    elif ':' in request_str:
+      request_type = 'set'
+      (control, value) = request_str.split(':', 1)
+      result = sclient.set(control, value)
+    else:
+      request_type = 'get'
+      result = sclient.get(control)
+      try:
+        stats[control].append(float(result))
+      except ValueError:
+        pass
+
+    if options.print_time:
+      time_str = "%.4f " % (time.time() - _start_time)
+
+    if options.verbose:
+      out_list.append("%s%s %s -> %s" % (time_str, request_type.upper(),
+                                         control, result))
+    elif request_type is not 'set':
+      if options.gnuplot:
+        out_list.append("%s%s" % (time_str, result))
+      else:
+        out_list.append("%s%s:%s" % (time_str, control, result))
+
+  # format of gnuplot is <seconds_val1> <val1> <seconds_val2> <val2> ... such
+  # that plotting can then be done with time on x-axis, value on y-axis.  For
+  # example, this
+  # command would plot two values across time
+  #   plot   "file.out" using 1:2 with linespoint
+  #   replot "file.out" using 3:4 with linespoint
+  if options.gnuplot:
+    out_str = " ".join(out_list)
+  else:
+    out_str = "\n".join(out_list)
+
+  iter_time_msecs = (time.time() - sample_start) * 1000
+  stats[TIME_KEY].append(iter_time_msecs)
+  if options.sleep_msecs:
+    if iter_time_msecs < options.sleep_msecs:
+      time.sleep((options.sleep_msecs - iter_time_msecs) / 1000)
+  return out_str
+
+def iterate(controls, options, sclient):
+  """Perform iterations on various controls.
+
+  Args:
+    controls: list of controls to iterate over
+    options: optparse object options
+    sclient: ServoRequest object
+  """
+  if options.gnuplot:
+    options.print_time = True
+    _print_gnuplot_header(controls)
+
+  stats = collections.defaultdict(list)
+  if options.time_in_secs > 0:
+    iterate_over = timed_loop(options.time_in_secs)
+  else:
+    iterate_over = xrange(options.repeat)
+
+  for _ in iterate_over:
+    print do_iteration(controls, options, sclient, stats)
+
+  if (options.repeat != 1) or (options.time_in_secs > 0):
+    prefix = STATS_PREFIX
+    if options.gnuplot:
+      prefix = GNUPLOT_PREFIX
+    display_stats(stats, prefix=prefix)
 
 def main():
   (options, args) = _parse_args()
@@ -204,67 +389,24 @@ def main():
   logging.basicConfig(level=loglevel,
                       format="%(asctime)s - %(name)s - " +
                       "%(levelname)s - %(message)s")
-  sclient = ServoClient()
-  sclient.initialize(servo_host=options.server,
-                     servo_port=options.port)
+  if options.verbose and options.gnuplot:
+    logging.critical("Can't use --verbose with --gnuplot")
+    sys.exit(-1)
+
+  sclient = ServoClient(host=options.server, port=options.port,
+                        verbose=options.verbose)
+  global _start_time
+  _start_time = time.time()
   if not len(args) and options.info:
     # print all the doc info for the controls
     print sclient.doc_all()
   elif not len(args):
-    print sclient.get_all(verbose=options.verbose)
-
-  stats = collections.defaultdict(list)
-
-  if options.time_in_secs > 0:
-    iterate_over = timed_loop(options.time_in_secs)
+    print sclient.get_all()
   else:
-    iterate_over = xrange(options.repeat)
+    iterate(args, options, sclient)
 
-  for _ in iterate_over:
-    sample_start = time.time()
-    for argnum, arg in enumerate(args):
-      logging.debug("cmd = %s" % arg)
-      cmdlist = arg.split(':', 1)
-      if len(cmdlist) == 2:
-        (cmd_name, cmd_value) = cmdlist
-        # its a set
-        try:
-          rv = sclient.set(cmd_name, cmd_value)
-          if options.verbose:
-            print "SET %s -> %s :: %s" % (cmd_name, cmd_value,
-                                          sclient.doc(cmd_name))
-        except xmlrpclib.Fault, e:
-          # TODO(tbroch) : more detail of failure.  Note xmlrpclib only
-          #                passes one exception above
-          logging.error("Problem setting %s :: %s\n\t\tIgnoring %s" %
-                        (arg, e, ' '.join(args[argnum + 1:])))
-          break
-      else:
-        (cmd_name,) = cmdlist
-        # its a get | doc
-        get_fx = "get"
-        if options.info:
-          get_fx = "doc"
-        try:
-          rv = eval("sclient.%s(cmd_name)" % (get_fx))
-          if options.verbose:
-            print "%s %s -> %s" % (get_fx.upper(), cmd_name, rv)
-          else:
-            print "%s:%s" % (arg, rv)
-          if get_fx == 'get':
-            try:
-              stats[cmd_name].append(float(rv))
-            except ValueError, e:
-              pass
-        except  xmlrpclib.Fault, e:
-          logging.error("Problem getting %s %s :: %s\n\t\tIgnoring %s" %
-                        (get_fx, arg, e, ' '.join(args[argnum+1:])))
-          break
-        stats[TIME_KEY].append((time.time() - sample_start) * 1000)
-
-  if (options.repeat != 1) or (options.time_in_secs > 0):
-    display_stats(stats);
-
+# global start time for script
+_start_time = 0
 if __name__ == '__main__':
   try:
     main()
