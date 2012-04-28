@@ -83,6 +83,8 @@ class SystemConfig(object):
 
     _alias_dict: dict where key = alias control name and value = real control
       name
+    _loaded_xml_files: set of filenames already loaded to avoid sourcing XML
+      multiple times.
   """
 
   _RESERVED_NAMES = ('sleep')
@@ -93,6 +95,7 @@ class SystemConfig(object):
     self._logger.debug("")
     self.syscfg_dict = collections.defaultdict(dict)
     self._alias_dict = {}
+    self._loaded_xml_files = set()
 
   def add_cfg_file(self, filename):
     """Add system config file to the system config object
@@ -127,6 +130,12 @@ class SystemConfig(object):
       else:
         self._logger.error("Unable to find system file %s" % (filename))
         raise SystemConfigError("Unable to find system file %s" % filename)
+
+    if filename in self._loaded_xml_files:
+      self._logger.warn("Already sourced system file %s.", filename)
+      return
+    self._loaded_xml_files.add(filename)
+
     root = xml.etree.ElementTree.parse(filename).getroot()
     for element in root.findall('include'):
       self.add_cfg_file(element.find('name').text)
