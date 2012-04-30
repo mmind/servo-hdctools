@@ -15,10 +15,10 @@
     port="0" offset="1" map="press"></params>
   </control>
   <control>
-    <name>test_mfg_mode</name>
-    <doc>test mfg_mode</doc>
+    <name>test_fw_wp</name>
+    <doc>test fw_wp</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="2" map="onoff"></params>
+    port="0" offset="2" map="onoff_i"></params>
   </control>
   <control>
     <name>kbd_col1</name>

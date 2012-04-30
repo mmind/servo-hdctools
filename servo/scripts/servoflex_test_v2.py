@@ -123,8 +123,11 @@ def get_ctrls(controls, timeout=1):
             ctrl_line = ctrl_line.strip()
             if len(ctrl_line):
                 logging.debug('ctrl_line=%s', ctrl_line)
-                (name, value) = ctrl_line.strip().split(':')
-                get_dict[name] = value
+                try:
+                    (name, value) = ctrl_line.strip().split(':')
+                    get_dict[name] = value
+                except ValueError:
+                    logging.debug("Unable to parse ctrl %s", ctrl_line)
         return (True, get_dict)
     return (False, get_dict)
 
@@ -450,6 +453,8 @@ def parse_args():
                       help="Pin width of flex on DUT side.  Either 42 | 50")
     parser.add_option("-l", "--legacy", action="store_true", default=False,
                       help="Test legacy 40pin connector")
+    parser.add_option("-t", "--tests", type=str, default=None,
+                      help="Tests to run.  Default is all")
     parser.set_usage(parser.get_usage() + examples)
     return parser.parse_args()
 
@@ -477,9 +482,12 @@ def main():
             logging.error('Enabling i2c mux to remote')
             return -1
 
-        tests = V2_TESTS
-        if options.legacy:
-            tests = LEGACY_TESTS
+        if options.tests is None:
+            tests = V2_TESTS
+            if options.legacy:
+                tests = LEGACY_TESTS
+        else:
+            tests = options.tests.split()
 
         for test in tests:
             test_fn = 'test_%soptions)' % test

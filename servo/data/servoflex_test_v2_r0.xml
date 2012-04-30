@@ -74,10 +74,10 @@
     port="1" offset="2" map="onoff_i"></params>
   </control>
   <control>
-    <name>test_mfg_mode</name>
-    <doc>test mfg_mode</doc>
+    <name>test_fw_wp</name>
+    <doc>test fw_wp</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x25"
-    port="1" offset="3" map="onoff"></params>
+    port="1" offset="3" map="onoff_i"></params>
   </control>
   <control>
     <name>test_hpd</name>
