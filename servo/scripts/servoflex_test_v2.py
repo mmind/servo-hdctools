@@ -214,7 +214,7 @@ def test_spi(dev_id, options):
     id_str = "%d" % dev_id
     errors = 0
     ctrls = []
-    cmd = 'sudo flashrom -V -p ft2232_spi:type=servo-v2'
+    cmd = 'sudo flashrom -V -p ft2232_spi:spi_mhz=1,type=servo-v2'
     if options.legacy:
         cmd += '-legacy'
         ctrls.extend(['jtag_vref_sel1:{pwr}', 'jtag_vref_sel0:{pwr}',
@@ -232,6 +232,9 @@ def test_spi(dev_id, options):
         logging.error('enabling access to spi %s', id_str)
         return False
 
+    # TODO(tbroch) Determine why this 'settling' time is needed.  Without it,
+    # the flashrom command below is less stable.
+    time.sleep(1)
     if dev_id == 1:
         cmd += ',port=b'
     cmd += ' -c SST25VF040'
