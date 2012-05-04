@@ -251,7 +251,7 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
     while ((bytes = write(fuartc->fd, fuartc->buf, bytes_remaining)) > 0) {
       bytes_remaining -= bytes;
     }
-    if (bytes == -1) {
+    if ((bytes == -1) && (errno != EAGAIN) && (errno != EWOULDBLOCK)) {
       perror("writing ftdi data to pty");
     }
 
