@@ -32,11 +32,11 @@
   </control>
   <control>
     <name>dev_mode</name>
-    <doc>fake_dev_switch on ec.
-    TODO: Remove when EC keyboard controlled developer switch lands.
-    See crosbug.com/p/9341.</doc>
-  <params subtype="dev_sw" interface="7" drv="ec" map="onoff"
-  clobber_ok=""></params>
+    <doc>fake_dev_switch on ec. TODO: Remove when EC keyboard
+    controlled developer switch lands. See
+    crosbug.com/p/9341.</doc>
+    <params subtype="dev_sw" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
   </control>
   <control>
     <name>lid_open</name>
@@ -46,7 +46,28 @@
   </control>
   <control>
     <name>cpu_temp</name>
-    <doc>CPU temperature reading. Only works when device is powered on.</doc>
-    <params subtype="cpu_temp" interface="7" drv="ec"></params>
+    <doc>CPU temperature reading in degC. Only works when device is
+    powered on.</doc>
+    <params cmd="get" subtype="cpu_temp" interface="7" drv="ec"></params>
+  </control>
+  <control>
+    <name>ppvar_vbat_ma</name>
+    <doc>milliamps being consumed (discharging/positive) or
+    supplied (charging/negative) to the battery</doc>
+    <params cmd="get" subtype="milliamps" interface="7" drv="ec"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ppvar_vbat_mv</name>
+    <doc>millivolts of the battery</doc>
+    <params cmd="get" subtype="millivolts" interface="7" drv="ec"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ppvar_vbat_mw</name>
+    <doc>milliwatts being consumed (discharging) or supplied
+    (charging) to the battery</doc>
+    <params cmd="get" subtype="milliwatts" interface="7" drv="ec"
+    clobber_ok=""></params>
   </control>
 </root>

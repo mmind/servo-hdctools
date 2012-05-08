@@ -117,31 +117,39 @@ class ec(drv.hw_driver.HwDriver):
     finally:
       self._close()
 
-  def _issue_cmd_get_result(self, cmd, regex):
+  def _issue_cmd_get_results(self, cmd, regex_list):
     """Send command to EC and wait for response.
 
     This function waits for response message matching a regular
-    expression.
+    expressions.
 
     Args:
       cmd: The command issued.
-      regex: Regular expression used to match response message.
+      regex_list: List of Regular expressions used to match response message.
+        Note, list must be ordered.
 
     Returns:
-      The match object of response message. None if timed out waiting.
+      List of match objects of response message.
+
+    Raises:
+      ecError: If timed out waiting for EC response
     """
+    #import pdb; pdb.set_trace()
+    result_list = []
     self._open()
     try:
       self._send(cmd)
       self._logger.debug("Sending cmd: %s" % cmd)
-      self._child.expect(regex, timeout=0.3)
-      result = self._child.match
-      self._logger.debug("Result: %s" % str(result.groups()))
+      for regex in regex_list:
+        self._child.expect(regex, timeout=0.3)
+        result = self._child.match
+        result_list.append(result)
+        self._logger.debug("Result: %s" % str(result.groups()))
     except pexpect.TIMEOUT:
-      return None
+      raise ecError("Timeout waiting for EC response.")
     finally:
       self._close()
-    return result
+    return result_list
 
   def _Get_dev_sw(self):
     """Retrieve fake developer switch state.
@@ -150,10 +158,8 @@ class ec(drv.hw_driver.HwDriver):
       0: Developer switch is off.
       1: Developer switch is on.
     """
-    result = self._issue_cmd_get_result("optget fake_dev_switch",
-                                       "([01]) fake_dev_switch")
-    if result is None:
-      raise ecError("Timeout waiting for EC response.")
+    result = self._issue_cmd_get_results("optget fake_dev_switch",
+                                       ["([01]) fake_dev_switch"])[0]
     return int(result.group(1))
 
   def _Set_dev_sw(self, value):
@@ -261,10 +267,8 @@ class ec(drv.hw_driver.HwDriver):
       0: Lid closed.
       1: Lid opened.
     """
-    result = self._issue_cmd_get_result("rw %s" % LID_STATUS_ADDR,
-        "read word %s = 0x.......(.)" % LID_STATUS_ADDR)
-    if result is None:
-      raise ecError("Timeout waiting for EC response.")
+    result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
+        ["read word %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
     res_code = int(result.group(1), 16)
     return res_code & LID_STATUS_MASK
 
@@ -287,8 +291,59 @@ class ec(drv.hw_driver.HwDriver):
     Returns:
       CPU temperature in degree C.
     """
-    result = self._issue_cmd_get_result("temps",
-        "PECI[ \t]*:[ \t]*[0-9]* K[ \t]*=[ \t]*([0-9]*)[ \t]*C")
+    result = self._issue_cmd_get_results("temps",
+        ["PECI[ \t]*:[ \t]*[0-9]* K[ \t]*=[ \t]*([0-9]*)[ \t]*C"])[0]
     if result is None:
       raise ecError("Cannot retrieve CPU temperature.")
     return result.group(1)
+
+  def _get_battery_values(self):
+    """Retrieve various battery related values.
+
+    Battery command in the EC currently exposes the following information:
+       Temperature:            0x0bd9 = 3033 x 0.1K (30 C)
+       Manufacturer:           acme
+       Device:                 S1
+       Chemistry:              plutonium
+       Serial number:          0xbeef
+       Voltage:                0x1fb7 = 8119 mV
+       Desired voltage         0x20d0 = 8400 mV
+       Design output voltage   0x1ce8 = 7400 mV
+       Current:                0xfbca = -1078 mA(DISCHG)
+       Desired current         0x06a4 = 1700 mA
+       Battery mode:           0x7c7f
+       % of charge:            95 %
+       Abs % of charge:        95 %
+       Remaining capacity:     8061 mAh
+       Full charge capacity:   8515 mAh
+       Design capacity:        8500 mAh
+       Time to empty:          7h:21
+       Time to full:           0h:0
+
+    This method currently returns a subset of above.
+
+    Returns:
+      Tuple (millivolts, milliamps) where:
+        millivolts: battery voltage in millivolts
+        milliamps: battery amps in milliamps
+    """
+    results = self._issue_cmd_get_results('battery',
+                                         ['Voltage:.*= (-*\d+) mV',
+                                          'Current:.*= (-*\d+) mA'])
+    return (int(results[0].group(1), 0), int(results[1].group(1), 0) * -1)
+
+  def _Get_milliamps(self):
+    """Retrieve current measuremnents for the battery."""
+    (_, milliamps) = self._get_battery_values()
+    return milliamps
+
+  def _Get_millivolts(self):
+    """Retrieve voltage measuremnents for the battery."""
+    (millivolts, _) = self._get_battery_values()
+    return millivolts
+
+  def _Get_milliwatts(self):
+    """Retrieve power measuremnents for the battery.
+    """
+    (millivolts, milliamps) = self._get_battery_values()
+    return milliamps * millivolts * 1e-3
