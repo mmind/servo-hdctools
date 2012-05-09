@@ -44,4 +44,9 @@
     <params subtype="lid_open" interface="7" drv="ec" map="yesno"
     clobber_ok=""></params>
   </control>
+  <control>
+    <name>cpu_temp</name>
+    <doc>CPU temperature reading. Only works when device is powered on.</doc>
+    <params subtype="cpu_temp" interface="7" drv="ec"></params>
+  </control>
 </root>

@@ -278,3 +278,17 @@ class ec(drv.hw_driver.HwDriver):
       self._issue_cmd("lidclose")
     else:
       self._issue_cmd("lidopen")
+
+  def _Get_cpu_temp(self):
+    """Getter of cpu_temp.
+
+    Reads CPU temperature through PECI. Only works when device is powered on.
+
+    Returns:
+      CPU temperature in degree C.
+    """
+    result = self._issue_cmd_get_result("temps",
+        "PECI[ \t]*:[ \t]*[0-9]* K[ \t]*=[ \t]*([0-9]*)[ \t]*C")
+    if result is None:
+      raise ecError("Cannot retrieve CPU temperature.")
+    return result.group(1)
