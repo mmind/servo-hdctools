@@ -1,11 +1,17 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Servo Server."""
+import fnmatch
 import imp
 import logging
+import os
+import shutil
 import SimpleXMLRPCServer
+import subprocess
+import tempfile
 import time
+import urllib
 
 # TODO(tbroch) deprecate use of relative imports
 import ftdigpio
@@ -21,6 +27,9 @@ class ServodError(Exception):
 
 class Servod(object):
   """Main class for Servo debug/controller Daemon."""
+  _USB_DETECTION_DELAY = 10
+  _HTTP_PREFIX = "http://"
+
   def __init__(self, config, vendor, product, serialname=None, interfaces=None):
     """Servod constructor.
 
@@ -267,6 +276,153 @@ class Servod(object):
       return self._syscfg.get_control_docstring(name)
     else:
       raise NameError("No control %s" %name)
+
+  def _get_usb_port_set(self):
+    """Gets a set of USB disks currently connected to the system
+
+    Returns:
+      A set of USB disk paths.
+    """
+    usb_set = fnmatch.filter(os.listdir("/dev/"), "sd[a-z]")
+    return set(["/dev/" + dev for dev in usb_set])
+
+  def _probe_host_usb_dev(self):
+    """Probe the USB disk device plugged in the servo from the host side.
+
+    Method can fail by:
+    1) Having multiple servos connected and returning incorrect /dev/sdX of
+       another servo.
+    2) Finding multiple /dev/sdX and returning None.
+
+    Returns:
+      USB disk path if one and only one USB disk path is found, otherwise None.
+    """
+    original_value = self.get("usb_mux_sel1")
+    # Make the host unable to see the USB disk.
+    if original_value != "dut_sees_usbkey":
+      self.set("usb_mux_sel1", "dut_sees_usbkey")
+      time.sleep(self._USB_DETECTION_DELAY)
+
+    no_usb_set = self._get_usb_port_set()
+    # Make the host able to see the USB disk.
+    self.set("usb_mux_sel1", "servo_sees_usbkey")
+    time.sleep(self._USB_DETECTION_DELAY)
+
+    has_usb_set = self._get_usb_port_set()
+    # Back to its original value.
+    if original_value != "servo_sees_usbkey":
+      self.set("usb_mux_sel1", original_value)
+      time.sleep(self._USB_DETECTION_DELAY)
+    # Subtract the two sets to find the usb device.
+    diff_set = has_usb_set - no_usb_set
+    if len(diff_set) == 1:
+      return diff_set.pop()
+    else:
+      return None
+
+  def download_image_to_usb(self, image_path):
+    """Download image and save to the USB device found by probe_host_usb_dev.
+    If the image_path is a URL, it will download this url to the USB path;
+    otherwise it will simply copy the image_path's contents to the USB path.
+
+    Args:
+      image_path: path or url to the recovery image.
+
+    Returns:
+      True|False: True if process completed successfully, False if error
+                  occurred.
+      Can't return None because XMLRPC doesn't allow it. PTAL at tbroch's
+      comment at the end of set().
+    """
+    self._logger.debug("image_path(%s)" % image_path)
+    self._logger.debug("Detecting USB stick device...")
+    usb_dev = self._probe_host_usb_dev()
+    if not usb_dev:
+      self._logger.error("No usb device connected to servo")
+      return False
+
+    try:
+      if image_path.startswith(self._HTTP_PREFIX):
+        self._logger.debug("Image path is a URL, downloading image")
+        urllib.urlretrieve(image_path, usb_dev)
+      else:
+        shutil.copyfile(image_path, usb_dev)
+    except IOError as e:
+      self._logger.error("Failed to transfer image to USB device: %s ( %d ) ",
+                         e.strerror, e.errno)
+      return False
+    except urllib.ContentTooShortError:
+      self._logger.error("Failed to download URL: %s to USB device: %s",
+                         image_path, usb_dev)
+      return False
+    except BaseException as e:
+      self._logger.error("Unexpected exception downloading %s to %s: %s",
+                         image_path, usb_dev, str(e))
+      return False
+    return True
+
+  def make_image_noninteractive(self):
+    """Makes the recovery image noninteractive.
+
+    A noninteractive image will reboot automatically after installation
+    instead of waiting for the USB device to be removed to initiate a system
+    reboot.
+
+    Mounts partition 1 of the image stored on usb_dev and creates a file
+    called "non_interactive" so that the image will become noninteractive.
+
+    Returns:
+      True|False: True if process completed successfully, False if error
+                  occurred.
+    """
+    result = True
+    usb_dev = self._probe_host_usb_dev()
+    if not usb_dev:
+      self._logger.error("No usb device connected to servo")
+      return False
+    # Create TempDirectory
+    tmpdir = tempfile.mkdtemp()
+    if tmpdir:
+      # Mount drive to tmpdir.
+      partition_1 = "%s1" % usb_dev
+      rc = subprocess.call(["mount", partition_1, tmpdir])
+      if rc == 0:
+        # Create file 'non_interactive'
+        non_interactive_file = os.path.join(tmpdir, "non_interactive")
+        try:
+          open(non_interactive_file, "w").close()
+        except IOError as e:
+          self._logger.error("Failed to create file %s : %s ( %d )",
+                             non_interactive_file, e.strerror, e.errno)
+          result = False
+        except BaseException as e:
+          self._logger.error("Unexpected Exception creating file %s : %s",
+                             non_interactive_file, str(e))
+          result = False
+        # Unmount drive regardless if file creation worked or not.
+        rc = subprocess.call(["umount", partition_1])
+        if rc != 0:
+          self._logger.error("Failed to unmount USB Device")
+          result = False
+      else:
+        self._logger.error("Failed to mount USB Device")
+        result = False
+
+      # Delete tmpdir. May throw exception if 'umount' failed.
+      try:
+        os.rmdir(tmpdir)
+      except OSError as e:
+        self._logger.error("Failed to remove temp directory %s : %s",
+                           tmpdir, str(e))
+        return False
+      except BaseException as e:
+        self._logger.error("Unexpected Exception removing tempdir %s : %s",
+                           tmpdir, str(e))
+        return False
+    else:
+      self._logger.error("Failed to create temp directory.")
+      return False
+    return result
 
   def get(self, name):
     """Get control value.
