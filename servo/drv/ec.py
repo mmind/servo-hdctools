@@ -347,3 +347,60 @@ class ec(drv.hw_driver.HwDriver):
     """
     (millivolts, milliamps) = self._get_battery_values()
     return milliamps * millivolts * 1e-3
+
+  def _get_fan_values(self):
+    """Retrieve fan related values.
+
+    'faninfo' command in the EC exposes the following information:
+      Fan actual speed: 6694 rpm
+          target speed: 6600 rpm
+          duty cycle:   41%
+          status:       2
+          enabled:      yes
+          powered:      yes
+
+    This method returns a subset of above.
+
+    Returns:
+      List [fan_act_rpm, fan_trg_rpm, fan_duty] where:
+        fan_act_rpm: Actual fan RPM.
+        fan_trg_rpm: Target fan RPM.
+        fan_duty: Current fan duty cycle.
+    """
+    results = self._issue_cmd_get_results('faninfo',
+                                         ['Fan actual speed:[ \t]*(\d+) rpm',
+                                          'target speed:[ \t]*(\d+) rpm',
+                                          'duty cycle:[ \t]*(\d+)%'])
+    return [int(results[0].group(1), 0),
+            int(results[1].group(1), 0),
+            int(results[2].group(1), 0)]
+
+  def _Get_fan_actual_rpm(self):
+    """Retrieve actual fan RPM."""
+    fan_info = self._get_fan_values()
+    return fan_info[0]
+
+  def _Get_fan_target_rpm(self):
+    """Retrieve target fan RPM."""
+    fan_info = self._get_fan_values()
+    return fan_info[1]
+
+  def _Get_fan_duty(self):
+    """Retrieve current fan duty cycle."""
+    fan_info = self._get_fan_values()
+    return fan_info[2]
+
+  def _Set_fan_target_rpm(self, value):
+    """Set target fan RPM.
+
+    This function sets target fan RPM or turns on auto fan control.
+
+    Args:
+      value: Non-negative values for target fan RPM. -1 is treated as maximum
+        fan speed. -2 is treated as auto fan speed control.
+    """
+    if value == -2:
+      self._issue_cmd("autofan")
+    else:
+      # "-1" is treated as max fan RPM in EC, so we don't need to handle that
+      self._issue_cmd("fanset %d" % value)

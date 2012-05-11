@@ -70,4 +70,20 @@
     <params cmd="get" subtype="milliwatts" interface="7" drv="ec"
     clobber_ok=""></params>
   </control>
+  <control>
+    <name>fan_actual_rpm</name>
+    <doc>Actual fan RPM.</doc>
+    <params cmd="get" subtype="fan_actual_rpm" interface="7" drv="ec"></params>
+  </control>
+  <control>
+    <name>fan_target_rpm</name>
+    <doc>Target fan RPM. Set this value to -1 to max out fan speed. Set to -2
+    to enable auto fan speed control.</doc>
+    <params subtype="fan_target_rpm" interface="7" drv="ec"></params>
+  </control>
+  <control>
+    <name>fan_duty</name>
+    <doc>Current fan duty cycle.</doc>
+    <params cmd="get" subtype="fan_duty" interface="7" drv="ec"></params>
+  </control>
 </root>
