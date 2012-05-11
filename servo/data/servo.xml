@@ -18,7 +18,7 @@
     <name>warm_reset</name>
     <doc>Reset the device warmly</doc>
     <params cmd="set" interface="1" drv="gpio" offset="5"
-    map="onoff_i"></params>
+    map="onoff_i" init="off"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="1" map="onoff_i"></params>
   </control>
@@ -154,8 +154,8 @@
     <name>kbd_en</name>
     <doc>Enable servo to assert certain keypresses via kdb_m1 and
     kbd_m2</doc>
-    <params interface="4" drv="gpio" offset="0" map="onoff">
-    </params>
+    <params interface="4" drv="gpio" offset="0" map="onoff"
+    init="off"></params>
   </control>
   <control>
     <name>rec_mode</name>
@@ -163,7 +163,7 @@
     <params cmd="set" interface="4" drv="gpio" offset="1"
     map="onoff_i"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
-    port="1" offset="7" map="onoff_i"></params>
+    port="1" offset="7" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>dev_mode</name>
@@ -177,7 +177,7 @@
     <name>lid_open</name>
     <doc>lid open gpio</doc>
     <params cmd="set" interface="4" drv="gpio" offset="3"
-    map="yesno"></params>
+    map="yesno" init="yes"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="5" map="yesno"></params>
   </control>
@@ -185,7 +185,7 @@
     <name>pwr_button</name>
     <doc>power button gpio</doc>
     <params cmd="set" interface="4" drv="gpio" offset="4"
-    map="press"></params>
+    map="press" init="release"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="4" map="press"></params>
   </control>
@@ -193,7 +193,7 @@
     <name>goog_rec_mode</name>
     <doc>Google recovery mode</doc>
     <params cmd="set" interface="4" drv="gpio" offset="5"
-    map="onoff_i"></params>
+    map="onoff_i" init="off"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="1" offset="3" map="onoff_i"></params>
   </control>
@@ -201,7 +201,7 @@
     <name>cold_reset</name>
     <doc>reset the device frigidly</doc>
     <params cmd="set" interface="4" drv="gpio" offset="6"
-    map="onoff_i"></params>
+    map="onoff_i" init="off"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="2" map="onoff_i"></params>
   </control>

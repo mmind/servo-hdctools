@@ -98,7 +98,7 @@
     <doc>DUT specific. Note, is aliased to jtag_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
-    offset="2" map="onoff_i"></params>
+    offset="2" map="onoff_i" init="off"></params>
   </control>
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
@@ -106,19 +106,19 @@
     <doc>Enables JTAG buffer on servo flex. Note, is aliased to
     pch_disable GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
-    offset="2" map="onoff_i"></params>
+    offset="2" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>cold_reset</name>
     <doc>cold_reset</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
-    offset="3" map="onoff_i"></params>
+    offset="3" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>warm_reset</name>
     <doc>warm_reset</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
-    offset="4" map="onoff_i"></params>
+    offset="4" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>dev_mode</name>
@@ -133,7 +133,7 @@
     <doc>Enables SPI1 buffers on servo flex. Note, is aliased to
     dev_mode GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
-    offset="5" map="onoff_i"></params>
+    offset="5" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>tp78</name>
@@ -180,14 +180,14 @@
     <name>pwr_button</name>
     <doc>Power button GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
-    offset="4" map="press"></params>
+    offset="4" map="press" init="release"></params>
   </control>
   <control>
     <name>lid_open</name>
     <doc>lid open GPIO. Note, is aliased to spi2_buf_on_flex_en
     GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
-    offset="5" map="yesno"></params>
+    offset="5" map="yesno" init="yes"></params>
   </control>
   <!-- bit overloaded for enabling flex cable buffers -->
   <control>
@@ -195,19 +195,19 @@
     <doc>Enables SPI2 buffers on servo flex. Note, is aliased to
     lid_open GPIO</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
-    offset="5" map="onoff_i"></params>
+    offset="5" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>rec_mode</name>
     <doc>Google recovery mode</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
-    offset="6" map="onoff_i"></params>
+    offset="6" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>fw_up</name>
     <doc>Firmware update mode via USB</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
-    offset="7" map="onoff_i"></params>
+    offset="7" map="onoff_i" init="off"></params>
   </control>
   <!-- slv 0x21 : ioexpander port 0 -->
   <control>
@@ -290,7 +290,7 @@
     <alias>legacy_uart_en</alias>
     <doc>Enable communication with legacy (v1) uart console.</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
-    offset="4" map="onoff_i"></params>
+    offset="4" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>dut_hub_pwren</name>
@@ -429,7 +429,7 @@
     <doc>Enable servo to assert certain keypresses via kdb_m1 and
     kbd_m2</doc>
     <params interface="2" drv="tca6416" slv="0x23" port="0"
-    offset="5" map="onoff"></params>
+    offset="5" map="onoff" init="off"></params>
   </control>
   <control>
     <name>dut_usb2_ocs</name>
@@ -492,7 +492,7 @@
     <name>spi1_vref</name>
     <doc>spi1_vref</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="0" width="2" map="vref_sel"></params>
+    offset="0" width="2" map="vref_sel" init="off"></params>
   </control>
   <control>
     <name>tp16</name>
@@ -505,7 +505,7 @@
     <doc>spi2_vref</doc>
     <alias>fw_wp_vref</alias>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="3" width="2" map="vref_sel"></params>
+    offset="3" width="2" map="vref_sel" init="off"></params>
   </control>
   <control>
     <name>tp17</name>
@@ -532,13 +532,14 @@
     <name>jtag_buf_en</name>
     <doc>jtag_buf_en</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="1"
-    offset="0" map="onoff_i"></params>
+    offset="0" map="onoff_i" init="off"></params>
   </control>
   <control>
     <name>fw_wp_en</name>
-    <doc>Firmware write-protect enable.</doc>
+    <doc>Enables forwarding of write-protect gpio. Must assert this
+    and set fw_wp_vref prior to changing fw_wp.</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="1"
-    offset="1" map="onoff"></params>
+    offset="1" map="onoff" init="off"></params>
   </control>
   <control>
     <name>atmega_rst</name>
@@ -556,7 +557,7 @@
     <name>sd_vref_sel</name>
     <doc>sd_vref_sel</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="1"
-    offset="5" width="2" map="vref_sel"></params>
+    offset="5" width="2" map="vref_sel" init="off"></params>
   </control>
   <control>
     <name>usb_mux_sel4</name>

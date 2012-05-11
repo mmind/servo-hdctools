@@ -56,14 +56,14 @@
   <control>
     <name>pwr_button</name>
     <doc>power button gpio</doc>
-    <params interface="1" drv="gpio" offset="2" map="press">
-    </params>
+    <params interface="1" drv="gpio" offset="2" map="press"
+    init="release"></params>
   </control>
   <control>
     <name>lid_open</name>
     <doc>lid open gpio</doc>
-    <params interface="1" drv="gpio" offset="3" map="yesno">
-    </params>
+    <params interface="1" drv="gpio" offset="3" map="yesno"
+    init="yes"></params>
   </control>
   <sequence>
     <name>bogus</name>

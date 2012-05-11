@@ -24,12 +24,12 @@
     <name>jtag_vref_sel0</name>
     <doc>jtag_vref_sel0</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="2" map="vref_sel0"></params>
+    offset="2" map="vref_sel0" init="off"></params>
   </control>
   <control>
     <name>jtag_vref_sel1</name>
     <doc>jtag_vref_sel1</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
-    offset="5" map="vref_sel1"></params>
+    offset="5" map="vref_sel1" init="off"></params>
   </control>
 </root>
