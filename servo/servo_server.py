@@ -70,11 +70,6 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
-    for control_name, value in self._syscfg.hwinit():
-      self.set(control_name, value)
-      self._logger.info('Initialized %s to %s', control_name, value)
-
-
   def _init_dummy(self, interface):
     """Initialize dummy interface.
 
@@ -299,6 +294,7 @@ class Servod(object):
     except drv.hw_driver.HwDriverError:
       self._logger.error("Getting %s" % (name))
       raise
+
   def get_all(self, verbose):
     """Get all controls values.
 
@@ -349,6 +345,24 @@ class Servod(object):
     # TODO(tbroch) Figure out why despite allow_none=True for both xmlrpc server
     # & client I still have to return something to appease the
     # marshall/unmarshall
+    return True
+
+  def hwinit(self, verbose=False):
+    """Initialize all controls.
+
+    These values are part of the system config XML files of the form
+    init=<value>.  This command should be used by clients wishing to return the
+    servo and DUT its connected to a known good/safe state.
+
+    Args:
+      verbose: boolean, if True prints info about control initialized.
+        Otherwise prints nothing.
+    """
+    for control_name, value in self._syscfg.hwinit():
+      self.set(control_name, value)
+      if verbose:
+        self._logger.info('Initialized %s to %s', control_name, value)
+
     return True
 
   def echo(self, echo):

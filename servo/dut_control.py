@@ -120,6 +120,10 @@ class ServoClient(object):
       raise ServoClientError("Problem setting %s to %s :: %s" %
                               (name, value, e))
 
+  def hwinit(self):
+    """Initialize the controls."""
+    self._server.hwinit()
+
 
 def _parse_args():
   """Parse commandline arguments.
@@ -173,6 +177,9 @@ def _parse_args():
                     "queries to stdout", action="store_true", default=False)
   parser.add_option("-g", "--gnuplot", help="gnuplot style to stdout.  Implies "
                     "print_time", action="store_true", default=False)
+  parser.add_option("--hwinit", help="Initialize controls to their POR/safe "
+                    "state", action="store_true", default=False)
+
   parser.add_option("-d", "--debug", help="enable debug messages",
                     action="store_true", default=False)
 
@@ -393,10 +400,22 @@ def main():
     logging.critical("Can't use --verbose with --gnuplot")
     sys.exit(-1)
 
+  if options.info and options.hwinit:
+    logging.critical("Can't use --hwinit with --info")
+    sys.exit(-1)
+
   sclient = ServoClient(host=options.server, port=options.port,
                         verbose=options.verbose)
   global _start_time
   _start_time = time.time()
+
+  # Perform 1st in order to allow user to then override below
+  if options.hwinit:
+    sclient.hwinit()
+    # all done, don't read all controls
+    if not len(args):
+      return
+
   if not len(args) and options.info:
     # print all the doc info for the controls
     print sclient.doc_all()

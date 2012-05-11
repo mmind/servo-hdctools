@@ -246,6 +246,7 @@ def main():
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split())
+  servod.hwinit(verbose=True)
   server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
                                                  logRequests=False)
   server.register_introspection_functions()
