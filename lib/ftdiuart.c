@@ -270,6 +270,8 @@ int fuart_wr_rd(struct fuart_context *fuartc) {
   fuart_get_lock(fuartc);
   rv = fuart_wr_rd_locked(fuartc);
   fuart_release_lock(fuartc);
+  // Small yield to allow other threads to get lock
+  usleep(1);
   return rv;
 }
 
