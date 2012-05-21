@@ -377,18 +377,15 @@ class ec(drv.hw_driver.HwDriver):
 
   def _Get_fan_actual_rpm(self):
     """Retrieve actual fan RPM."""
-    fan_info = self._get_fan_values()
-    return fan_info[0]
+    return self._get_fan_values()[0]
 
   def _Get_fan_target_rpm(self):
     """Retrieve target fan RPM."""
-    fan_info = self._get_fan_values()
-    return fan_info[1]
+    return self._get_fan_values()[1]
 
   def _Get_fan_duty(self):
     """Retrieve current fan duty cycle."""
-    fan_info = self._get_fan_values()
-    return fan_info[2]
+    return self._get_fan_values()[2]
 
   def _Set_fan_target_rpm(self, value):
     """Set target fan RPM.

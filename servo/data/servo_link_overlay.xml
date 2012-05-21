@@ -1,4 +1,11 @@
 <root>
+  <!-- ********** Maps ********** -->
+  <map>
+    <name>fan_target_rpm</name>
+    <doc>map for fan_target_rpm</doc>
+    <params auto="-2" max="-1" off="0"></params>
+  </map>
+  <!-- ******** Controls ******** -->
   <control>
     <name>kbd_en</name>
     <doc>Enable servo to assert certain keypresses via kbd_m1 and
@@ -79,7 +86,7 @@
     <name>fan_target_rpm</name>
     <doc>Target fan RPM. Set this value to -1 to max out fan speed. Set to -2
     to enable auto fan speed control.</doc>
-    <params subtype="fan_target_rpm" interface="7" drv="ec"></params>
+    <params subtype="fan_target_rpm" interface="7" drv="ec" map="fan_target_rpm"></params>
   </control>
   <control>
     <name>fan_duty</name>
