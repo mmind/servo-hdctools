@@ -268,7 +268,7 @@ class ec(drv.hw_driver.HwDriver):
       1: Lid opened.
     """
     result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
-        ["read word %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
+        ["read %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
     res_code = int(result.group(1), 16)
     return res_code & LID_STATUS_MASK
 
@@ -368,9 +368,9 @@ class ec(drv.hw_driver.HwDriver):
         fan_duty: Current fan duty cycle.
     """
     results = self._issue_cmd_get_results('faninfo',
-                                         ['Fan actual speed:[ \t]*(\d+) rpm',
-                                          'target speed:[ \t]*(\d+) rpm',
-                                          'duty cycle:[ \t]*(\d+)%'])
+                                         ['Actual:[ \t]*(\d+) rpm',
+                                          'Target:[ \t]*(\d+) rpm',
+                                          'Duty:[ \t]*(\d+)%'])
     return [int(results[0].group(1), 0),
             int(results[1].group(1), 0),
             int(results[2].group(1), 0)]
