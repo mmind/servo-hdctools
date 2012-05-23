@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """System configuration module."""
@@ -97,6 +97,28 @@ class SystemConfig(object):
     self._alias_dict = {}
     self._loaded_xml_files = set()
 
+  def find_cfg_file(self, filename):
+    """Find the filename for a system XML config file.
+
+    If the provided `filename` names a valid file, use that.
+    Otherwise, `filename` must name a file in the 'data'
+    subdirectory stored with this module.
+
+    Returns the path selected as described above; if neither of the
+    paths names a valid file, return `None`.
+
+    Args:
+      filename: string of path to system file ( xml )
+
+    """
+    if os.path.isfile(filename):
+      return filename
+    default_path = os.path.join(os.path.dirname(__file__), "data")
+    fullname = os.path.join(default_path, filename)
+    if os.path.isfile(fullname):
+      return fullname
+    return None
+
   def add_cfg_file(self, filename):
     """Add system config file to the system config object
 
@@ -121,16 +143,15 @@ class SystemConfig(object):
       filename: string of path to system file ( xml )
 
     Raises:
-      SystemConfigError: for schema violations
+      SystemConfigError: for schema violations, or file not found.
     """
-    if (not os.path.isfile(filename)):
-      default_path = os.path.join(os.path.dirname(__file__), "data")
-      if os.path.isfile(os.path.join(default_path, filename)):
-        filename = os.path.join(default_path, filename)
-      else:
-        self._logger.error("Unable to find system file %s" % (filename))
-        raise SystemConfigError("Unable to find system file %s" % filename)
+    cfgname = self.find_cfg_file(filename)
+    if not cfgname:
+      msg = "Unable to find system file %s" % filename
+      self._logger.error(msg)
+      raise SystemConfigError(msg)
 
+    filename = cfgname
     if filename in self._loaded_xml_files:
       self._logger.warn("Already sourced system file %s.", filename)
       return

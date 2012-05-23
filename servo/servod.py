@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Python version of Servo hardware debug & control board server."""
@@ -65,6 +65,8 @@ def _parse_args():
                     help="device serialname stored in eeprom")
   parser.add_option("-c", "--config", default=None, type=str, action="append",
                     help="system config files (XML) to read")
+  parser.add_option("-b", "--board", default=None, type=str, action="store",
+                    help="include config file (XML) for given board")
   parser.add_option("--noautoconfig", action="store_true", default=False,
                     help="Disable automatic determination of config files")
   parser.add_option("-i", "--interfaces", type=str, default='',
@@ -229,10 +231,19 @@ def main():
       if config not in all_configs:
         all_configs.append(config)
 
-  if len(all_configs) == 0:
-    raise ServodError("Must supply at least one config file ( -c <file> )")
+  if not all_configs:
+    raise ServodError("No automatic config found,"
+                      " and no config specified with -c <file>")
 
   scfg = system_config.SystemConfig()
+  if options.board:
+    board_config = "servo_" + options.board + "_overlay.xml"
+    if scfg.find_cfg_file(board_config):
+      logger.info("Found XML overlay for board %s", options.board)
+      all_configs.append(board_config)
+    else:
+      logger.warn("No XML overlay for board %s", options.board)
+
   for cfg_file in all_configs:
     logger.info("Loading XML config %s", cfg_file)
     scfg.add_cfg_file(cfg_file)
