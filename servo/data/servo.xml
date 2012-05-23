@@ -201,7 +201,7 @@
     <name>cold_reset</name>
     <doc>reset the device frigidly</doc>
     <params cmd="set" interface="4" drv="gpio" offset="6"
-    map="onoff_i" init="off"></params>
+    map="onoff_i"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
     port="0" offset="2" map="onoff_i"></params>
   </control>
