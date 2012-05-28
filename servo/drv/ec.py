@@ -301,24 +301,24 @@ class ec(drv.hw_driver.HwDriver):
     """Retrieve various battery related values.
 
     Battery command in the EC currently exposes the following information:
-       Temperature:            0x0bd9 = 3033 x 0.1K (30 C)
-       Manufacturer:           acme
-       Device:                 S1
-       Chemistry:              plutonium
-       Serial number:          0xbeef
-       Voltage:                0x1fb7 = 8119 mV
-       Desired voltage         0x20d0 = 8400 mV
-       Design output voltage   0x1ce8 = 7400 mV
-       Current:                0xfbca = -1078 mA(DISCHG)
-       Desired current         0x06a4 = 1700 mA
-       Battery mode:           0x7c7f
-       % of charge:            95 %
-       Abs % of charge:        95 %
-       Remaining capacity:     8061 mAh
-       Full charge capacity:   8515 mAh
-       Design capacity:        8500 mAh
-       Time to empty:          7h:21
-       Time to full:           0h:0
+       Temp:      0x0be1 = 304.1 K (31.0 C)
+       Manuf:     SUNWODA
+       Device:    S1
+       Chem:      LION
+       Serial:    0x0000
+       V:         0x1ef7 = 7927 mV
+       V-desired: 0x20d0 = 8400 mV
+       V-design:  0x1ce8 = 7400 mV
+       I:         0x06a9 = 1705 mA(CHG)
+       I-desired: 0x06a4 = 1700 mA
+       Mode:      0x7f01
+       Charge:    66 %
+         Abs:     65 %
+       Remaining: 5489 mAh
+       Cap-full:  8358 mAh
+         Design:  8500 mAh
+       Time-full: 2h:47
+         Empty:   0h:0
 
     This method currently returns a subset of above.
 
@@ -328,8 +328,8 @@ class ec(drv.hw_driver.HwDriver):
         milliamps: battery amps in milliamps
     """
     results = self._issue_cmd_get_results('battery',
-                                         ['Voltage:.*= (-*\d+) mV',
-                                          'Current:.*= (-*\d+) mA'])
+                                         ['V:.*= (-*\d+) mV',
+                                          'I:.*= (-*\d+) mA'])
     return (int(results[0].group(1), 0), int(results[1].group(1), 0) * -1)
 
   def _Get_milliamps(self):
