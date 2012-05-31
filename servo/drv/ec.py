@@ -328,8 +328,8 @@ class ec(drv.hw_driver.HwDriver):
         milliamps: battery amps in milliamps
     """
     results = self._issue_cmd_get_results('battery',
-                                         ['V:.*= (-*\d+) mV',
-                                          'I:.*= (-*\d+) mA'])
+                                         ['V:[\s0-9a-fx]*= (-*\d+) mV',
+                                          'I:[\s0-9a-fx]*= (-*\d+) mA'])
     return (int(results[0].group(1), 0), int(results[1].group(1), 0) * -1)
 
   def _Get_milliamps(self):
