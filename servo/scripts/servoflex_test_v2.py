@@ -92,7 +92,9 @@ def launch_servod(options):
     cmd = 'sudo pkill servod'
     subprocess.call(cmd, shell=True)
     # launch servod
-    xml_files = '-c servoflex_test_v2.xml'
+    xml_files = '-c servoflex_test_v2.xml '
+    if options.pins == 50:
+        xml_files += '-c servoflex_v2_r0_p50.xml '
     if options.legacy:
         xml_files = '-c servoflex_test_v1.xml -c servoflex_v1.xml'
     cmd = 'sudo servod -p 0x5002 %s' % xml_files
