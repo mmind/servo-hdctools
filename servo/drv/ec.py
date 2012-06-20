@@ -28,8 +28,8 @@ DEFAULT_DICT = {'kbd_en': 0,
                 'kbd_m2_a1': 1}
 
 # Key matrix row and column mapped from kbd_m*_a*
-KEY_MATRIX = [[[(0,4), (2,4)], [(11,4), None]],
-              [[(0,2), (2,2)], [(11,2), None]]]
+KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],
+              [[(0,2), (11,2)], [(2,2), None]]]
 
 # The memory address storing lid switch state
 LID_STATUS_ADDR = "0x40080730"
