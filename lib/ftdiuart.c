@@ -255,7 +255,7 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
       perror("writing ftdi data to pty");
     }
 
-  } else if (bytes < 0) {
+  } else if ((bytes < 0) && (errno != EBUSY)) {
     perror("failed ftdi_read_data");
     ERROR_FTDI("reading ftdi data", fuartc->fc);
     rv = FUART_ERR_RD;
