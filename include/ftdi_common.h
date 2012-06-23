@@ -49,7 +49,7 @@ extern "C" {
 #define IS_FTDI_OPEN(context) (context->usb_dev != NULL)
 
 #define ERROR_FTDI(msg, context)                                \
-  prn_error("%s: %s\n", msg, ftdi_get_error_string(context))
+  prn_error("%s: %s", msg, ftdi_get_error_string(context))
 
 #define CHECK_FTDI(fx, msg, context)                \
   do {                                              \

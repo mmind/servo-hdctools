@@ -230,8 +230,9 @@ static void _prn_common(const char *type,
                         const char *fmt,
                         va_list ap)
 {
-  fprintf(stderr, "%s %s:%u :: ", type, __FILE__, __LINE__);
+  fprintf(stderr, "%s :: ", type);
   vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
 }
 
 void prn_fatal(const char *fmt, ...)
