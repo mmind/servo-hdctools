@@ -41,7 +41,7 @@ SERVO_LOT_ID_DEFAULTS = \
     {'miniservo_v1': ['001', '540052'],
      'servo_v1': ['483881', '498432'],
      'servo_v2': ['609600', '629871'],
-     'servo_v2_r1': ['641220'],
+     'servo_v2_r1': ['641220', '686203'],
      }
 
 SERVO_PID_DEFAULTS = \
