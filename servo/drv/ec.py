@@ -151,6 +151,60 @@ class ec(drv.hw_driver.HwDriver):
       self._close()
     return result_list
 
+  def _issue_cmd_get_multi_results(self, cmd, regex):
+    """Send command to EC and wait for multiple response.
+
+    This function waits for arbitary number of response message
+    matching a regular expression.
+
+    Args:
+      cmd: The command issued.
+      regex: Regular expression used to match response message.
+
+    Returns:
+      List of match objects of response message.
+    """
+    result_list = []
+    self._open()
+    try:
+      self._send(cmd)
+      self._logger.debug("Sending cmd: %s" % cmd)
+      while True:
+        try:
+          self._child.expect(regex, timeout=0.1)
+          result = self._child.match
+          result_list.append(result)
+          self._logger.debug("Got result: %s" % str(result.groups()))
+        except pexpect.TIMEOUT:
+          break
+    finally:
+      self._close()
+    return result_list
+
+  def _limit_channel(self, name):
+    """
+    Save the current console channel setting and limit the output to
+    only one channel.
+
+    Args:
+      name: The channel to listen to.
+    """
+    channels = self._issue_cmd_get_multi_results("chan",
+            "(\d+)\s+(\d+)\s+([* ])\s+(\S+)")
+    self._saved_chan = 0
+    for chan in channels:
+      if chan.group(3) == "*":
+        mask = int(chan.group(2), 16)
+        self._saved_chan |= mask
+      if chan.group(4) == name:
+        open_mask = int(chan.group(2), 16)
+    logging.info("Saved channel mask: %d" % self._saved_chan)
+    self._issue_cmd("chan %d" % open_mask)
+
+  def _restore_channel(self):
+    """Load saved channel setting"""
+    self._issue_cmd("chan %d" % self._saved_chan)
+
   def _Get_dev_sw(self):
     """Retrieve fake developer switch state.
 
@@ -158,8 +212,10 @@ class ec(drv.hw_driver.HwDriver):
       0: Developer switch is off.
       1: Developer switch is on.
     """
+    self._limit_channel("command")
     result = self._issue_cmd_get_results("optget fake_dev_switch",
                                        ["([01]) fake_dev_switch"])[0]
+    self._restore_channel()
     return int(result.group(1))
 
   def _Set_dev_sw(self, value):
@@ -267,8 +323,10 @@ class ec(drv.hw_driver.HwDriver):
       0: Lid closed.
       1: Lid opened.
     """
+    self._limit_channel("command")
     result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
         ["read %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
+    self._restore_channel()
     res_code = int(result.group(1), 16)
     return res_code & LID_STATUS_MASK
 
@@ -291,8 +349,10 @@ class ec(drv.hw_driver.HwDriver):
     Returns:
       CPU temperature in degree C.
     """
+    self._limit_channel("command")
     result = self._issue_cmd_get_results("temps",
         ["PECI[ \t]*:[ \t]*[0-9]* K[ \t]*=[ \t]*([0-9]*)[ \t]*C"])[0]
+    self._restore_channel()
     if result is None:
       raise ecError("Cannot retrieve CPU temperature.")
     return result.group(1)
@@ -327,9 +387,11 @@ class ec(drv.hw_driver.HwDriver):
         millivolts: battery voltage in millivolts
         milliamps: battery amps in milliamps
     """
+    self._limit_channel("command")
     results = self._issue_cmd_get_results('battery',
                                          ['V:[\s0-9a-fx]*= (-*\d+) mV',
                                           'I:[\s0-9a-fx]*= (-*\d+) mA'])
+    self._restore_channel()
     return (int(results[0].group(1), 0), int(results[1].group(1), 0) * -1)
 
   def _Get_milliamps(self):
@@ -367,10 +429,12 @@ class ec(drv.hw_driver.HwDriver):
         fan_trg_rpm: Target fan RPM.
         fan_duty: Current fan duty cycle.
     """
+    self._limit_channel("command")
     results = self._issue_cmd_get_results('faninfo',
                                          ['Actual:[ \t]*(\d+) rpm',
                                           'Target:[ \t]*(\d+) rpm',
                                           'Duty:[ \t]*(\d+)%'])
+    self._restore_channel()
     return [int(results[0].group(1), 0),
             int(results[1].group(1), 0),
             int(results[2].group(1), 0)]
