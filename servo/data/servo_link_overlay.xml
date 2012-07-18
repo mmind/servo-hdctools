@@ -38,14 +38,6 @@
     clobber_ok=""></params>
   </control>
   <control>
-    <name>dev_mode</name>
-    <doc>fake_dev_switch on ec. TODO: Remove when EC keyboard
-    controlled developer switch lands. See
-    crosbug.com/p/9341.</doc>
-    <params subtype="dev_sw" interface="7" drv="ec" map="onoff"
-    clobber_ok=""></params>
-  </control>
-  <control>
     <name>lid_open</name>
     <doc>emulated lid switch on ec</doc>
     <params subtype="lid_open" interface="7" drv="ec" map="yesno"

@@ -205,23 +205,6 @@ class ec(drv.hw_driver.HwDriver):
     """Load saved channel setting"""
     self._issue_cmd("chan %d" % self._saved_chan)
 
-  def _Get_dev_sw(self):
-    """Retrieve fake developer switch state.
-
-    Returns:
-      0: Developer switch is off.
-      1: Developer switch is on.
-    """
-    self._limit_channel("command")
-    result = self._issue_cmd_get_results("optget fake_dev_switch",
-                                       ["([01]) fake_dev_switch"])[0]
-    self._restore_channel()
-    return int(result.group(1))
-
-  def _Set_dev_sw(self, value):
-    """Set fake developer switch state."""
-    self._issue_cmd("optset fake_dev_switch %s" % value)
-
   def _set_key_pressed(self, key_rc, pressed):
     """Press/release a key.
 
