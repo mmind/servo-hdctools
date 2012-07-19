@@ -161,9 +161,9 @@
     <name>rec_mode</name>
     <doc>Partner specific recovery mode</doc>
     <params cmd="set" interface="4" drv="gpio" offset="1"
-    map="onoff_i"></params>
+    map="onoff_i" init="off"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
-    port="1" offset="7" map="onoff_i" init="off"></params>
+    port="1" offset="7" map="onoff_i"></params>
   </control>
   <control>
     <name>dev_mode</name>
