@@ -1,0 +1,34 @@
+<root>
+  <!-- ******** Controls ******** -->
+  <control>
+    <name>kbd_en</name>
+    <doc>Enable servo to assert certain keypresses via kbd_m1 and
+    kbd_m2</doc>
+    <params subtype="kbd_en" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m1_a0</name>
+    <doc>kbd_m1_a0</doc>
+    <params subtype="kbd_m1_a0" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m1_a1</name>
+    <doc>kbd_m1_a1</doc>
+    <params subtype="kbd_m1_a1" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <doc>kbd_m2_a0</doc>
+    <params subtype="kbd_m2_a0" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <doc>kbd_m2_a1</doc>
+    <params subtype="kbd_m2_a1" interface="7" drv="ec" map="onoff"
+    clobber_ok=""></params>
+  </control>
+</root>
