@@ -31,4 +31,24 @@
     <params subtype="kbd_m2_a1" interface="7" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
+  <control>
+    <name>ppvar_vbat_ma</name>
+    <doc>milliamps being consumed (discharging/positive) or
+    supplied (charging/negative) to the battery</doc>
+    <params cmd="get" subtype="milliamps" interface="7" drv="ec"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ppvar_vbat_mv</name>
+    <doc>millivolts of the battery</doc>
+    <params cmd="get" subtype="millivolts" interface="7" drv="ec"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ppvar_vbat_mw</name>
+    <doc>milliwatts being consumed (discharging) or supplied
+    (charging) to the battery</doc>
+    <params cmd="get" subtype="milliwatts" interface="7" drv="ec"
+    clobber_ok=""></params>
+  </control>
 </root>
