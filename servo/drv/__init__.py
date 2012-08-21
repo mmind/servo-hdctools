@@ -12,6 +12,7 @@ import i2c_reg
 import ina219
 import tca6416
 import ltc1663
+import parrot_ec
 import pca9500
 import pca9546
 import pca9537

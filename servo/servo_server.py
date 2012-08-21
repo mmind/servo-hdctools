@@ -193,6 +193,15 @@ class Servod(object):
     self._logger.info("uart pty: %s" % fuart.get_pty())
     return fgpio, fuart
 
+  def _camel_case(self, string):
+    output = ''
+    for s in string.split('_'):
+      if output:
+        output += s.capitalize()
+      else:
+        output = s
+    return output
+
   def _get_param_drv(self, control_name, is_get=True):
     """Get access to driver for a given control.
 
@@ -236,7 +245,7 @@ class Servod(object):
                               *imp.find_module('drv', servo_pkg.__path__))
     drv_name = params['drv']
     drv_module = getattr(drv_pkg, drv_name)
-    drv_class = getattr(drv_module, drv_name)
+    drv_class = getattr(drv_module, self._camel_case(drv_name))
     drv = drv_class(interface, params)
     if control_name not in self._drv_dict:
       self._drv_dict[control_name] = {}
