@@ -7,7 +7,7 @@ SUBDIRS		=
 SUBDIRS_INSTALL	=
 XML_SRC		= $(notdir $(wildcard $(HDCTOOLS_SOURCE_DIR)/*.xml))
 XML_DST		= $(addprefix $(THIS_BUILD_DIR)/,$(XML_SRC))
-INAS		= wario.xml waluigi.xml servo_loc.xml
+INAS		= wario.xml waluigi.xml servo_loc.xml link.xml
 
 # TODO(tbroch) should probably be added to setup.py if possible
 all:	$(INAS) $(XML_DST)
