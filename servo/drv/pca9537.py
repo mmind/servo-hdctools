@@ -3,10 +3,11 @@
 # found in the LICENSE file.
 """Driver for board config controls pca9537, a 4-bit ioexpander.
 """
-import drv.hw_driver
+import hw_driver
+import tca6416
 
 
-class pca9537(drv.tca6416.tca6416):
+class pca9537(tca6416.tca6416):
   """Object to access drv=pca9537 controls.
 
   Note, This gpio expander is compatible to the tca6416 driver.  Only

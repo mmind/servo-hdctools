@@ -9,7 +9,8 @@ import logging
 import numpy
 
 
-import drv.hw_driver
+import hw_driver
+import i2c_reg
 
 
 # TODO(tbroch) Need to investigate modal uses and need to change configuration
@@ -75,7 +76,7 @@ class Ina219Error(Exception):
   """Error occurred accessing INA219."""
 
 
-class ina219(drv.hw_driver.HwDriver):
+class ina219(hw_driver.HwDriver):
   """Object to access drv=ina219 controls.
 
   Note, instances of this object get dispatched via base class,
@@ -111,10 +112,10 @@ class ina219(drv.hw_driver.HwDriver):
     self._slave = int(self._params['slv'], 0)
     # TODO(tbroch) Re-visit enabling use_reg_cache once re-req's are
     # incorporated into cache's key field ( crosbug.com/p/2678 )
-    self._i2c_obj = drv.i2c_reg.I2cReg.get_device(self._interface, self._slave,
-                                                  addr_len=1, reg_len=2,
-                                                  msb_first=True, no_read=False,
-                                                  use_reg_cache=False)
+    self._i2c_obj = i2c_reg.I2cReg.get_device(self._interface, self._slave,
+                                              addr_len=1, reg_len=2,
+                                              msb_first=True, no_read=False,
+                                              use_reg_cache=False)
     if 'subtype' not in self._params:
       raise Ina219Error("Unable to find subtype param")
     subtype = self._params['subtype']
@@ -421,7 +422,7 @@ def test():
                (slv, wbuf[0], rbuf[0], rbuf[1]))
 
   # same read of cfg (0x399f) using ina219 module
-  adc = drv.ina219.ina219(i2c, slv, 'foo', 0.010)
+  adc = ina219.ina219(i2c, slv, 'foo', 0.010)
 
   adc.calibrate()
   testit("POR  ", adc)

@@ -13,7 +13,8 @@ bandgap reference will set the full-scale output voltage range to
 2.5V. Selecting the supply as the reference sets the output voltage range
 to the supply voltage.
 """
-import drv.hw_driver
+import hw_driver
+import i2c_reg
 
 
 # TODO(tbroch)
@@ -32,7 +33,7 @@ class Ltc1663Error(Exception):
   """Error class for LTC1663"""
 
 
-class ltc1663(drv.hw_driver.HwDriver):
+class ltc1663(hw_driver.HwDriver):
   """Object to access drv=ltc1663 controls."""
   def __init__(self, interface, params):
     """Constructor.
@@ -52,7 +53,7 @@ class ltc1663(drv.hw_driver.HwDriver):
     super(ltc1663, self).__init__(interface, params)
     self._logger.debug("")
     self._slave = int(self._params['slv'], 0)
-    self._i2c_obj = drv.i2c_reg.I2cReg.get_device(
+    self._i2c_obj = i2c_reg.I2cReg.get_device(
       self._interface, self._slave, addr_len=1, reg_len=2, msb_first=False,
       no_read=True, use_reg_cache=False)
 

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 """
 """
-import drv.hw_driver
+import hw_driver
 
 
 CMD_MASK = 0xf
@@ -12,7 +12,7 @@ class Pca9546Error(Exception):
   """Error class for PCA9546"""
 
 
-class pca9546(drv.hw_driver.HwDriver):
+class pca9546(hw_driver.HwDriver):
   """Object to access drv=pca9546 controls."""
   def __init__(self, interface, params):
     """Constructor.

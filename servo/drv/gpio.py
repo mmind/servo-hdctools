@@ -6,14 +6,14 @@
 import logging
 
 
-import drv.hw_driver
+import hw_driver
 
 
 class gpioError(Exception):
   """Error class for gpio class."""
 
 
-class gpio(drv.hw_driver.HwDriver):
+class gpio(hw_driver.HwDriver):
   """Object to access type=gpio controls.
 
   Mandatory Params:

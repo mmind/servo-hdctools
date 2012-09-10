@@ -3,7 +3,8 @@
 # found in the LICENSE file.
 """Driver for board config controls tca6416 dual port (16bit) ioexpander.
 """
-import drv.hw_driver
+import hw_driver
+import i2c_reg
 
 
 class Tca6416Error(Exception):
@@ -12,7 +13,7 @@ class Tca6416Error(Exception):
 
 # TODO(tbroch) style guide wants these to be camel-case but can we have
 # exception as these get loaded dynamically
-class tca6416(drv.hw_driver.HwDriver):
+class tca6416(hw_driver.HwDriver):
   """Object to access drv=tca6416 controls."""
 
 
@@ -61,10 +62,10 @@ class tca6416(drv.hw_driver.HwDriver):
     """
     super(tca6416, self).__init__(interface, params)
     slave = self._get_slave()
-    self._i2c_obj = drv.i2c_reg.I2cReg.get_device(self._interface, slave,
-                                                  addr_len=1, reg_len=1,
-                                                  msb_first=True, no_read=False,
-                                                  use_reg_cache=False)
+    self._i2c_obj = i2c_reg.I2cReg.get_device(self._interface, slave,
+                                              addr_len=1, reg_len=1,
+                                              msb_first=True, no_read=False,
+                                              use_reg_cache=False)
     self._port = self._get_port()
 
 

@@ -14,6 +14,7 @@ import time
 import urllib
 
 # TODO(tbroch) deprecate use of relative imports
+from drv.hw_driver import HwDriverError
 import ftdigpio
 import ftdii2c
 import ftdi_common
@@ -456,7 +457,7 @@ class Servod(object):
     except AttributeError, error:
       self._logger.error("Getting %s: %s" % (name, error))
       raise
-    except drv.hw_driver.HwDriverError:
+    except HwDriverError:
       self._logger.error("Getting %s" % (name))
       raise
 
@@ -504,7 +505,7 @@ class Servod(object):
     wr_val = self._syscfg.resolve_val(params, wr_val_str)
     try:
       drv.set(wr_val)
-    except drv.hw_driver.HwDriverError:
+    except HwDriverError:
       self._logger.error("Setting %s -> %s" % (name, wr_val_str))
       raise
     # TODO(tbroch) Figure out why despite allow_none=True for both xmlrpc server

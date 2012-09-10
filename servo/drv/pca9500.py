@@ -29,7 +29,7 @@ EEPROM:
 import logging
 
 
-import drv.hw_driver
+import hw_driver
 
 
 REG_CTRL_LEN = 1
@@ -40,7 +40,7 @@ class pca9500Error(Exception):
   """Error class for pca9500 class."""
 
 
-class pca9500(drv.hw_driver.HwDriver):
+class pca9500(hw_driver.HwDriver):
   """Object to access type=pca9500 controls."""
 
   _byte_addr = 0

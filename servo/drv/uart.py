@@ -6,14 +6,14 @@
 import logging
 
 
-import drv.hw_driver
+import hw_driver
 
 
 class uartError(Exception):
   """Error class for uart class."""
 
 
-class uart(drv.hw_driver.HwDriver):
+class uart(hw_driver.HwDriver):
   """Object to access type=uart controls.
 
   Note, instances of this object get dispatched via base class,

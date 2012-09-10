@@ -18,7 +18,7 @@ import os
 import pexpect
 
 
-import drv.hw_driver
+import hw_driver
 
 # Default setting values
 DEFAULT_DICT = {'kbd_en': 0,
@@ -39,7 +39,7 @@ class ecError(Exception):
   """Exception class for ec."""
 
 
-class ec(drv.hw_driver.HwDriver):
+class ec(hw_driver.HwDriver):
   """Object to access drv=ec controls.
 
   Note, instances of this object get dispatched via base class,

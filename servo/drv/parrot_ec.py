@@ -10,13 +10,13 @@ import fdpexpect
 import os
 import pexpect
 
-import drv.hw_driver
+import hw_driver
 
 class parrotEcError(Exception):
   """Exception class for parrot ec."""
 
 
-class parrotEc(drv.hw_driver.HwDriver):
+class parrotEc(hw_driver.HwDriver):
   """Object to access drv=parrot_ec controls.
 
   Note, instances of this object get dispatched via base class,
