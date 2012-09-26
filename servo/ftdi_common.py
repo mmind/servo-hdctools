@@ -40,8 +40,8 @@ SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
 SERVO_LOT_ID_DEFAULTS = \
     {'miniservo_v1': ['001', '540052'],
      'servo_v1': ['483881', '498432'],
-     'servo_v2': ['609600', '629871'],
-     'servo_v2_r1': ['641220', '686203'],
+     'servo_v2_r0': ['609600', '629871'],
+     'servo_v2': ['641220', '686203', '730422'],
      }
 
 SERVO_PID_DEFAULTS = \
