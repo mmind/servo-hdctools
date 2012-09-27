@@ -15,9 +15,9 @@ SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001), (0x18d1, 0x5002)]
 INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
 # servo v1 w/o FT4232h EEPROM programmed
-INTERFACE_DEFAULTS[0x0403][0x6011] = ['gpio', 'i2c', 'uart', 'gpio']
+INTERFACE_DEFAULTS[0x0403][0x6011] = ['gpio', 'i2c', 'gpio', 'gpio']
 # servo v1
-INTERFACE_DEFAULTS[0x18d1][0x5001] = ['gpio', 'i2c', 'uart', 'gpio']
+INTERFACE_DEFAULTS[0x18d1][0x5001] = ['gpio', 'i2c', 'gpio', 'gpio']
 # servo V2
 # Dummy interface 0 == JTAG via openocd
 # Dummy interface 4,5 == SPI via flashrom
