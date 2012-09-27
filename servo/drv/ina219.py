@@ -29,9 +29,12 @@ REG_CALIB = 5
 # 800mA range, ~12.5uA/lsb for a 50mOhm rsense.  Note lsb is SBZ
 MAX_CALIB = 0xfffe
 
-# maximum number of re-reads of bus voltage to do before raising exception for
-# failing to see a data conversion
-BUSV_READ_RETRY = 10
+# maximum number of re-reads of bus voltage to do before raising
+# exception for failing to see a data conversion.  Note the CNVR bit
+# is affected by averaging and multiplication as well. I decided on
+# 100 by sampling the number average retries during calibration and
+# multiplying by 2x to be on the safe side
+BUSV_READ_RETRY = 100
 # millivolts per lsb of bus voltage register
 BUSV_MV_PER_LSB = 4
 # offset of 13-bit bus voltage measurement.  
@@ -187,8 +190,9 @@ class ina219(hw_driver.HwDriver):
       (is_cnvr, is_ovf, millivolts) = self._read_busv()
       if is_cnvr:
         break
+
     # if we didn't _break_ from for loop  
-    else:
+    if not is_cnvr:
       raise Ina219Error("Failed to see conversion (CNVR) while calibrating")
     return is_ovf
 
