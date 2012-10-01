@@ -53,8 +53,8 @@ SERVO_PID_DEFAULTS = \
 SERVO_CONFIG_DEFAULTS = \
     {'miniservo_v1': ['miniservo.xml'],
      'servo_v1': ['servo.xml'],
-     'servo_v2': ['servo_v2.xml'],
-     'servo_v2_r1': ['servo_v2_r1.xml'],
+     'servo_v2_r0': ['servo_v2_r0.xml'],
+     'servo_v2': ['servo_v2_r1.xml'],
      }
 
 class FtdiContext(ctypes.Structure):
