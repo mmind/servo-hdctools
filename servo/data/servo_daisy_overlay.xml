@@ -51,4 +51,20 @@
     <params cmd="get" subtype="milliwatts" interface="7" drv="ec"
     clobber_ok=""></params>
   </control>
+  <control>
+    <name>ec_uart_cmd</name>
+    <doc>Set to send command to EC UART. Get to obtain the matched results with
+    the regular expression of ec_uart_regexp.</doc>
+    <params subtype="uart_cmd" interface="7" drv="ec" input_type="str"></params>
+  </control>
+  <control>
+    <name>ec_uart_regexp</name>
+    <doc>List of regular expressions which matches the response of ec_uart_cmd.</doc>
+    <params subtype="uart_regexp" interface="7" drv="ec" input_type="str"></params>
+  </control>
+  <control>
+    <name>ec_uart_timeout</name>
+    <doc>Timeout value for waiting EC UART response of issuing an EC command.</doc>
+    <params subtype="uart_timeout" interface="7" drv="ec" input_type="float"></params>
+  </control>
 </root>

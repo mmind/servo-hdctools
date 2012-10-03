@@ -12,6 +12,7 @@ Provides the following EC controlled function:
   kbd_m2_a1
   dev_mode (Temporary. See crosbug.com/p/9341)
 """
+import ast
 import fdpexpect
 import logging
 import os
@@ -25,7 +26,10 @@ DEFAULT_DICT = {'kbd_en': 0,
                 'kbd_m1_a0': 1,
                 'kbd_m1_a1': 1,
                 'kbd_m2_a0': 1,
-                'kbd_m2_a1': 1}
+                'kbd_m2_a1': 1,
+                'uart_cmd': None,
+                'uart_regexp': None,
+                'uart_timeout': 0.3}
 
 # Key matrix row and column mapped from kbd_m*_a*
 KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],
@@ -117,7 +121,7 @@ class ec(hw_driver.HwDriver):
     finally:
       self._close()
 
-  def _issue_cmd_get_results(self, cmd, regex_list):
+  def _issue_cmd_get_results(self, cmd, regex_list, timeout=0.3):
     """Send command to EC and wait for response.
 
     This function waits for response message matching a regular
@@ -127,6 +131,7 @@ class ec(hw_driver.HwDriver):
       cmd: The command issued.
       regex_list: List of Regular expressions used to match response message.
         Note, list must be ordered.
+      timeout: Timeout value for waiting UART response.
 
     Returns:
       List of tuples, each of which contains the entire matched string and
@@ -150,7 +155,7 @@ class ec(hw_driver.HwDriver):
       self._send(cmd)
       self._logger.debug("Sending cmd: %s" % cmd)
       for regex in regex_list:
-        self._child.expect(regex, timeout=0.3)
+        self._child.expect(regex, timeout)
         match = self._child.match
         lastindex = match.lastindex if match and match.lastindex else 0
         # Create a tuple which contains the entire matched string and all
@@ -466,3 +471,70 @@ class ec(hw_driver.HwDriver):
     else:
       # "-1" is treated as max fan RPM in EC, so we don't need to handle that
       self._issue_cmd("fanset %d" % value)
+
+  def _Set_uart_timeout(self, timeout):
+    """Set timeout value for waiting EC UART response.
+
+    Args:
+      timeout: Timeout value in second.
+    """
+    self._dict['uart_timeout'] = timeout
+
+  def _Get_uart_timeout(self):
+    """Get timeout value for waiting EC UART response.
+
+    Returns:
+      Timeout value in second.
+    """
+    return self._dict['uart_timeout']
+
+  def _Set_uart_regexp(self, regexp):
+    """Set the list of regular expressions which matches the command response.
+
+    Args:
+      regexp: A string which contains a list of regular expressions.
+    """
+    if not isinstance(regexp, str):
+      raise ecError('The argument regexp should be a string.')
+    self._dict['uart_regexp'] = ast.literal_eval(regexp)
+
+  def _Get_uart_regexp(self):
+    """Get the list of regular expressions which matches the command response.
+
+    Returns:
+      A string which contains a list of regular expressions.
+    """
+    return str(self._dict['uart_regexp'])
+
+  def _Set_uart_cmd(self, cmd):
+    """Set the UART command and send it to EC UART.
+
+    If ec_uart_regexp is 'None', the command is just sent and it doesn't care
+    about its response.
+
+    If ec_uart_regexp is not 'None', the command is send and its response,
+    which matches the regular expression of ec_uart_regexp, will be kept.
+    Use its getter to obtain this result. If no match after ec_uart_timeout
+    seconds, a timeout error will be raised.
+
+    Args:
+      cmd: A string of UART command.
+    """
+    if self._dict['uart_regexp']:
+      self._dict['uart_cmd'] = self._issue_cmd_get_results(
+                                   cmd,
+                                   self._dict['uart_regexp'],
+                                   self._dict['uart_timeout'])
+    else:
+      self._dict['uart_cmd'] = None
+      self._issue_cmd(cmd)
+
+  def _Get_uart_cmd(self):
+    """Get the result of the latest UART command.
+
+    Returns:
+      A string which contains a list of tuples, each of which contains the
+      entire matched string and all the subgroups of the match. 'None' if
+      the ec_uart_regexp is 'None'.
+    """
+    return str(self._dict['uart_cmd'])
