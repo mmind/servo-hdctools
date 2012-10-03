@@ -129,7 +129,16 @@ class ec(hw_driver.HwDriver):
         Note, list must be ordered.
 
     Returns:
-      List of match objects of response message.
+      List of tuples, each of which contains the entire matched string and
+      all the subgroups of the match. None if not matched.
+      For example:
+        response of the given command:
+          High temp: 37.2
+          Low temp: 36.4
+        regex_list:
+          ['High temp: (\d+)\.(\d+)', 'Low temp: (\d+)\.(\d+)']
+        returns:
+          [('High temp: 37.2', '37', '2'), ('Low temp: 36.4', '36', '4')]
 
     Raises:
       ecError: If timed out waiting for EC response
@@ -142,9 +151,13 @@ class ec(hw_driver.HwDriver):
       self._logger.debug("Sending cmd: %s" % cmd)
       for regex in regex_list:
         self._child.expect(regex, timeout=0.3)
-        result = self._child.match
+        match = self._child.match
+        lastindex = match.lastindex if match and match.lastindex else 0
+        # Create a tuple which contains the entire matched string and all
+        # the subgroups of the match.
+        result = match.group(*range(lastindex + 1)) if match else None
         result_list.append(result)
-        self._logger.debug("Result: %s" % str(result.groups()))
+        self._logger.debug("Result: %s" % str(result))
     except pexpect.TIMEOUT:
       raise ecError("Timeout waiting for EC response.")
     finally:
@@ -162,7 +175,8 @@ class ec(hw_driver.HwDriver):
       regex: Regular expression used to match response message.
 
     Returns:
-      List of match objects of response message.
+      List of tuples, each of which contains the entire matched string and
+      all the subgroups of the match. None if not matched.
     """
     result_list = []
     self._open()
@@ -172,9 +186,13 @@ class ec(hw_driver.HwDriver):
       while True:
         try:
           self._child.expect(regex, timeout=0.1)
-          result = self._child.match
+          match = self._child.match
+          lastindex = match.lastindex if match and match.lastindex else 0
+          # Create a tuple which contains the entire matched string and all
+          # the subgroups of the match.
+          result = match.group(*range(lastindex + 1)) if match else None
           result_list.append(result)
-          self._logger.debug("Got result: %s" % str(result.groups()))
+          self._logger.debug("Got result: %s" % str(result))
         except pexpect.TIMEOUT:
           break
     finally:
@@ -193,11 +211,11 @@ class ec(hw_driver.HwDriver):
             "(\d+)\s+(\d+)\s+([* ])\s+(\S+)")
     self._saved_chan = 0
     for chan in channels:
-      if chan.group(3) == "*":
-        mask = int(chan.group(2), 16)
+      if chan[3] == "*":
+        mask = int(chan[2], 16)
         self._saved_chan |= mask
-      if chan.group(4) == name:
-        open_mask = int(chan.group(2), 16)
+      if chan[4] == name:
+        open_mask = int(chan[2], 16)
     logging.info("Saved channel mask: %d" % self._saved_chan)
     self._issue_cmd("chan %d" % open_mask)
 
@@ -310,7 +328,7 @@ class ec(hw_driver.HwDriver):
     result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
         ["read %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
     self._restore_channel()
-    res_code = int(result.group(1), 16)
+    res_code = int(result[1], 16)
     return res_code & LID_STATUS_MASK
 
   def _Set_lid_open(self, value):
@@ -338,7 +356,7 @@ class ec(hw_driver.HwDriver):
     self._restore_channel()
     if result is None:
       raise ecError("Cannot retrieve CPU temperature.")
-    return result.group(1)
+    return result[1]
 
   def _get_battery_values(self):
     """Retrieve various battery related values.
@@ -375,7 +393,7 @@ class ec(hw_driver.HwDriver):
                                          ['V:[\s0-9a-fx]*= (-*\d+) mV',
                                           'I:[\s0-9a-fx]*= (-*\d+) mA'])
     self._restore_channel()
-    return (int(results[0].group(1), 0), int(results[1].group(1), 0) * -1)
+    return (int(results[0][1], 0), int(results[1][1], 0) * -1)
 
   def _Get_milliamps(self):
     """Retrieve current measuremnents for the battery."""
@@ -418,9 +436,9 @@ class ec(hw_driver.HwDriver):
                                           'Target:[ \t]*(\d+) rpm',
                                           'Duty:[ \t]*(\d+)%'])
     self._restore_channel()
-    return [int(results[0].group(1), 0),
-            int(results[1].group(1), 0),
-            int(results[2].group(1), 0)]
+    return [int(results[0][1], 0),
+            int(results[1][1], 0),
+            int(results[2][1], 0)]
 
   def _Get_fan_actual_rpm(self):
     """Retrieve actual fan RPM."""
