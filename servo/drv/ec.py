@@ -211,10 +211,18 @@ class ec(hw_driver.HwDriver):
 
     Args:
       name: The channel to listen to.
+
+    Raises:
+      ecError: when failing to retrieve channel settings
     """
+    open_mask = None
     channels = self._issue_cmd_get_multi_results("chan",
             "(\d+)\s+(\d+)\s+([* ])\s+(\S+)")
     self._saved_chan = 0
+
+    if len(channels) == 0:
+      raise ecError("Cannot retrieve channel settings.")
+
     for chan in channels:
       if chan[3] == "*":
         mask = int(chan[2], 16)
@@ -222,7 +230,8 @@ class ec(hw_driver.HwDriver):
       if chan[4] == name:
         open_mask = int(chan[2], 16)
     logging.info("Saved channel mask: %d" % self._saved_chan)
-    self._issue_cmd("chan %d" % open_mask)
+    if open_mask is not None:
+      self._issue_cmd("chan %d" % open_mask)
 
   def _restore_channel(self):
     """Load saved channel setting"""
