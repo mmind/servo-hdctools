@@ -398,7 +398,9 @@ def iterate(controls, options, sclient):
     iterate_over = xrange(options.repeat)
 
   for _ in iterate_over:
-    print do_iteration(controls, options, sclient, stats)
+    iter_output = do_iteration(controls, options, sclient, stats)
+    if iter_output: # Avoid printing empty lines
+        print iter_output
 
   if (options.repeat != 1) or (options.time_in_secs > 0):
     prefix = STATS_PREFIX
