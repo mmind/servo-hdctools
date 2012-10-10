@@ -6,6 +6,7 @@ import logging
 import optparse
 import os
 import SimpleXMLRPCServer
+import socket
 import sys
 import usb
 
@@ -253,13 +254,17 @@ def main():
   logger.debug("Servo is vid:0x%04x pid:0x%04x sid:%s" % \
                  (servo_device.idVendor, servo_device.idProduct,
                   usb_get_iserial(servo_device)))
+  try:
+    server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
+                                                   logRequests=False)
+  except socket.error as e:
+    logger.fatal("Problem opening Server's socket: %s", str(e))
+    raise
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split())
   servod.hwinit(verbose=True)
-  server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
-                                                 logRequests=False)
   server.register_introspection_functions()
   server.register_multicall_functions()
   server.register_instance(servod)
