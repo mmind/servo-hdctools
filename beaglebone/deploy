@@ -1,0 +1,41 @@
+#!/bin/bash
+# Copyright 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+usage() {
+  echo "usage: $0 [ <board> ]" >&2
+  echo "Example:" >&2
+  echo "  $0 lumpy" >&2
+  exit 1
+}
+
+# N.B. The upstart job requires CONFIG_FILE to exist, or it will
+# fail.  Although the job will safely handle a file that doesn't
+# set BOARD, we require users to create the file with a BOARD
+# setting, so as to prevent accidents.
+
+CONFIG_FILE=/etc/default/servod
+if [ $# -gt 1 ]; then
+  usage
+elif [ $# -eq 0 -a ! -f $CONFIG_FILE ]; then
+  echo "No board previously configured; you must supply a <board> argument" >&2
+  usage
+fi
+
+set -e
+cd $(dirname $0)/..
+sudo -v
+
+sudo stop servod || true
+sudo make BEAGLEBONE=true install
+sudo python setup.py install
+sudo python setup.py develop
+
+if [ $# -ne 0 ]; then
+  CONFIG_TMP=$(mktemp /tmp/hdctools.XXXXXX)
+  echo "BOARD='$1'" >$CONFIG_TMP
+  sudo mv $CONFIG_TMP $CONFIG_FILE
+fi
+
+sudo start servod

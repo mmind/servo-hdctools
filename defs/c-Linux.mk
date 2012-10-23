@@ -55,7 +55,6 @@ HOSTOS_CWARN	=				\
 	-Wsequence-point			\
 	-Wshadow				\
 	-Wsign-compare				\
-	-Wstack-protector			\
 	-Wstrict-aliasing			\
 	-Wstrict-aliasing=3			\
 	-Wstrict-overflow			\
@@ -80,6 +79,13 @@ HOSTOS_CWARN	=				\
 	-Wvolatile-register-var			\
 	-Wwrite-strings				\
 	-pedantic-errors
+
+ifndef BEAGLEBONE
+# -Wstack-protector breaks the build on Beaglebone boards, so omit
+# it there.
+HOSTOS_CWARN	+=				\
+	-Wstack-protector
+endif
 
 HOSTOS_LD_LIB	= -shared -Wl,-soname,$@
 HOSTOS_LIB_EXT	= so
