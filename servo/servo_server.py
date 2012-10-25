@@ -158,7 +158,8 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdiuart.Fuart(self._vendor, self._product, interface)
+    fobj = ftdiuart.Fuart(self._vendor, self._product, interface,
+                          self._serialname)
     try:
       fobj.run()
     except ftdiuart.FuartError as e:
@@ -185,7 +186,8 @@ class Servod(object):
       ServodError: If init fails
     """
     fgpio = self._init_gpio(interface)
-    fuart = ftdiuart.Fuart(self._vendor, self._product, interface, fgpio._fc)
+    fuart = ftdiuart.Fuart(self._vendor, self._product, interface,
+                           self._serialname, fgpio._fc)
     try:
       fuart.run()
     except ftdiuart.FuartError as e:

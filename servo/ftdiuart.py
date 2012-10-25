@@ -68,6 +68,7 @@ class Fuart(object):
   """Provide interface to libftdiuart c-library via python ctypes module."""
   def __init__(self, vendor=ftdi_common.DEFAULT_VID,
                product=ftdi_common.DEFAULT_PID, interface=3,
+               serialname=None,
                ftdi_context=None):
     """Fuart contstructor.
 
@@ -79,6 +80,7 @@ class Fuart(object):
       vendor: usb vendor id of FTDI device
       product: usb product id of FTDI device
       interface: interface number of FTDI device to use
+      serialname: string of device serialname/number as defined in FTDI eeprom.
       ftdi_context: ftdi context created previously or None if one should be
         allocated here.  This shared context functionality is seen in miniservo
         which has a uart + 4 gpios
@@ -92,6 +94,7 @@ class Fuart(object):
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
                                              interface=interface,
+                                             serialname=serialname,
                                              speed=115200,
                                              bits=8, # BITS_8 in ftdi.h
                                              partity=0, # NONE in ftdi.h
