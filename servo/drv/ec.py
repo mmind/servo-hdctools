@@ -259,8 +259,8 @@ class ec(hw_driver.HwDriver):
     m1_a1 = self._dict["kbd_m1_a1"]
     m2_a0 = self._dict["kbd_m2_a0"]
     m2_a1 = self._dict["kbd_m2_a1"]
-    self._set_key_pressed(KEY_MATRIX[0][m1_a0][m1_a1], pressed)
     self._set_key_pressed(KEY_MATRIX[1][m2_a0][m2_a1], pressed)
+    self._set_key_pressed(KEY_MATRIX[0][m1_a0][m1_a1], pressed)
 
   def _Set_kbd_en(self, value):
     """Enable/disable keypress simulation."""
