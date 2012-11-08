@@ -1,4 +1,8 @@
 <root>
+  <!-- A DUT with non-Chrome-EC requires the 50-pin servoflex config. -->
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
   <!-- ******** Controls ******** -->
   <control>
     <name>rec_mode</name>
