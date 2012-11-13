@@ -186,6 +186,7 @@ class SystemConfig(object):
 
         get_dict = None
         set_dict = None
+        clobber_ok = False
         params_list = element.findall('params')
         if len(params_list) == 2:
           assert tag != 'map', "maps have only one params entry"
@@ -213,20 +214,30 @@ class SystemConfig(object):
         else:
           raise SystemConfigError("%s %s has illegal number of params %d\n%s"
                                   % (tag, name, len(params_list), element_str))
-        if name in self.syscfg_dict[tag] and ('clobber_ok' not in set_dict or
-                                              'clobber_ok' not in get_dict):
+
+        clobber_ok = ('clobber_ok' in set_dict or 'clobber_ok' in get_dict)
+        if name in self.syscfg_dict[tag] and not clobber_ok:
           raise SystemConfigError("Duplicate %s %s without 'clobber_ok' key\n%s"
                                   % (tag, name, element_str))
+
         if tag == 'map':
           self.syscfg_dict[tag][name] = {'doc':doc, 'map_params':get_dict}
           if alias:
             raise SystemConfigError("No aliases for maps allowed")
-        else:
-          self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
-                                          'set_params':set_dict}
-          if alias:
-            self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
-            self._alias_dict[alias] = name
+          continue
+
+        # else its a control
+        if clobber_ok:
+          self.syscfg_dict[tag][name]['get_params'].update(get_dict)
+          self.syscfg_dict[tag][name]['set_params'].update(set_dict)
+          continue
+
+        # else its a new control
+        self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
+                                       'set_params':set_dict}
+        if alias:
+          self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
+          self._alias_dict[alias] = name
 
 
   def hwinit(self):

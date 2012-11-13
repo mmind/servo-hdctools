@@ -7,7 +7,7 @@
   <control>
     <name>rec_mode</name>
     <doc>Google recovery mode</doc>
-    <params subtype="rec_mode" interface="7" drv="parrot_ec" map="onoff"
-    clobber_ok=""></params>
+    <params subtype="rec_mode" interface="7" drv="parrot_ec"
+    map="onoff" clobber_ok=""></params>
   </control>
 </root>
