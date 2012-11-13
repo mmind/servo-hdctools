@@ -157,6 +157,7 @@ class SystemConfig(object):
       return
     self._loaded_xml_files.add(filename)
 
+    self._logger.info("Loading XML config %s", filename)
     root = xml.etree.ElementTree.parse(filename).getroot()
     for element in root.findall('include'):
       self.add_cfg_file(element.find('name').text)

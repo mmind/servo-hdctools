@@ -246,7 +246,6 @@ def main():
       logger.warn("No XML overlay for board %s", options.board)
 
   for cfg_file in all_configs:
-    logger.info("Loading XML config %s", cfg_file)
     scfg.add_cfg_file(cfg_file)
 
   logger.debug("\n" + scfg.display_config())
