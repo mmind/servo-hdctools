@@ -25,7 +25,7 @@ fi
 
 set -e
 cd $(dirname $0)/..
-sudo -v
+sudo true
 
 sudo stop servod || true
 sudo make BEAGLEBONE=true install
