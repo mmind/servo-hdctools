@@ -10,4 +10,9 @@
     <params subtype="rec_mode" interface="7" drv="parrot_ec"
     map="onoff" clobber_ok=""></params>
   </control>
+  <!-- Old parrot mb design needs spi1_vref:pp3300 to be always on -->
+  <control>
+    <name>spi1_vref</name>
+    <params init="pp3300" clobber_ok=""></params>
+  </control>
 </root>
