@@ -151,7 +151,8 @@ class Fi2c(object):
     err = self._lib.fi2c_wr_rd(ctypes.byref(self._fic), ctypes.byref(wbuf),
                                wcnt, ctypes.byref(rbuf), rcnt)
     if err:
-      raise Fi2cError("fi2c_wr_rd", err)
+      err_str = "slave:0x%02x wr:%s rcnt:%d err:%s" % (slv, wlist, rcnt, err)
+      raise Fi2cError("fi2c_wr_rd", err_str)
 
     for i, rval in enumerate(rbuf):
       self._logger.debug("rbuf[%i] = 0x%02x" % (i, rval))

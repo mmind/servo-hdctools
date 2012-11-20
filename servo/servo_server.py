@@ -80,6 +80,11 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
+  def __del__(self):
+    """Servod deconstructor."""
+    for interface in self._interface_list:
+      del(interface)
+
   def _init_dummy(self, interface):
     """Initialize dummy interface.
 
@@ -526,11 +531,18 @@ class Servod(object):
       verbose: boolean, if True prints info about control initialized.
         Otherwise prints nothing.
     """
+    success = True
     for control_name, value in self._syscfg.hwinit:
-      self.set(control_name, value)
+      try:
+        self.set(control_name, value)
+      except Exception as e:
+        success = False
+        self._logger.error("Problem initializing %s -> %s :: %s",
+                           control_name, value, str(e))
       if verbose:
         self._logger.info('Initialized %s to %s', control_name, value)
-    return True
+
+    return success
 
   def echo(self, echo):
     """Dummy echo function for testing/examples.

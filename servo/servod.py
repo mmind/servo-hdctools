@@ -258,12 +258,16 @@ def main():
                                                    logRequests=False)
   except socket.error as e:
     logger.fatal("Problem opening Server's socket: %s", str(e))
-    raise
+    sys.exit(-1)
+
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split())
-  servod.hwinit(verbose=True)
+  if not servod.hwinit(verbose=True):
+    logger.fatal("Problem during hardware initialization.")
+    sys.exit(-1)
+
   server.register_introspection_functions()
   server.register_multicall_functions()
   server.register_instance(servod)
