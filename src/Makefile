@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
-SUBDIRS		= miniservod servod
+SUBDIRS		= miniservod servod toad
 SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
 
 all:		$(SUBDIRS)

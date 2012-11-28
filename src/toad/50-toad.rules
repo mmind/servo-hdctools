@@ -1,0 +1,2 @@
+# Allow all plugdev members to access Toad (and other generic FT230X devices).
+SUBSYSTEM=="usb", ACTION=="add", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", GROUP="plugdev"
