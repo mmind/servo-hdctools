@@ -526,11 +526,10 @@ class Servod(object):
       verbose: boolean, if True prints info about control initialized.
         Otherwise prints nothing.
     """
-    for control_name, value in self._syscfg.hwinit():
+    for control_name, value in self._syscfg.hwinit:
       self.set(control_name, value)
       if verbose:
         self._logger.info('Initialized %s to %s', control_name, value)
-
     return True
 
   def echo(self, echo):

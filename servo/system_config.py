@@ -71,7 +71,7 @@ class SystemConfig(object):
     <cmdlist>i2c_mux_en:off i2c_mux_add:__arg0__ i2c_mux_en:on</cmdlist>
   </sequence>
 
-  Attributes:
+  Public Attributes:
     syscfg_dict: 3-deep dictionary created when parsing system files.  Its
         organized as [tag][name][type] where:
         tag: map | control | sequence
@@ -80,7 +80,9 @@ class SystemConfig(object):
           doc: string describing the map,control or sequence
           get: a dictionary for getting values from named control
           set: a dictionary for setting values to named control
+    hwinit: list of control tuples (name, value) to be initialized in order
 
+  Private Attributes:
     _alias_dict: dict where key = alias control name and value = real control
       name
     _loaded_xml_files: set of filenames already loaded to avoid sourcing XML
@@ -94,6 +96,7 @@ class SystemConfig(object):
     self._logger = logging.getLogger("SystemConfig")
     self._logger.debug("")
     self.syscfg_dict = collections.defaultdict(dict)
+    self.hwinit = []
     self._alias_dict = {}
     self._loaded_xml_files = set()
 
@@ -232,41 +235,15 @@ class SystemConfig(object):
           self.syscfg_dict[tag][name]['set_params'].update(set_dict)
           continue
 
+        if 'init' in set_dict:
+          self.hwinit.append((name, set_dict['init']))
+
         # else its a new control
         self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
                                        'set_params':set_dict}
         if alias:
           self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
           self._alias_dict[alias] = name
-
-
-  def hwinit(self):
-    """Set each control to its initial value
-
-    Initial values may be defined in param definition of the control.  For
-    example:
-      <control>
-        <name>warm_reset</name>
-        <doc>Reset the device warmly</doc>
-        <params interface="1" drv="gpio" offset="5" map="onoff_i" init="off">
-        </params>
-      </control>
-
-    Intialization is not mandatory but must be done for controls that if not
-    intialized might leave the system in an dangerous state.
-
-    Returns:
-      init_list: list of tuples where tuple is (control name, value)
-    """
-    self._logger.debug('')
-    init_list = []
-    for name, control_dict in self.syscfg_dict['control'].iteritems():
-      if 'init' in control_dict['set_params'] and name not in self._alias_dict:
-        init_value = control_dict['set_params']['init']
-        self._logger.debug("hwinit for %s is %s" % (name, init_value))
-        init_list.append((name, init_value))
-
-    return init_list
 
   def lookup_control_params(self, name, is_get=True):
     """Lookup & return control parameter dictionary.
@@ -473,7 +450,6 @@ def test():
   scfg = SystemConfig()
   # TODO(tbroch) make this a comprenhensive test xml file
   scfg.add_cfg_file(os.path.join("data", "servo.xml"))
-  scfg.hwinit()
   scfg.display_config()
 
   control_dict = scfg._lookup('control', 'goog_rec_mode')
