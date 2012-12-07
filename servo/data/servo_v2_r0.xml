@@ -211,14 +211,14 @@
     offset="5" map="onoff_i" init="off"></params>
   </control>
   <control>
-    <name>rec_mode</name>
-    <doc>Google recovery mode</doc>
+    <name>fw_up</name>
+    <doc>Firmware update mode via USB</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="6" map="onoff_i" init="off"></params>
   </control>
   <control>
-    <name>fw_up</name>
-    <doc>Firmware update mode via USB</doc>
+    <name>rec_mode</name>
+    <doc>Google recovery mode</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="7" map="onoff_i" init="off"></params>
   </control>
