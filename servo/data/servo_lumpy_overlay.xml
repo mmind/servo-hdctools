@@ -3,4 +3,8 @@
     <name>dev_mode</name>
     <params clobber_ok="" map="onoff"></params>
   </control>
+  <control>
+    <name>fw_up</name>
+    <remap>rec_mode</remap>
+  </control>
 </root>

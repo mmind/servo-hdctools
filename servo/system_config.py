@@ -83,8 +83,6 @@ class SystemConfig(object):
     hwinit: list of control tuples (name, value) to be initialized in order
 
   Private Attributes:
-    _alias_dict: dict where key = alias control name and value = real control
-      name
     _loaded_xml_files: set of filenames already loaded to avoid sourcing XML
       multiple times.
   """
@@ -97,7 +95,6 @@ class SystemConfig(object):
     self._logger.debug("")
     self.syscfg_dict = collections.defaultdict(dict)
     self.hwinit = []
-    self._alias_dict = {}
     self._loaded_xml_files = set()
 
   def find_cfg_file(self, filename):
@@ -186,6 +183,14 @@ class SystemConfig(object):
           alias = element.find('alias').text
         except AttributeError:
           alias = None
+        try:
+          remap = element.find('remap').text
+        except AttributeError:
+          remap = None
+
+        if remap:
+          self.syscfg_dict[tag][remap] = self.syscfg_dict[tag][name]
+          continue
 
         get_dict = None
         set_dict = None
@@ -243,7 +248,6 @@ class SystemConfig(object):
                                        'set_params':set_dict}
         if alias:
           self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
-          self._alias_dict[alias] = name
 
   def lookup_control_params(self, name, is_get=True):
     """Lookup & return control parameter dictionary.

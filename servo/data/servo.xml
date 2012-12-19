@@ -158,8 +158,8 @@
     init="off"></params>
   </control>
   <control>
-    <name>rec_mode</name>
-    <doc>Partner specific recovery mode</doc>
+    <name>fw_up</name>
+    <doc>Firmware update mode via USB</doc>
     <params cmd="set" interface="4" drv="gpio" offset="1"
     map="onoff_i" init="off"></params>
     <params cmd="get" interface="2" drv="tca6416" slv="0x20"
@@ -190,7 +190,7 @@
     port="1" offset="4" map="press"></params>
   </control>
   <control>
-    <name>goog_rec_mode</name>
+    <name>rec_mode</name>
     <doc>Google recovery mode</doc>
     <params cmd="set" interface="4" drv="gpio" offset="5"
     map="onoff_i" init="off"></params>
