@@ -1,6 +1,11 @@
 <root>
   <!-- ******** Controls ******** -->
   <control>
+    <name>lid_open</name>
+    <params subtype="lid_open" interface="7" drv="daisy_ec" map="yesno"
+            clobber_ok=""></params>
+  </control>
+  <control>
     <name>kbd_en</name>
     <doc>Enable servo to assert certain keypresses via kbd_m1 and
     kbd_m2</doc>

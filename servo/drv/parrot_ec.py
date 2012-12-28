@@ -6,17 +6,13 @@
 Provides the following EC controlled function:
   rec_mode
 """
-import fdpexpect
-import os
-import pexpect
-
-import hw_driver
+import pty_driver
 
 class parrotEcError(Exception):
   """Exception class for parrot ec."""
 
 
-class parrotEc(hw_driver.HwDriver):
+class parrotEc(pty_driver.ptyDriver):
   """Object to access drv=parrot_ec controls.
 
   Note, instances of this object get dispatched via base class,
@@ -40,80 +36,6 @@ class parrotEc(hw_driver.HwDriver):
     """
     super(parrotEc, self).__init__(interface, params)
     self._logger.debug("")
-    self._pty_path = self._interface.get_pty()
-
-  def _open(self):
-    """Open EC console and create pexpect interface."""
-    self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
-    self._child = fdpexpect.fdspawn(self._fd)
-
-  def _close(self):
-    """Close EC console."""
-    os.close(self._fd)
-    self._fd = None
-    self._child = None
-
-  def _send(self, cmd):
-    """Send command to EC.
-
-    This function always flush EC console before sending, and is used as
-    a wrapper function to make sure EC console is always flushed before
-    sending commands.
-
-    Args:
-      cmd: The command string to send to EC.
-
-    Raises:
-      parrotEcError: Raised when writing to EC fails.
-    """
-    if self._child.send(cmd) != len(cmd):
-      raise parrotEcError("Failed to send command.")
-
-  def _issue_cmd(self, cmd):
-    """Send command to EC and do not wait for response.
-
-    Args:
-      cmd: The command string to send to EC.
-    """
-    self._open()
-    try:
-      self._send(cmd)
-      self._logger.debug("Sent cmd: %s" % cmd)
-    finally:
-      self._close()
-
-  def _issue_cmd_get_results(self, cmd, regex_list):
-    """Send command to EC and wait for response.
-
-    This function waits for response message matching a regular
-    expressions.
-
-    Args:
-      cmd: The command issued.
-      regex_list: List of Regular expressions used to match response message.
-        Note, list must be ordered.
-
-    Returns:
-      List of match objects of response message.
-
-    Raises:
-      parrotEcError: If timed out waiting for EC response
-    """
-    result_list = []
-    self._open()
-    try:
-      self._send(cmd)
-      self._logger.debug("Sending cmd: %s" % cmd)
-      for regex in regex_list:
-        self._child.expect(regex, timeout=0.3)
-        result = self._child.match
-        result_list.append(result)
-        self._logger.debug("Result: %s" % str(result.groups()))
-    except pexpect.TIMEOUT:
-      raise parrotEcError("Timeout waiting for EC response.")
-    finally:
-      self._close()
-    return result_list
 
   def _Set_rec_mode(self, value):
     """Setter of rec_mode.
