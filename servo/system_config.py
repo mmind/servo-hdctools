@@ -268,7 +268,8 @@ class SystemConfig(object):
       SystemConfigError: if error encountered identifying parameters
     """
     if name not in self.syscfg_dict['control']:
-      raise NameError("No control named %s" % name)
+      raise NameError("No control named %s. All controls:\n%s" % (
+        name, ','.join(sorted(self.syscfg_dict['control'].keys()))))
     if is_get:
       return self.syscfg_dict['control'][name]['get_params']
     else:
