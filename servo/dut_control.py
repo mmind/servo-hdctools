@@ -442,7 +442,7 @@ def real_main():
   elif not len(args):
     print sclient.get_all()
   else:
-    iterate(args, options, sclient)
+    iterate(sorted(args), options, sclient)
 
 def main():
   try:

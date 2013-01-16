@@ -478,7 +478,7 @@ class Servod(object):
       string creating from trying to get all values of all controls.  In case of
       error attempting access to control, response is 'ERR'.
     """
-    rsp = ""
+    rsp = []
     for name in self._syscfg.syscfg_dict['control']:
       self._logger.debug("name = %s" %name)
       try:
@@ -487,10 +487,10 @@ class Servod(object):
         value = "ERR"
         pass
       if verbose:
-        rsp += "GET %s = %s :: %s\n" % (name, value, self.doc(name))
+        rsp.append("GET %s = %s :: %s" % (name, value, self.doc(name)))
       else:
-        rsp += "%s:%s\n" % (name, value)
-    return rsp
+        rsp.append("%s:%s" % (name, value))
+    return '\n'.join(sorted(rsp))
 
   def set(self, name, wr_val_str):
     """Set control.

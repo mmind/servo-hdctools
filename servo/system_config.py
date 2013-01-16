@@ -424,7 +424,7 @@ class SystemConfig(object):
       tag_list = SYSCFG_TAG_LIST
     else:
       tag_list = [tag]
-    for tag in tag_list:
+    for tag in sorted(tag_list):
 
       rsp.append("*************")
       rsp.append("* " + tag.upper())
@@ -432,7 +432,8 @@ class SystemConfig(object):
       max_len = 0
       max_len = max(len(name) for name in self.syscfg_dict[tag].iterkeys())
       dashes = '-' * max_len
-      for name, item_dict in self.syscfg_dict[tag].iteritems():
+      for name in sorted(self.syscfg_dict[tag].iterkeys()):
+        item_dict = self.syscfg_dict[tag][name]
         padded_name = "%-*s" % (max_len, name)
         rsp.append("%s DOC: %s" % (padded_name, item_dict['doc']))
         if tag == 'map':
