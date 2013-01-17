@@ -116,6 +116,8 @@ class ptyDriver(hw_driver.HwDriver):
         result_list.append(result)
         self._logger.debug("Result: %s" % str(result))
     except pexpect.TIMEOUT:
+      self._logger.debug("Before: ^%s^" % self._child.before)
+      self._logger.debug("After: ^%s^" % self._child.after)
       raise ptyError("Timeout waiting for EC response.")
     finally:
       self._close()
