@@ -25,7 +25,7 @@ DEFAULT_DICT = {'kbd_en': 0,
                 'kbd_m2_a1': 1,
                 'uart_cmd': None,
                 'uart_regexp': None,
-                'uart_timeout': 0.3}
+                'uart_timeout': pty_driver.DEFAULT_UART_TIMEOUT}
 
 # Key matrix row and column mapped from kbd_m*_a*
 KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],

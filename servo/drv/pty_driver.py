@@ -7,6 +7,8 @@ import pexpect
 
 import hw_driver
 
+DEFAULT_UART_TIMEOUT = 3  # 3 seconds is plenty even for slow platforms
+
 class ptyError(Exception):
   """Exception class for ec."""
 
@@ -70,7 +72,8 @@ class ptyDriver(hw_driver.HwDriver):
     finally:
       self._close()
 
-  def _issue_cmd_get_results(self, cmd, regex_list, timeout=0.3):
+  def _issue_cmd_get_results(self, cmd,
+                             regex_list, timeout=DEFAULT_UART_TIMEOUT):
     """Send command to EC and wait for response.
 
     This function waits for response message matching a regular
