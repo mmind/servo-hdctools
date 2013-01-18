@@ -77,6 +77,10 @@ static const char *ESCAPES =
 
 #include "toad.h"
 
+#if NEW_LIBFTDI
+#   include <libusb.h>
+#endif
+
 
 /* Options for passing into getopt_long */
 static const char *SHORT_OPTS = "s:f";
