@@ -234,14 +234,14 @@ class SystemConfig(object):
             raise SystemConfigError("No aliases for maps allowed")
           continue
 
+        if 'init' in set_dict:
+          self.hwinit.append((name, set_dict['init']))
+
         # else its a control
         if clobber_ok:
           self.syscfg_dict[tag][name]['get_params'].update(get_dict)
           self.syscfg_dict[tag][name]['set_params'].update(set_dict)
           continue
-
-        if 'init' in set_dict:
-          self.hwinit.append((name, set_dict['init']))
 
         # else its a new control
         self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
