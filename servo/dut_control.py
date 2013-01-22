@@ -458,7 +458,11 @@ def real_main():
   elif not len(args):
     print sclient.get_all()
   else:
-    iterate(sorted(args), options, sclient)
+    if not ':' in ' '.join(args):
+        # Sort args only if none of them sets values - otherwise the order is
+        # important.
+        args = sorted(args)
+    iterate(args, options, sclient)
 
 def main():
   try:
