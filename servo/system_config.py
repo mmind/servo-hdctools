@@ -357,8 +357,10 @@ class SystemConfig(object):
     try:
       map_value = map_dict['map_params'][map_vstr]
     except KeyError:
-      raise SystemConfigError("Map %s doesn't contain key %s" %
-                              (params['map'], map_vstr))
+      raise SystemConfigError(("Map %s doesn't contain key %s\n" +
+                               "Try one of -> '%s'") %
+                              (params['map'], map_vstr,
+                               "', '".join(map_dict['map_params'].keys())))
     # TODO(tbroch) likely that maps are only integers but what if ...
     return int(map_value, 0)
 
