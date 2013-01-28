@@ -65,12 +65,7 @@ class ptyDriver(hw_driver.HwDriver):
     Args:
       cmd: The command string to send to EC.
     """
-    self._open()
-    try:
-      self._send(cmd)
-      self._logger.debug("Sent cmd: %s" % cmd)
-    finally:
-      self._close()
+    self._issue_cmd_get_results(cmd, [])
 
   def _issue_cmd_get_results(self, cmd,
                              regex_list, timeout=DEFAULT_UART_TIMEOUT):
@@ -82,8 +77,8 @@ class ptyDriver(hw_driver.HwDriver):
     Args:
       cmd: The command issued.
       regex_list: List of Regular expressions used to match response message.
-        Note, list must be ordered.
-      timeout: Timeout value for waiting UART response.
+        Note1, list must be ordered.
+        Note2, empty list sends and returns.
 
     Returns:
       List of tuples, each of which contains the entire matched string and
@@ -100,12 +95,11 @@ class ptyDriver(hw_driver.HwDriver):
     Raises:
       ptyError: If timed out waiting for EC response
     """
-    #import pdb; pdb.set_trace()
     result_list = []
     self._open()
     try:
       self._send(cmd)
-      self._logger.debug("Sending cmd: %s" % cmd)
+      self._logger.debug("Sent cmd: %s" % cmd)
       for regex in regex_list:
         self._child.expect(regex, timeout)
         match = self._child.match
