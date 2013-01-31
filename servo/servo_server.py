@@ -527,22 +527,22 @@ class Servod(object):
     init=<value>.  This command should be used by clients wishing to return the
     servo and DUT its connected to a known good/safe state.
 
+    Note that initialization errors are ignored (as in some cases they could
+    be caused by DUT firmware deficiencies). This might need to be fine tuned
+    later.
+
     Args:
       verbose: boolean, if True prints info about control initialized.
         Otherwise prints nothing.
     """
-    success = True
     for control_name, value in self._syscfg.hwinit:
       try:
         self.set(control_name, value)
       except Exception as e:
-        success = False
         self._logger.error("Problem initializing %s -> %s :: %s",
                            control_name, value, str(e))
       if verbose:
         self._logger.info('Initialized %s to %s', control_name, value)
-
-    return success
 
   def echo(self, echo):
     """Dummy echo function for testing/examples.

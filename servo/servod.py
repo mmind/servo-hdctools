@@ -264,10 +264,7 @@ def main():
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split())
-  if not servod.hwinit(verbose=True):
-    logger.fatal("Problem during hardware initialization.")
-    sys.exit(-1)
-
+  servod.hwinit(verbose=True)
   server.register_introspection_functions()
   server.register_multicall_functions()
   server.register_instance(servod)
