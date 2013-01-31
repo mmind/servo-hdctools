@@ -12,20 +12,17 @@ Provides the following EC controlled function:
   kbd_m2_a1
   dev_mode (Temporary. See crosbug.com/p/9341)
 """
-import ast
 import logging
 
 import pty_driver
 
 # Default setting values
-DEFAULT_DICT = {'kbd_en': 0,
+EXTRA_PARAMS = {'kbd_en': 0,
                 'kbd_m1_a0': 1,
                 'kbd_m1_a1': 1,
                 'kbd_m2_a0': 1,
                 'kbd_m2_a1': 1,
-                'uart_cmd': None,
-                'uart_regexp': None,
-                'uart_timeout': pty_driver.DEFAULT_UART_TIMEOUT}
+                }
 
 # Key matrix row and column mapped from kbd_m*_a*
 KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],
@@ -63,8 +60,8 @@ class ec(pty_driver.ptyDriver):
     """
     super(ec, self).__init__(interface, params)
     self._logger.debug("")
-    # A dictionary that stores current setting values
-    self._dict = DEFAULT_DICT
+    # Add locals to the values dictionary.
+    self._dict.update(EXTRA_PARAMS)
 
   def _limit_channel(self, name):
     """
@@ -343,70 +340,3 @@ class ec(pty_driver.ptyDriver):
     else:
       # "-1" is treated as max fan RPM in EC, so we don't need to handle that
       self._issue_cmd("fanset %d" % value)
-
-  def _Set_uart_timeout(self, timeout):
-    """Set timeout value for waiting EC UART response.
-
-    Args:
-      timeout: Timeout value in second.
-    """
-    self._dict['uart_timeout'] = timeout
-
-  def _Get_uart_timeout(self):
-    """Get timeout value for waiting EC UART response.
-
-    Returns:
-      Timeout value in second.
-    """
-    return self._dict['uart_timeout']
-
-  def _Set_uart_regexp(self, regexp):
-    """Set the list of regular expressions which matches the command response.
-
-    Args:
-      regexp: A string which contains a list of regular expressions.
-    """
-    if not isinstance(regexp, str):
-      raise ecError('The argument regexp should be a string.')
-    self._dict['uart_regexp'] = ast.literal_eval(regexp)
-
-  def _Get_uart_regexp(self):
-    """Get the list of regular expressions which matches the command response.
-
-    Returns:
-      A string which contains a list of regular expressions.
-    """
-    return str(self._dict['uart_regexp'])
-
-  def _Set_uart_cmd(self, cmd):
-    """Set the UART command and send it to EC UART.
-
-    If ec_uart_regexp is 'None', the command is just sent and it doesn't care
-    about its response.
-
-    If ec_uart_regexp is not 'None', the command is send and its response,
-    which matches the regular expression of ec_uart_regexp, will be kept.
-    Use its getter to obtain this result. If no match after ec_uart_timeout
-    seconds, a timeout error will be raised.
-
-    Args:
-      cmd: A string of UART command.
-    """
-    if self._dict['uart_regexp']:
-      self._dict['uart_cmd'] = self._issue_cmd_get_results(
-                                   cmd,
-                                   self._dict['uart_regexp'],
-                                   self._dict['uart_timeout'])
-    else:
-      self._dict['uart_cmd'] = None
-      self._issue_cmd(cmd)
-
-  def _Get_uart_cmd(self):
-    """Get the result of the latest UART command.
-
-    Returns:
-      A string which contains a list of tuples, each of which contains the
-      entire matched string and all the subgroups of the match. 'None' if
-      the ec_uart_regexp is 'None'.
-    """
-    return str(self._dict['uart_cmd'])

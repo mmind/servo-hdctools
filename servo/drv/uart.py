@@ -6,14 +6,14 @@
 import logging
 
 
-import hw_driver
+import pty_driver
 
 
 class uartError(Exception):
   """Error class for uart class."""
 
 
-class uart(hw_driver.HwDriver):
+class uart(pty_driver.ptyDriver):
   """Object to access type=uart controls.
 
   Note, instances of this object get dispatched via base class,

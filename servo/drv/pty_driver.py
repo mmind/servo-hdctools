@@ -1,6 +1,8 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
+import ast
 import fdpexpect
 import os
 import pexpect
@@ -12,6 +14,10 @@ DEFAULT_UART_TIMEOUT = 3  # 3 seconds is plenty even for slow platforms
 class ptyError(Exception):
   """Exception class for ec."""
 
+UART_PARAMS = {'uart_cmd': None,
+               'uart_regexp': None,
+               'uart_timeout': DEFAULT_UART_TIMEOUT
+               }
 
 class ptyDriver(hw_driver.HwDriver):
   """."""
@@ -21,20 +27,21 @@ class ptyDriver(hw_driver.HwDriver):
     self._child = None
     self._fd = None
     self._pty_path = self._interface.get_pty()
+    self._dict = UART_PARAMS
 
   def _open(self):
-    """Open EC console and create pexpect interface."""
+    """Connect to serial device and create pexpect interface."""
     self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
     self._child = fdpexpect.fdspawn(self._fd)
 
   def _close(self):
-    """Close EC console."""
+    """Close serial device connection."""
     os.close(self._fd)
     self._fd = None
     self._child = None
 
   def _flush(self):
-    """Flush EC console output to prevent previous messages interfering."""
+    """Flush device output to prevent previous messages interfering."""
     self._child.sendline("")
     while True:
       try:
@@ -45,22 +52,22 @@ class ptyDriver(hw_driver.HwDriver):
   def _send(self, cmd):
     """Send command to EC.
 
-    This function always flush EC console before sending, and is used as
-    a wrapper function to make sure EC console is always flushed before
+    This function always flushes serial device before sending, and is used as
+    a wrapper function to make sure the channel is always flushed before
     sending commands.
 
     Args:
-      cmd: The command string to send to EC.
+      cmd: The command string to send to the device.
 
     Raises:
-      ptyError: Raised when writing to EC fails.
+      ptyError: Raised when writing to the device fails.
     """
     self._flush()
     if self._child.sendline(cmd) != len(cmd) + 1:
       raise ptyError("Failed to send command.")
 
   def _issue_cmd(self, cmd):
-    """Send command to EC and do not wait for response.
+    """Send command to the device and do not wait for response.
 
     Args:
       cmd: The command string to send to EC.
@@ -69,7 +76,7 @@ class ptyDriver(hw_driver.HwDriver):
 
   def _issue_cmd_get_results(self, cmd,
                              regex_list, timeout=DEFAULT_UART_TIMEOUT):
-    """Send command to EC and wait for response.
+    """Send command to the device and wait for response.
 
     This function waits for response message matching a regular
     expressions.
@@ -93,7 +100,7 @@ class ptyDriver(hw_driver.HwDriver):
           [('High temp: 37.2', '37', '2'), ('Low temp: 36.4', '36', '4')]
 
     Raises:
-      ptyError: If timed out waiting for EC response
+      ptyError: If timed out waiting for a response
     """
     result_list = []
     self._open()
@@ -112,13 +119,13 @@ class ptyDriver(hw_driver.HwDriver):
     except pexpect.TIMEOUT:
       self._logger.debug("Before: ^%s^" % self._child.before)
       self._logger.debug("After: ^%s^" % self._child.after)
-      raise ptyError("Timeout waiting for EC response.")
+      raise ptyError("Timeout waiting for response.")
     finally:
       self._close()
     return result_list
 
   def _issue_cmd_get_multi_results(self, cmd, regex):
-    """Send command to EC and wait for multiple response.
+    """Send command to the device and wait for multiple response.
 
     This function waits for arbitary number of response message
     matching a regular expression.
@@ -151,3 +158,70 @@ class ptyDriver(hw_driver.HwDriver):
     finally:
       self._close()
     return result_list
+
+  def _Set_uart_timeout(self, timeout):
+    """Set timeout value for waiting for the device response.
+
+    Args:
+      timeout: Timeout value in second.
+    """
+    self._dict['uart_timeout'] = timeout
+
+  def _Get_uart_timeout(self):
+    """Get timeout value for waiting for the device response.
+
+    Returns:
+      Timeout value in second.
+    """
+    return self._dict['uart_timeout']
+
+  def _Set_uart_regexp(self, regexp):
+    """Set the list of regular expressions which matches the command response.
+
+    Args:
+      regexp: A string which contains a list of regular expressions.
+    """
+    if not isinstance(regexp, str):
+      raise ecError('The argument regexp should be a string.')
+    self._dict['uart_regexp'] = ast.literal_eval(regexp)
+
+  def _Get_uart_regexp(self):
+    """Get the list of regular expressions which matches the command response.
+
+    Returns:
+      A string which contains a list of regular expressions.
+    """
+    return str(self._dict['uart_regexp'])
+
+  def _Set_uart_cmd(self, cmd):
+    """Set the UART command and send it to the device.
+
+    If ec_uart_regexp is 'None', the command is just sent and it doesn't care
+    about its response.
+
+    If ec_uart_regexp is not 'None', the command is send and its response,
+    which matches the regular expression of ec_uart_regexp, will be kept.
+    Use its getter to obtain this result. If no match after ec_uart_timeout
+    seconds, a timeout error will be raised.
+
+    Args:
+      cmd: A string of UART command.
+    """
+    if self._dict['uart_regexp']:
+      self._dict['uart_cmd'] = self._issue_cmd_get_results(
+                                   cmd,
+                                   self._dict['uart_regexp'],
+                                   self._dict['uart_timeout'])
+    else:
+      self._dict['uart_cmd'] = None
+      self._issue_cmd(cmd)
+
+  def _Get_uart_cmd(self):
+    """Get the result of the latest UART command.
+
+    Returns:
+      A string which contains a list of tuples, each of which contains the
+      entire matched string and all the subgroups of the match. 'None' if
+      the ec_uart_regexp is 'None'.
+    """
+    return str(self._dict['uart_cmd'])

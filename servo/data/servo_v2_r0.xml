@@ -645,4 +645,25 @@
     <params drv="uart" subtype="props" line_prop="bits"
     interface="8" map="uart_bits"></params>
   </control>
+  <control>
+    <name>cpu_uart_cmd</name>
+    <doc>Set to send command to CPU UART. Get to obtain the matched
+    results with the regular expression of cpu_uart_regexp.</doc>
+    <params subtype="uart_cmd" interface="8" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>cpu_uart_regexp</name>
+    <doc>List of regular expressions which matches the response of
+    cpu_uart_cmd.</doc>
+    <params subtype="uart_regexp" interface="8" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>cpu_uart_timeout</name>
+    <doc>Timeout value for waiting CPU UART response of issuing an
+    EC command.</doc>
+    <params subtype="uart_timeout" interface="8" drv="uart"
+    input_type="float"></params>
+  </control>
 </root>
