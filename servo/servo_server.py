@@ -534,6 +534,11 @@ class Servod(object):
     Args:
       verbose: boolean, if True prints info about control initialized.
         Otherwise prints nothing.
+
+    Returns:
+      This function is called across RPC and as such is expected to return
+      something unless transferring 'none' across is allowed. Hence adding a
+      dummy return value to make things simpler.
     """
     for control_name, value in self._syscfg.hwinit:
       try:
@@ -543,6 +548,7 @@ class Servod(object):
                            control_name, value, str(e))
       if verbose:
         self._logger.info('Initialized %s to %s', control_name, value)
+    return True
 
   def echo(self, echo):
     """Dummy echo function for testing/examples.
