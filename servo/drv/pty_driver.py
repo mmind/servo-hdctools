@@ -12,7 +12,7 @@ import hw_driver
 DEFAULT_UART_TIMEOUT = 3  # 3 seconds is plenty even for slow platforms
 
 class ptyError(Exception):
-  """Exception class for ec."""
+  """Exception class for pty errors."""
 
 UART_PARAMS = {'uart_cmd': None,
                'uart_regexp': None,
@@ -28,6 +28,7 @@ class ptyDriver(hw_driver.HwDriver):
     self._fd = None
     self._pty_path = self._interface.get_pty()
     self._dict = UART_PARAMS
+    self._interface = interface
 
   def _open(self):
     """Connect to serial device and create pexpect interface."""
@@ -206,7 +207,13 @@ class ptyDriver(hw_driver.HwDriver):
 
     Args:
       cmd: A string of UART command.
+    Raises:
+      ptyError: If command attempted while capture is active.
     """
+
+    if self._interface.get_capture_active():
+      raise ptyError("Can't run uart command while capture is active")
+
     if self._dict['uart_regexp']:
       self._dict['uart_cmd'] = self._issue_cmd_get_results(
                                    cmd,
@@ -225,3 +232,22 @@ class ptyDriver(hw_driver.HwDriver):
       the ec_uart_regexp is 'None'.
     """
     return str(self._dict['uart_cmd'])
+
+  def _Set_uart_capture(self, cmd):
+    """Set UART capture mode (on or off).
+
+    Once capture is enabled, UART output could be collected periodically by
+    invoking _Get_uart_stream() below.
+
+    Args:
+      cmd: an int, 1 of on, 0 for off
+    """
+    self._interface.set_capture_active(cmd)
+
+  def _Get_uart_capture(self):
+    """Get the UART capture mode (on or off)."""
+    return self._interface.get_capture_active()
+
+  def _Get_uart_stream(self):
+    """Get uart stream generated since last time."""
+    return self._interface.get_stream()

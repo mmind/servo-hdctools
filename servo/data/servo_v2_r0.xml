@@ -666,4 +666,15 @@
     <params subtype="uart_timeout" interface="8" drv="uart"
     input_type="float"></params>
   </control>
+  <control>
+    <name>cpu_uart_capture</name>
+    <doc>cpu_uart_capture</doc>
+    <params subtype="uart_capture" interface="8" drv="uart"
+            map="onoff"></params>
+  </control>
+  <control>
+    <name>cpu_uart_stream</name>
+    <doc>Cpu uart stream collected while cpu_uart_capture is set to 'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="8" drv="uart"></params>
+  </control>
 </root>
