@@ -88,7 +88,7 @@ class ec(pty_driver.ptyDriver):
         self._saved_chan |= mask
       if name != "command" and chan[4] == name:
         open_mask = int(chan[2], 16)
-    logging.info("Saved channel mask: %d" % self._saved_chan)
+    logging.debug("Saved channel mask: %d" % self._saved_chan)
     if open_mask is None:
       raise ecError("Cannot find channel '%s'." % name)
     self._issue_cmd("chan %d" % open_mask)

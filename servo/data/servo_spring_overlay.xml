@@ -2,4 +2,7 @@
   <include>
     <name>servoflex_v2_r0_p50.xml</name>
   </include>
+  <include>
+    <name>servo_daisy_overlay.xml</name>
+  </include>
 </root>
