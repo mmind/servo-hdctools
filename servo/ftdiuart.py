@@ -170,6 +170,7 @@ class Fuart(object):
         if e.errno == errno.EWOULDBLOCK: # Data unavailable
           time.sleep(.1)
           continue
+        os.close(uart_fd)
         raise
       self._capture_lock.acquire()
       if len(self._capture_buffer) < FUART_MAX_BUFFER_SIZE:
@@ -182,6 +183,7 @@ class Fuart(object):
           buffer_overflow = True
       self._capture_lock.release()
     termios.tcsetattr(uart_fd, termios.TCSANOW, saved_conf)
+    os.close(uart_fd)
     self._logger.debug('quitting capture')
 
   def open(self):
