@@ -64,6 +64,12 @@
     input_type="str"></params>
   </control>
   <control>
+    <name>ec_uart_multicmd</name>
+    <doc>Set to send multiple commands to EC UART.</doc>
+    <params subtype="uart_multicmd" interface="7" drv="ec"
+    input_type="str" cmd="set"></params>
+  </control>
+  <control>
     <name>ec_uart_regexp</name>
     <doc>List of regular expressions which matches the response of
     ec_uart_cmd.</doc>

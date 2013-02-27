@@ -15,6 +15,7 @@ class ptyError(Exception):
   """Exception class for pty errors."""
 
 UART_PARAMS = {'uart_cmd': None,
+               'uart_multicmd': None,
                'uart_regexp': None,
                'uart_timeout': DEFAULT_UART_TIMEOUT
                }
@@ -50,7 +51,7 @@ class ptyDriver(hw_driver.HwDriver):
       except pexpect.TIMEOUT:
         break
 
-  def _send(self, cmd):
+  def _send(self, cmds):
     """Send command to EC.
 
     This function always flushes serial device before sending, and is used as
@@ -58,24 +59,27 @@ class ptyDriver(hw_driver.HwDriver):
     sending commands.
 
     Args:
-      cmd: The command string to send to the device.
+      cmds: The commands to send to the device, either a list or a string.
 
     Raises:
       ptyError: Raised when writing to the device fails.
     """
     self._flush()
-    if self._child.sendline(cmd) != len(cmd) + 1:
-      raise ptyError("Failed to send command.")
+    if not isinstance(cmds, list):
+      cmds = [cmds]
+    for cmd in cmds:
+      if self._child.sendline(cmd) != len(cmd) + 1:
+        raise ptyError("Failed to send command.")
 
-  def _issue_cmd(self, cmd):
+  def _issue_cmd(self, cmds):
     """Send command to the device and do not wait for response.
 
     Args:
-      cmd: The command string to send to EC.
+      cmds: The commands to send to the device, either a list or a string.
     """
-    self._issue_cmd_get_results(cmd, [])
+    self._issue_cmd_get_results(cmds, [])
 
-  def _issue_cmd_get_results(self, cmd,
+  def _issue_cmd_get_results(self, cmds,
                              regex_list, timeout=DEFAULT_UART_TIMEOUT):
     """Send command to the device and wait for response.
 
@@ -83,7 +87,7 @@ class ptyDriver(hw_driver.HwDriver):
     expressions.
 
     Args:
-      cmd: The command issued.
+      cmds: The commands issued, either a list or a string.
       regex_list: List of Regular expressions used to match response message.
         Note1, list must be ordered.
         Note2, empty list sends and returns.
@@ -106,8 +110,8 @@ class ptyDriver(hw_driver.HwDriver):
     result_list = []
     self._open()
     try:
-      self._send(cmd)
-      self._logger.debug("Sent cmd: %s" % cmd)
+      self._send(cmds)
+      self._logger.debug("Sent cmds: %s" % cmds)
       for regex in regex_list:
         self._child.expect(regex, timeout)
         match = self._child.match
@@ -210,7 +214,6 @@ class ptyDriver(hw_driver.HwDriver):
     Raises:
       ptyError: If command attempted while capture is active.
     """
-
     if self._interface.get_capture_active():
       raise ptyError("Can't run uart command while capture is active")
 
@@ -222,6 +225,21 @@ class ptyDriver(hw_driver.HwDriver):
     else:
       self._dict['uart_cmd'] = None
       self._issue_cmd(cmd)
+
+  def _Set_uart_multicmd(self, cmds):
+    """Set multiple UART commands and send them to the device.
+
+    Note that ec_uart_regexp is not supported to match the results.
+
+    Args:
+      cmds: A semicolon-separated string of UART commands.
+    Raises:
+      ptyError: If command attempted while capture is active.
+    """
+    if self._interface.get_capture_active():
+      raise ptyError("Can't run uart command while capture is active")
+
+    self._issue_cmd(cmds.split(';'))
 
   def _Get_uart_cmd(self):
     """Get the result of the latest UART command.
