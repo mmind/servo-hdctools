@@ -4,32 +4,11 @@
 """Defines common structures for use with c libraries related to FTDI devices.
 """
 import ctypes
-import collections
+import servo_interfaces
 
 MAX_FTDI_INTERFACES_PER_DEVICE = 4
 
-SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001), (0x18d1, 0x5002)]
-
-(DEFAULT_VID, DEFAULT_PID) = SERVO_ID_DEFAULTS[0]
-
-INTERFACE_DEFAULTS = collections.defaultdict(dict)
-
-# servo v1 w/o FT4232h EEPROM programmed
-INTERFACE_DEFAULTS[0x0403][0x6011] = ['gpio', 'i2c', 'gpio', 'gpio']
-# servo v1
-INTERFACE_DEFAULTS[0x18d1][0x5001] = ['gpio', 'i2c', 'gpio', 'gpio']
-# servo V2
-# Dummy interface 0 == JTAG via openocd
-# Dummy interface 4,5 == SPI via flashrom
-INTERFACE_DEFAULTS[0x18d1][0x5002] = \
-    ["dummy", 'i2c', 'uart', 'uart', "dummy", "dummy", 'uart', 'uart']
-
-# miniservo
-MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]
-for vid, pid in MINISERVO_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['gpiouart']
-
-SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
+(DEFAULT_VID, DEFAULT_PID) = servo_interfaces.SERVO_ID_DEFAULTS[0]
 
 (INTERFACE_TYPE_ANY, INTERFACE_TYPE_GPIO, INTERFACE_TYPE_I2C,
  INTERFACE_TYPE_JTAG, INTERFACE_TYPE_SPI, INTERFACE_TYPE_UART) = \

@@ -19,6 +19,7 @@ import ftdigpio
 import ftdii2c
 import ftdi_common
 import ftdiuart
+import servo_interfaces
 
 MAX_I2C_CLOCK_HZ = 100000
 
@@ -60,7 +61,7 @@ class Servod(object):
 
     # Note, interface i is (i - 1) in list
     if not interfaces:
-      interfaces = ftdi_common.INTERFACE_DEFAULTS[vendor][product]
+      interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
     for i, name in enumerate(interfaces):
       # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
@@ -100,7 +101,7 @@ class Servod(object):
     """
     return None
 
-  def _init_gpio(self, interface):
+  def _init_ftdi_gpio(self, interface):
     """Initialize gpio driver interface and open for use.
 
     Args:
@@ -121,7 +122,12 @@ class Servod(object):
 
     return fobj
 
-  def _init_i2c(self, interface):
+  # TODO (sbasi) crbug.com/187488 - Implement BBgpio.
+  def _init_bb_gpio(self, interface):
+    """Initalize beaglebone gpio interface."""
+    pass
+
+  def _init_ftdi_i2c(self, interface):
     """Initialize i2c interface and open for use.
 
     Args:
@@ -146,8 +152,13 @@ class Servod(object):
 
     return fobj
 
-  def _init_uart(self, interface):
-    """Initialize uart inteface and open for use
+  # TODO (sbasi) crbug.com/187489 - Implement bb_i2c.
+  def _init_bb_i2c(self, interface):
+    """Initalize beaglebone i2c interface."""
+    pass
+
+  def _init_ftdi_uart(self, interface):
+    """Initialize ftdi uart inteface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
     interact with it will query control for the pty's pathname and connect
@@ -173,7 +184,12 @@ class Servod(object):
     self._logger.info("%s" % fobj.get_pty())
     return fobj
 
-  def _init_gpiouart(self, interface):
+  # TODO (sbasi) crbug.com/187492 - Implement bbuart.
+  def _init_bb_uart(self, interface):
+    """Initalize beaglebone uart interface."""
+    pass
+
+  def _init_ftdi_gpiouart(self, interface):
     """Initialize special gpio + uart interface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
@@ -190,7 +206,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fgpio = self._init_gpio(interface)
+    fgpio = self._init_ftdi_gpio(interface)
     fuart = ftdiuart.Fuart(self._vendor, self._product, interface,
                            self._serialname, fgpio._fc)
     try:
