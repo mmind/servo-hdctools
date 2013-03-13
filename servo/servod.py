@@ -11,7 +11,6 @@ import sys
 import usb
 
 import ftdi_common
-import servo_interfaces
 import system_config
 import servo_server
 
@@ -136,7 +135,7 @@ def discover_servo(logger, vendor, product, serialname):
       empty list if none
   """
   all_servos = []
-  for (vid, pid) in servo_interfaces.SERVO_ID_DEFAULTS:
+  for (vid, pid) in ftdi_common.SERVO_ID_DEFAULTS:
     if (vendor and vendor != vid) or \
           (product and product != pid):
       continue
