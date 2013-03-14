@@ -32,7 +32,8 @@ class Servod(object):
   _USB_DETECTION_DELAY = 10
   _HTTP_PREFIX = "http://"
 
-  def __init__(self, config, vendor, product, serialname=None, interfaces=None):
+  def __init__(self, config, vendor, product, serialname=None,
+               interfaces=None, board=""):
     """Servod constructor.
 
     Args:
@@ -58,6 +59,7 @@ class Servod(object):
     # Dict of Dict to map control name, function name to to tuple (params, drv)
     # Ex) _drv_dict[name]['get'] = (params, drv)
     self._drv_dict = {}
+    self._board = board
 
     # Note, interface i is (i - 1) in list
     if not interfaces:
@@ -581,6 +583,10 @@ class Servod(object):
     """
     self._logger.debug("echo(%s)" % (echo))
     return "ECH0ING: %s" % (echo)
+
+  def get_board(self):
+    """Return the board specified at startup, if any."""
+    return self._board
 
 
 def test():

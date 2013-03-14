@@ -67,7 +67,7 @@ def _parse_args():
                     help="device serialname stored in eeprom")
   parser.add_option("-c", "--config", default=None, type=str, action="append",
                     help="system config files (XML) to read")
-  parser.add_option("-b", "--board", default=None, type=str, action="store",
+  parser.add_option("-b", "--board", default="", type=str, action="store",
                     help="include config file (XML) for given board")
   parser.add_option("--noautoconfig", action="store_true", default=False,
                     help="Disable automatic determination of config files")
@@ -264,7 +264,8 @@ def main():
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
-                               interfaces=options.interfaces.split())
+                               interfaces=options.interfaces.split(),
+                               board=options.board)
   servod.hwinit(verbose=True)
   server.register_introspection_functions()
   server.register_multicall_functions()
