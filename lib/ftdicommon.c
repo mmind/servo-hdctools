@@ -13,6 +13,7 @@
 #include "ftdi_common.h"
 
 // return number of interfaces, -1 for error
+#pragma GCC diagnostic ignored "-Wswitch-enum"
 int fcom_num_interfaces(struct ftdi_context *fc) {
   if (fc->usb_dev == NULL) {
     // no ftdi_usb_open so haven't contacted device yet ... fail
@@ -37,6 +38,8 @@ int fcom_num_interfaces(struct ftdi_context *fc) {
   }
   return -1;
 }
+#pragma GCC diagnostic pop
+
 
 int fcom_cfg(struct ftdi_context *fc, int interface,
                    enum ftdi_mpsse_mode mode, int direction) {
@@ -177,6 +180,7 @@ int fcom_lookup_serial(struct ftdi_context *fc, char *name) {
     prn_fatal("not implemented\n");
 }
 
+#pragma GCC diagnostic ignored "-Wswitch-enum"
 int fcom_is_mpsse(struct ftdi_context *fc,
                         struct ftdi_common_args *fargs) {
   switch(fc->type) {
@@ -195,6 +199,7 @@ int fcom_is_mpsse(struct ftdi_context *fc,
       break;
   }
 }
+#pragma GCC diagnostic pop
 
 struct ftdi_itype *fcom_lookup_interface(struct ftdi_itype *interfaces,
                                          unsigned int cnt,

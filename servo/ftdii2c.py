@@ -64,7 +64,7 @@ class Fi2c(object):
     self._logger.debug("")
 
     (self._flib, self._lib, self._gpiolib) = \
-        ftdi_utils.load_libs(ftdi_common.FTDI_LIB_NAME, "ftdii2c",  "ftdigpio")
+        ftdi_utils.load_libs("ftdi", "ftdii2c",  "ftdigpio")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
                                              interface=interface,

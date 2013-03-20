@@ -6,7 +6,6 @@
 import ctypes
 import servo_interfaces
 
-FTDI_LIB_NAME = 'ftdi'
 
 MAX_FTDI_INTERFACES_PER_DEVICE = 4
 

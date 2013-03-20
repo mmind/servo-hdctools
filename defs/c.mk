@@ -94,8 +94,14 @@ LINK.c		= \
 	$(MESSAGE) "Linking $(notdir $@)" ; \
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-LIBFTDI_CFLAGS	:= $(shell $(PKG_CONFIG) --cflags libftdi)
-LIBFTDI_LDLIBS	:= $(shell $(PKG_CONFIG) --libs   libftdi)
+FTDIVERSION = $(shell $(PKG_CONFIG) --modversion libftdi1 2>/dev/null)
+ifneq ($(FTDIVERSION),)
+  LIBFTDI_NAME = ftdi1
+else
+  LIBFTDI_NAME = ftdi
+endif
+LIBFTDI_CFLAGS	:= $(shell $(PKG_CONFIG) --cflags lib${LIBFTDI_NAME})
+LIBFTDI_LDLIBS	:= $(shell $(PKG_CONFIG) --libs   lib${LIBFTDI_NAME})
 
 SERIAL_IP	= gpio uart i2c
 SERIAL_LIBS	= $(foreach v,${SERIAL_IP},-lftdi$(v))

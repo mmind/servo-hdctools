@@ -7,6 +7,13 @@
 # Please keep this file sorted to facilitate comparisons against other
 # operating systems.
 
+# TODO(tbroch) Return strict prototypes if/when failures like below remedied
+#   in libftdi1.
+#   /usr/include/libftdi1/ftdi.h:438:12: error: function declaration isn't a
+#   prototype [-Werror=strict-prototypes]
+#	-Wstrict-prototypes			\
+#	-pedantic-errors			\
+
 HOSTOS_CWARN	=				\
 	-Waddress				\
 	-Waggregate-return			\
@@ -59,7 +66,6 @@ HOSTOS_CWARN	=				\
 	-Wstrict-aliasing=3			\
 	-Wstrict-overflow			\
 	-Wstrict-overflow=5			\
-	-Wstrict-prototypes			\
 	-Wswitch				\
 	-Wswitch-default			\
 	-Wswitch-enum				\
@@ -77,8 +83,7 @@ HOSTOS_CWARN	=				\
 	-Wvariadic-macros			\
 	-Wvla					\
 	-Wvolatile-register-var			\
-	-Wwrite-strings				\
-	-pedantic-errors
+	-Wwrite-strings
 
 ifndef BEAGLEBONE
 # -Wstack-protector breaks the build on Beaglebone boards, so omit
