@@ -55,7 +55,8 @@ class Fgpio(object):
     self._logger = logging.getLogger("Fgpio")
     self._logger.debug("")
 
-    (self._flib, self._lib) = ftdi_utils.load_libs("ftdi", "ftdigpio")
+    (self._flib, self._lib) = ftdi_utils.load_libs(ftdi_common.FTDI_LIB_NAME,
+                                                   "ftdigpio")
     self._fargs = ftdi_common.FtdiCommonArgs(vendor_id=vendor,
                                              product_id=product,
                                              interface=interface,

@@ -6,6 +6,8 @@
 import ctypes
 import servo_interfaces
 
+FTDI_LIB_NAME = 'ftdi'
+
 MAX_FTDI_INTERFACES_PER_DEVICE = 4
 
 (DEFAULT_VID, DEFAULT_PID) = servo_interfaces.SERVO_ID_DEFAULTS[0]
