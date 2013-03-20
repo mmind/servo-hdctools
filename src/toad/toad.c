@@ -532,7 +532,7 @@ int cmdInitialize(struct ftdi_context *ftdi UNUSED_ON_OLD_LIBFTDI,
     // Initialize the EEPROM part of libftdi. We don't actually use the stuff it
     // initializes, but without this initialization, ftdi_eeprom_write will not
     // function.
-    FTORDIE(ftdi_eeprom_initdefaults(ftdi, "", "", ""));
+    FTORDIE(ftdi_eeprom_initdefaults(ftdi, NULL, NULL, NULL));
 
     // Grab the EEPROM data
     FTORDIE(ftdi_read_eeprom(ftdi));
@@ -1083,7 +1083,7 @@ int cmdConsole(struct ftdi_context *ftdi, const char *option,
         if (cur_fds > num_fds) {
             num_fds = cur_fds;
             if (!(fds = realloc(fds, sizeof(struct pollfd) * num_fds))) {
-                poll_err = "Realloc failed when polling %d file descriptors.";
+                poll_err = "Realloc failed when polling file descriptors.";
                 break;
             }
         }
@@ -1134,7 +1134,7 @@ int cmdConsole(struct ftdi_context *ftdi, const char *option,
     // Print poll-related error messages AFTER ttyRawMode has been deactivated.
     if (poll_err) {
         ret = 2;
-        prn_error(poll_err, num_fds);
+        prn_error("%s", poll_err);
     }
 
     return ret;
