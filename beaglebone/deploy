@@ -32,10 +32,15 @@ sudo make BEAGLEBONE=true install
 sudo python setup.py install
 sudo python setup.py develop
 
+. $CONFIG_FILE
 if [ $# -ne 0 ]; then
-  CONFIG_TMP=$(mktemp /tmp/hdctools.XXXXXX)
-  echo "BOARD='$1'" >$CONFIG_TMP
-  sudo mv $CONFIG_TMP $CONFIG_FILE
+  BOARD="$1"
 fi
+CONFIG_TMP=$(mktemp /tmp/hdctools.XXXXXX)
+cat <<END >$CONFIG_TMP
+BOARD="$BOARD"
+REVISION="$(git log -1 --oneline)"
+END
+sudo mv $CONFIG_TMP $CONFIG_FILE
 
 sudo start servod
