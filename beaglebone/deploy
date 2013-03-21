@@ -32,7 +32,12 @@ sudo make BEAGLEBONE=true install
 sudo python setup.py install
 sudo python setup.py develop
 
-. $CONFIG_FILE
+# The first time we deploy, $CONFIG_FILE won't exist.  After the
+# first time, we want to use the existing BOARD setting, if a new
+# board isn't given on the command line.
+if [ -f $CONFIG_FILE ]; then
+  . $CONFIG_FILE
+fi
 if [ $# -ne 0 ]; then
   BOARD="$1"
 fi
