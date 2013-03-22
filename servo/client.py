@@ -116,6 +116,23 @@ class ServoClient(object):
     """
     return self._server.get_all(self._verbose)
 
+  def set_get_all(self, controls):
+    """Set &| get one or more control values.
+
+    Args:
+      controls: string, controls to set &| get.
+
+    Raises:
+      ServoClientError: If error occurs setting value.
+    """
+    try:
+      rv = self._server.set_get_all(controls)
+    except xmlrpclib.Fault as e:
+      # TODO(tbroch) : more detail of failure.  Note xmlrpclib only
+      #                passes one exception above
+      raise ServoClientError("Problem with %s" % (controls), e)
+    return rv
+
   def set(self, name, value):
     """Set the value from servo for control name.
 

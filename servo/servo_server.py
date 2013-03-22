@@ -466,6 +466,24 @@ class Servod(object):
       return False
     return result
 
+  def set_get_all(self, cmds):
+    """Set &| get one or more control values.
+
+    Args:
+      cmds: list of control[:value] to get or set.
+
+    Returns:
+      rv: list of responses from calling get or set methods.
+    """
+    rv = []
+    for cmd in cmds:
+      if ':' in cmd:
+        (control, value) = cmd.split(':')
+        rv.append(self.set(control, value))
+      else:
+        rv.append(self.get(cmd))
+    return rv
+
   def get(self, name):
     """Get control value.
 

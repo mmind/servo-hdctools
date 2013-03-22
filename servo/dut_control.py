@@ -214,32 +214,32 @@ def do_iteration(requests, options, sclient, stats):
   Returns:
     out_str: results string from iteration based on formats in options
   """
+  results = []
   out_list = []
   time_str = ''
   sample_start = time.time()
-  for request_str in requests:
-    logging.debug("cmd = %s", request_str)
-    control = request_str
-    if options.info:
+
+  if options.info:
+    for request_str in requests:
+      control = request_str
       if ':' in request_str:
         logging.warn("Ignoring %s, can't perform set with --info", request_str)
         continue
+      results.append(sclient.doc(control))
+  else:
+      results = sclient.set_get_all(requests)
+
+  if options.print_time:
+    time_str = "%.4f " % (time.time() - _start_time)
+
+  for i, result in enumerate(results):
+    control = requests[i]
+    if options.info:
       request_type = 'doc'
-      result = sclient.doc(control)
-    elif ':' in request_str:
+    elif ':' in control:
       request_type = 'set'
-      (control, value) = request_str.split(':', 1)
-      result = sclient.set(control, value)
     else:
       request_type = 'get'
-      result = sclient.get(control)
-      try:
-        stats[control].append(float(result))
-      except ValueError:
-        pass
-
-    if options.print_time:
-      time_str = "%.4f " % (time.time() - _start_time)
 
     if options.verbose:
       out_list.append("%s%s %s -> %s" % (time_str, request_type.upper(),
