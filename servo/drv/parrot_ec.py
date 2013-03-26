@@ -6,6 +6,7 @@
 Provides the following EC controlled function:
   rec_mode
 """
+import os
 import pty_driver
 
 class parrotEcError(Exception):
@@ -36,6 +37,7 @@ class parrotEc(pty_driver.ptyDriver):
     """
     super(parrotEc, self).__init__(interface, params)
     self._logger.debug("")
+    os.linesep = '\r'
 
   def _Set_rec_mode(self, value):
     """Setter of rec_mode.
@@ -48,11 +50,11 @@ class parrotEc(pty_driver.ptyDriver):
       value: 0: rec_mode off; 1: rec_mode on.
     """
     if value == 1:
-      self._issue_cmd("fbf5=5a\r")
-      self._issue_cmd("fbf6=a5\r")
+      self._issue_cmd("fbf5=5a")
+      self._issue_cmd("fbf6=a5")
     else:
-      self._issue_cmd("fbf5=00\r")
-      self._issue_cmd("fbf6=00\r")
+      self._issue_cmd("fbf5=00")
+      self._issue_cmd("fbf6=00")
 
   def _Get_rec_mode(self):
     """Getter of rec_mode.
@@ -65,9 +67,9 @@ class parrotEc(pty_driver.ptyDriver):
       0: rec_mode off;
       1: rec_mode on.
     """
-    result1 = self._issue_cmd_get_results("fbf5\r", ["=(..),"])[0]
-    result2 = self._issue_cmd_get_results("fbf6\r", ["=(..),"])[0]
-    if result1.group(1).lower() == '5a' and result2.group(1).lower() == 'a5':
+    result1 = self._issue_cmd_get_results("fbf5", ["=(..),"])[0]
+    result2 = self._issue_cmd_get_results("fbf6", ["=(..),"])[0]
+    if result1[1].lower() == '5a' and result2[1].lower() == 'a5':
       return 1
     else:
       return 0
