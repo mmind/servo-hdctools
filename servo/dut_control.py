@@ -240,6 +240,10 @@ def do_iteration(requests, options, sclient, stats):
       request_type = 'set'
     else:
       request_type = 'get'
+      try:
+        stats[control].append(float(result))
+      except ValueError:
+        pass
 
     if options.verbose:
       out_list.append("%s%s %s -> %s" % (time_str, request_type.upper(),
