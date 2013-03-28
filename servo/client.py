@@ -32,7 +32,20 @@ class ServoClientError(Exception):
     """
     if xmlexc:
       xml_error = re.sub('^.*>:', '', xmlexc.faultString)
-      self.error_message = '%s :: %s' % (text, xml_error)
+      err_match = re.match('No control named (\w+)', xml_error)
+      if err_match:
+        name = err_match.group(1)
+        error_msg = 'No control named "%s"\n' % name
+        # We know that the second line of the fault text is the comma
+        # separated list of all available controls. Let's try finding
+        # something similar to what user requested.
+        all_controls = xml_error.splitlines()[1]
+        candidates = [x for x in all_controls.split(',') if name in x]
+        if candidates:
+          error_msg += "Consider %s" % ' '.join(candidates)
+      else:
+        error_msg = xml_error
+      self.error_message = '%s :: %s' % (text, error_msg)
     else:
       self.error_message = text
 
@@ -96,16 +109,6 @@ class ServoClient(object):
     try:
       return self._server.get(name)
     except xmlrpclib.Fault as e:
-      if 'No control named' in e.faultString:
-        error_msg = 'No control named "%s"\n' % name
-        # We know that the second line of the fault text is the comma
-        # separated list of all available controls. Let's try finding
-        # something similar to what user requested.
-        all_controls = e.faultString.splitlines()[1]
-        candidates = [x for x in all_controls.split(',') if name in x]
-        if candidates:
-          error_msg += "Consider %s" % ' '.join(candidates)
-        raise ServoClientError(error_msg, None)
       raise ServoClientError("Problem getting '%s'" % name, e)
 
   def get_all(self):
