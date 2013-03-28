@@ -218,6 +218,7 @@
   </control>
   <control>
     <name>fw_up</name>
+    <alias>t20_rec</alias>
     <doc>Firmware update mode via USB</doc>
     <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
     offset="7" map="onoff_i" init="off"></params>

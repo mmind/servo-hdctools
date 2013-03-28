@@ -159,6 +159,7 @@
   </control>
   <control>
     <name>fw_up</name>
+    <alias>t20_rec</alias>
     <doc>Firmware update mode via USB</doc>
     <params cmd="set" interface="4" drv="gpio" offset="1"
     map="onoff_i" init="off"></params>
