@@ -1,0 +1,19 @@
+<root>
+  <!-- ******** Controls ******** -->
+  <control>
+    <name>jtag_buf_en</name>
+    <params clobber_ok="" init="off"></params>
+  </control>
+  <control>
+    <name>jtag_vref_sel0</name>
+    <params clobber_ok="" init="pp1800"></params>
+  </control>
+  <control>
+    <name>jtag_vref_sel1</name>
+    <params clobber_ok="" init="pp1800"></params>
+  </control>
+  <control>
+    <name>jtag_buf_on_flex_en</name>
+    <params clobber_ok="" init="on"></params>
+  </control>
+</root>
