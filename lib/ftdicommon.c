@@ -169,9 +169,12 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
 
 int fcom_lookup_serial(struct ftdi_context *fc, char *name) {
   // TODO(tbroch) implement lookup of serial from eeprom
-  fc   = fc;                    /* Silence compiler warning. */
-  name = name;                  /* Silence compiler warning. */
-  prn_fatal("not implemented\n");
+  long fc_dump  = (long)fc;               /* Silence compiler warning. */
+  long name_dump = (long)name;            /* Silence compiler warning. */
+  if (fc_dump > name_dump)                /* Silence compiler warning. */
+    prn_fatal("not implemented\n");
+  else
+    prn_fatal("not implemented\n");
 }
 
 int fcom_is_mpsse(struct ftdi_context *fc,
