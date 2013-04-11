@@ -35,3 +35,10 @@ for vid, pid in MINISERVO_ID_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
 
 SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
+
+# Toad
+TOAD_ID_DEFAULTS = [(0x403, 0x6015)]
+for vid, pid in TOAD_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_uart']
+
+SERVO_ID_DEFAULTS.extend(TOAD_ID_DEFAULTS)

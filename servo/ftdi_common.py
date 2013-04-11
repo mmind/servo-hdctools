@@ -28,6 +28,7 @@ SERVO_PID_DEFAULTS = \
     {'miniservo_v1': [0x5000],
      'servo_v1': [0x5001],
      'servo_v2': [0x5002],
+     'toad_v1': [0x6015], #Vendor ID is 0x403 : FTDI
      }
 
 SERVO_CONFIG_DEFAULTS = \
@@ -35,6 +36,7 @@ SERVO_CONFIG_DEFAULTS = \
      'servo_v1': ['servo.xml'],
      'servo_v2_r0': ['servo_v2_r0.xml'],
      'servo_v2': ['servo_v2_r1.xml'],
+     'toad_v1': ['toad.xml'],
      }
 
 class FtdiContext(ctypes.Structure):

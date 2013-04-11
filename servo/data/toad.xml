@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>common.xml</name>
+  </include>
+  <!-- muxed EC/AP UART -->
+  <control>
+    <name>cpu_uart_pty</name>
+    <alias>ec_uart_pty</alias>
+    <doc>Pseudo-terminal (pty) thats connected to CPU's uart
+    console</doc>
+    <params cmd="get" interface="2" subtype="pty" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>cpu_uart_baudrate</name>
+    <alias>ec_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="2"></params>
+  </control>
+  <control>
+    <name>cpu_uart_parity</name>
+    <alias>ec_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="2" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>cpu_uart_sbits</name>
+    <alias>ec_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="2" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>cpu_uart_bits</name>
+    <alias>ec_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="2" map="uart_bits"></params>
+  </control>
+</root>
