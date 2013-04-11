@@ -15,7 +15,7 @@ int fgpio_init(struct fgpio_context *fgc, struct ftdi_context *fc) {
   fgc->gpio.value = 0;
   fgc->gpio.mask = 0xff;
 
-  if (fgc->fc->type == TYPE_R) {
+  if (FTDI_HAS_CBUS(fc)) {
     // only a nibble worth of gpios
     fgc->gpio.mask = 0x0f;
   }
@@ -38,7 +38,7 @@ int fgpio_open(struct fgpio_context *fgc, struct ftdi_common_args *fargs) {
     }
   }
   assert(fgc->fc);
-  if (fgc->fc->type != TYPE_R) {
+  if (!FTDI_HAS_CBUS(fgc->fc)) {
     rv = fcom_cfg(fgc->fc, fargs->interface, BITMODE_BITBANG, 0);
   }
   return rv;
@@ -73,7 +73,7 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
       prn_dbg("Changing value register to 0x%02x\n", gpio->value);
     }
 
-    if ((fgc->fc->type == TYPE_R) && (val_chg || dir_chg)) {
+    if (FTDI_HAS_CBUS(fgc->fc) && (val_chg || dir_chg)) {
       buf[0] = FGPIO_CBUS_GPIO(gpio->direction, gpio->value);
       prn_dbg("cbus write of 0x%02x\n", buf[0]);
       CHECK_FTDI(ftdi_set_bitmode(fc, buf[0], BITMODE_CBUS),
@@ -115,7 +115,7 @@ int fgpio_wr_rd(struct fgpio_context *fgc, struct gpio_s *new_gpio,
   }
   if (rd_val != NULL) {
     CHECK_FTDI(ftdi_read_pins(fc, rd_val), "reading gpios", fc);
-    if (fgc->fc->type == TYPE_R) {
+    if (FTDI_HAS_CBUS(fgc->fc)) {
       *rd_val &= 0xf;
     }
     prn_dbg("Read value to 0x%02x\n", *rd_val);

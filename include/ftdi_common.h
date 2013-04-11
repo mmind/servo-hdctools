@@ -59,6 +59,17 @@ extern "C" {
     }                                               \
   } while (0)
 
+#ifdef TYPE_230X
+#define FTDI_HAS_CBUS(context) (((context)->type == TYPE_R) || \
+                                ((context)->type == TYPE_230X))
+#else
+// WORKAROUND: libftdi (up to v1.0) is too old to have support for FT230X
+// it will detect it as FT232BM, which is ok for most properties
+// (ie 1 UART, no MPSSE) but we need to force CBUS detection.
+#define FTDI_HAS_CBUS(context) (((context)->type == TYPE_R) || \
+                                ((context)->type == TYPE_BM))
+#endif
+
 struct gpio_s {
   uint8_t value;
   uint8_t direction;

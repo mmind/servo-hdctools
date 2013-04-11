@@ -23,6 +23,9 @@ int fcom_num_interfaces(struct ftdi_context *fc) {
     case(TYPE_AM):
     case(TYPE_R):
     case(TYPE_BM):
+#ifdef TYPE_230X
+    case(TYPE_230X):
+#endif
       return 1;
       break;
     case(TYPE_2232C):
@@ -194,6 +197,9 @@ int fcom_is_mpsse(struct ftdi_context *fc,
     case(TYPE_AM):
     case(TYPE_R):
     case(TYPE_BM):
+#ifdef TYPE_230X
+    case(TYPE_230X):
+#endif
     default:
       return 0;
       break;

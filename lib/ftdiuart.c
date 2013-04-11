@@ -164,7 +164,7 @@ static int fuart_open_locked(struct fuart_context *fuartc,
     }
   }
 
-  if (fc->type == TYPE_R) {
+  if (FTDI_HAS_CBUS(fc)) {
     bitmode = BITMODE_CBUS;
     gpio_cfg = FGPIO_CBUS_GPIO(fargs->direction, fargs->value);
   }
