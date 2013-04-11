@@ -40,4 +40,34 @@
     <params drv="uart" subtype="props" line_prop="bits"
     interface="2" map="uart_bits"></params>
   </control>
+  <!-- GPIOS -->
+  <map>
+    <name>ec_ap_mux</name>
+    <doc>Determine whether EC or AP UART lines are muxed to the micro-USB</doc>
+    <params ec="0" ap="1"></params>
+  </map>
+  <control>
+    <name>mode_sw</name>
+    <doc>button controlling the UART mux</doc>
+    <params interface="1" drv="gpio" offset="0" map="press" od="PU">
+    </params>
+  </control>
+  <control>
+    <name>uart_mux</name>
+    <doc>EC/AP UART mux</doc>
+    <params interface="1" drv="gpio" offset="1" map="ec_ap_mux" od="PU">
+    </params>
+  </control>
+  <control>
+    <name>boot_mode</name>
+    <doc>EC monitor mode gpio</doc>
+    <params interface="1" drv="gpio" offset="2" map="yesno_i" od="PU">
+    </params>
+  </control>
+  <control>
+    <name>vbus</name>
+    <doc>vbus enable gpio</doc>
+    <params interface="1" drv="gpio" offset="3" map="onoff" od="PU">
+    </params>
+  </control>
 </root>
