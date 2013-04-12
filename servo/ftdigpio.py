@@ -118,7 +118,7 @@ class Fgpio(object):
     rd_val = ctypes.c_ubyte()
     self._gpio.mask = (pow(2, width) - 1) << offset
     if wr_val is not None and dir_val is not None:
-      self._gpio.direction = self._gpio.mask
+      self._gpio.direction = self._gpio.mask if dir_val else 0
       self._gpio.value = wr_val << offset
       self._lib.fgpio_wr_rd(ctypes.byref(self._fgc), ctypes.byref(self._gpio),
                             ctypes.byref(rd_val),

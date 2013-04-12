@@ -52,10 +52,20 @@ class gpio(hw_driver.HwDriver):
     self._logger.debug("")
     (offset, width) = self._get_common_params()
 
+    is_output = 1
+    if 'od' in self._params:
+      if width > 1:
+        raise gpioError("Open drain not implemented for widths != 1")
+      open_drain = self._params['od'].upper()
+      if open_drain != "PU":
+        raise gpioError("Unrecognized open-drain %s" % open_drain)
+      if value == 1:
+        is_output = 0
+
     if hasattr(self._interface, 'gpio_wr_rd'):
-      self._interface.gpio_wr_rd(offset, width, 1, value)
+      self._interface.gpio_wr_rd(offset, width, is_output, value)
     else:
-      self._interface.wr_rd(offset, width, 1, value)
+      self._interface.wr_rd(offset, width, is_output, value)
 
   def _get_common_params(self):
     """Get common parameters for gpio control
