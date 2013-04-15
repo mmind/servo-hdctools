@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<root>
+  <!-- TODO(tbroch): Add remaining controls (UART,GPIO) -->
+  <!-- ********** Maps ********** -->
+  <include>
+    <name>common.xml</name>
+  </include>
+  <map>
+    <name>vref_sel_v3</name>
+    <doc>Determine VREF between pp3300, pp2500, pp1800 and off.
+    Default is off</doc>
+    <params off="0" pp2500="4" pp1800="2" pp3300="1"></params>
+  </map>
+  <!-- ********** I2c related controls ********** -->
+  <!-- slv 0x20 : ioexpander port 0 -->
+  <control>
+    <name>dut_flaga</name>
+    <doc>dut_flaga</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="0" map="onoff"></params>
+  </control>
+  <control>
+    <name>dut_flagb</name>
+    <doc>dut_flagb</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>pch_disable</name>
+    <doc>DUT specific. Note, is aliased to jtag_buf_on_flex_en
+    GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="2" map="onoff_i" init="off"></params>
+  </control>
+  <!-- bit overloaded for enabling flex cable buffers -->
+  <control>
+    <name>jtag_buf_on_flex_en</name>
+    <doc>Enables JTAG buffer on servo flex. Note, is aliased to
+    pch_disable GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="2" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>cold_reset</name>
+    <doc>cold_reset</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="3" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>warm_reset</name>
+    <doc>warm_reset</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="4" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>dev_mode</name>
+    <doc>dev_mode GPIO. Note, is aliased to spi1_buf_on_flex_en
+    GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="5" map="onoff"></params>
+  </control>
+  <!-- bit overloaded for enabling flex cable buffers -->
+  <control>
+    <name>spi1_buf_on_flex_en</name>
+    <doc>Enables SPI1 buffers on servo flex. Note, is aliased to
+    dev_mode GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="5" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>tp78</name>
+    <doc>tp78 on U25 pin 10</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="6" map="onoff"></params>
+  </control>
+  <control>
+    <name>sd_detect</name>
+    <doc>SD Card detect</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x23"
+    port="1" offset="7" map="onoff_i"></params>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="0" offset="7" map="onoff_i"></params>
+  </control>
+  <!-- slv 0x20 : ioexpander port 1 -->
+  <control>
+    <name>spi_hold</name>
+    <doc>spi_hold</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="0" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_nmi</name>
+    <doc>dut_nmi</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>hpd</name>
+    <doc>hpd</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="1"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>fw_wp</name>
+    <doc>Firmware write-protect GPIO</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x20"
+    port="1" offset="3" map="onoff_i"></params>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x22"
+    port="1" offset="5" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>pwr_button</name>
+    <doc>Power button GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="4" map="press" init="release"></params>
+  </control>
+  <control>
+    <name>lid_open</name>
+    <doc>lid open GPIO. Note, is aliased to spi2_buf_on_flex_en
+    GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="5" map="yesno" init="yes"></params>
+  </control>
+  <!-- bit overloaded for enabling flex cable buffers -->
+  <control>
+    <name>spi2_buf_on_flex_en</name>
+    <doc>Enables SPI2 buffers on servo flex. Note, is aliased to
+    lid_open GPIO</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="5" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>rec_mode</name>
+    <doc>Google recovery mode</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="6" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>fw_up</name>
+    <alias>t20_rec</alias>
+    <doc>Firmware update mode via USB</doc>
+    <params interface="2" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="7" map="onoff_i" init="off"></params>
+  </control>
+  <!-- slv 0x21 : ioexpander port 0 -->
+  <control>
+    <name>jtag_vref</name>
+    <doc>jtag_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="0" width="3" map="vref_sel_v3" init="off"></params>
+  </control>
+  <control>
+    <name>spi1_vref</name>
+    <doc>spi1_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="3" width="3" map="vref_sel_v3" init="off"></params>
+  </control>
+  <!-- TODO(tbroch) See if there is a way to implement multi-bit
+       control across GPIO expander port -->
+  <control>
+    <name>uart3_vref_33</name>
+    <doc>uart3_vref_33</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="6" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>uart3_vref_25</name>
+    <doc>uart3_vref_25</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="0"
+    offset="7" width="1" map="onoff" init="off"></params>
+  </control>
+  <!-- slv 0x21 : ioexpander port 1 -->
+  <control>
+    <name>uart3_vref_18</name>
+    <doc>uart3_vref_18</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="0" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>spi2_vref</name>
+    <doc>spi2_vref</doc>
+    <alias>fw_wp_vref</alias>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="2" width="3" map="vref_sel_v3" init="off"></params>
+  </control>
+  <control>
+    <name>sd_vref</name>
+    <doc>sd_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x21" port="1"
+    offset="5" width="3" map="vref_sel_v3" init="off"></params>
+  </control>
+</root>
