@@ -16,7 +16,7 @@ import ltc1663
 import parrot_ec
 import pca9500
 import pca9546
-import pca9537
+import pca95xx
 import uart
 import ec
 import daisy_ec
