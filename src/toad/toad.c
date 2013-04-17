@@ -78,6 +78,7 @@ static const char *ESCAPES =
 #include "toad.h"
 
 #if NEW_LIBFTDI
+#   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wcast-align"
 #   include <libusb.h>
 #   pragma GCC diagnostic pop
