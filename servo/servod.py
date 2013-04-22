@@ -10,6 +10,7 @@ import socket
 import sys
 import usb
 
+import dut
 import ftdi_common
 import servo_interfaces
 import system_config
@@ -238,6 +239,9 @@ def main():
                       " and no config specified with -c <file>")
 
   scfg = system_config.SystemConfig()
+
+  options.board = dut.get_board_name(options.board)
+
   if options.board:
     board_config = "servo_" + options.board + "_overlay.xml"
     if scfg.find_cfg_file(board_config):
