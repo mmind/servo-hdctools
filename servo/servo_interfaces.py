@@ -6,8 +6,8 @@ import collections
 
 INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
-SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x18d1, 0x5001), (0x18d1, 0x5002),
-                     (0x18d1, 0x5004)]
+SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x0403, 0x6014), (0x18d1, 0x5001),
+                     (0x18d1, 0x5002), (0x18d1, 0x5004)]
 
 # servo v1 w/o FT4232h EEPROM programmed
 INTERFACE_DEFAULTS[0x0403][0x6011] = ['ftdi_gpio', 'ftdi_i2c',
@@ -26,8 +26,11 @@ INTERFACE_DEFAULTS[0x18d1][0x5002] = \
 # Dummy interface 0 == JTAG via openocd
 # Dummy interface 4,5 == SPI via flashrom
 INTERFACE_DEFAULTS[0x18d1][0x5004] = \
-    ['dummy', 'bb_i2c', 'bb_uart', 'bb_uart', 'dummy',
+    ['dummy', {'name': 'bb_i2c', 'bus_num': 3},
+     'bb_uart', 'bb_uart', 'dummy',
      'dummy', 'bb_uart', 'bb_uart']
+
+INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
 
 # miniservo
 MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]

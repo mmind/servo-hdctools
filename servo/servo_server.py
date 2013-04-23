@@ -15,6 +15,7 @@ import urllib
 
 # TODO(tbroch) deprecate use of relative imports
 from drv.hw_driver import HwDriverError
+import bbi2c
 import ftdigpio
 import ftdii2c
 import ftdi_common
@@ -65,19 +66,27 @@ class Servod(object):
     if not interfaces:
       interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
-    for i, name in enumerate(interfaces):
+    for i, interface in enumerate(interfaces):
+      if type(interface) is dict:
+        name = interface['name']
+      elif type(interface) is str:
+        name = interface
+        interface = i + 1
+      else:
+        raise ServodError("Illegal interface type %s" % type(interface))
+
       # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
       if i and ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
         self._product += 1
         self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
                           self._product)
 
-      self._logger.info("Initializing FTDI interface %d to %s", i + 1, name)
+      self._logger.info("Initializing interface %d to %s", i + 1, name)
       try:
         func = getattr(self, '_init_%s' % name)
       except AttributeError:
         raise ServodError("Unable to locate init for interface %s" % name)
-      result = func((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1)
+      result = func(interface)
       if isinstance(result, tuple):
         self._interface_list.extend(result)
       else:
@@ -157,7 +166,7 @@ class Servod(object):
   # TODO (sbasi) crbug.com/187489 - Implement bb_i2c.
   def _init_bb_i2c(self, interface):
     """Initalize beaglebone i2c interface."""
-    pass
+    return bbi2c.BBi2c(interface)
 
   def _init_ftdi_uart(self, interface):
     """Initialize ftdi uart inteface and open for use
