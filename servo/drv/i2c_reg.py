@@ -68,7 +68,7 @@ class I2cReg(object):
     to that register
 
     Args:
-      See constructor
+      See contructor
     
     Returns:
       instance of I2cReg object
