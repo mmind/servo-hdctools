@@ -189,4 +189,260 @@
     <params interface="2" drv="tca6416" slv="0x21" port="1"
     offset="5" width="3" map="vref_sel_v3" init="off"></params>
   </control>
+  <!-- ********** GPIO related controls ********** -->
+  <control>
+    <name>uart1_en</name>
+    <alias>ec_uart_en</alias>
+    <doc>Enable communication with EC's uart console</doc>
+    <params interface="1" drv="gpio" chip="2" offset="3"
+    map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>uart2_en</name>
+    <alias>cpu_uart_en</alias>
+    <doc>Enable communication with CPU's uart console</doc>
+    <params interface="1" drv="gpio" chip="2" offset="4"
+    map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>uart3_en</name>
+    <alias>legacy_uart_en</alias>
+    <doc>Enable communication with legacy (v1) uart console.</doc>
+    <params interface="1" drv="gpio" chip="2" offset="9"
+    map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>dut_hub1_rst1</name>
+    <doc>Reset DUT's USB hub with ethernet (RJ45/I54) and USB port
+    (TYPE A/J3, TYPE A/J8, TYPE A/J10)</doc>
+    <params interface="1" drv="gpio" chip="2" offset="17"
+    map="onoff_i"></params>
+  </control>
+  <control>
+    <name>dut_hub_on</name>
+    <doc>Enables DUT's USB hub with ethernet (RJ45/I54) and USB
+    port (Vert TYPE A/J3)</doc>
+    <params interface="1" drv="gpio" chip="1" offset="29" map="yesno_i">
+    </params>
+  </control>
+  <control>
+    <name>dut_hub_sel</name>
+    <doc>2to1 Mux select for USB port (TYPE MICRO-B/J6). Set either
+    'dut_sees_hub' or 'dut_sees_servo'</doc>
+    <params interface="1" drv="gpio" chip="2" offset="11" map="duthub">
+    </params>
+  </control>
+  <control>
+    <name>dut_hub_ocs</name>
+    <doc>DUT USB hub over current signal (OCS). This hub supports
+    ethernet (RJ45/I54) and USB port (vert TYPE A/J8)</doc>
+    <params interface="1" drv="gpio" chip="2" offset="5" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>dut_hub_pwren</name>
+    <doc>enable power to DUT's USB hub</doc>
+    <params interface="1" drv="gpio" chip="2" offset="7" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>prtctl4_pwren</name>
+    <doc>USB port 4 (TYPE A/J3, USB key) power enable</doc>
+    <params interface="1" drv="gpio" chip="2" offset="13" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>prtctl4_ocs</name>
+    <doc>USB port 4 (J3, USB key) over current signal (OCS)</doc>
+    <params interface="1" drv="gpio" chip="1" offset="2" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_oe1</name>
+    <doc>Output enable for USB port (vert TYPE A/J3) to DUT via DUT
+    USB hub</doc>
+    <params interface="1" drv="gpio" chip="2" offset="25" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_sel1</name>
+    <doc>2to1 mux select for USB port (vert TYPE A/J3). Set either
+    'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
+    <params interface="1" drv="gpio" chip="0" offset="11" map="usbkey">
+    </params>
+  </control>
+  <control>
+    <name>prtctl2_pwren</name>
+    <doc>USB port 2 (TYPE A/J9) power enable</doc>
+    <params interface="1" drv="gpio" chip="0" offset="10" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>prtctl2_ocs</name>
+    <doc>USB port 2 (TYPE A/J9) over current signal (OCS)</doc>
+    <params interface="1" drv="gpio" chip="0" offset="9" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_oe3</name>
+    <doc>Output enable for USB port (vert TYPE A/J8) to DUT via DUT
+    USB hub</doc>
+    <params interface="1" drv="gpio" chip="1" offset="16" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_sel3</name>
+    <doc>2to1 mux select for USB port (vert TYPE A/J8). Set either
+    'dut_sees_usbkey' or 'servo_sees_usbkey'</doc>
+    <params interface="1" drv="gpio" chip="1" offset="28" map="usbkey">
+    </params>
+  </control>
+  <control>
+    <name>prtctl3_pwren</name>
+    <doc>USB port 3 (TYPE A/J10) power enable</doc>
+    <params interface="1" drv="gpio" chip="2" offset="23" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>prtctl3_ocs</name>
+    <doc>USB port 3 (TYPE A/J10) over current signal (OCS)</doc>
+    <params interface="1" drv="gpio" chip="0" offset="8" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_oe4</name>
+    <doc>usb_mux_oe4</doc>
+    <params interface="1" drv="gpio" chip="1" offset="0" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_sel4</name>
+    <doc>usb_mux_sel4</doc>
+    <params interface="1" drv="gpio" chip="1" offset="1" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>dut_usb2_prtctl</name>
+    <doc>power enable for USB port (TYPE A/J4) to DUT via USB port
+    (TYPE MICRO-B/J5)</doc>
+    <params interface="1" drv="gpio" chip="2" offset="16" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>dut_usb2_ocs</name>
+    <doc>Over-current signal for USB port (TYPE A/J4) to DUT via
+    USB port (TYPE MICRO-B/J5)</doc>
+    <params interface="1" drv="gpio" chip="1" offset="4" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>usb_mux_oe2</name>
+    <doc>Output enable for USB port (TYPE A/J4) to DUT via USB port
+    (TYPE MICRO-B/J5)</doc>
+    <params interface="1" drv="gpio" chip="2" offset="24" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>spi1_buf_en</name>
+    <doc>spi1_buf_en</doc>
+    <params interface="1" drv="gpio" chip="0" offset="23" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>spi2_buf_en</name>
+    <doc>spi2_buf_en</doc>
+    <params interface="1" drv="gpio" chip="1" offset="15" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>ec_spi</name>
+    <doc>Enable power to DUT for programming EC SPI Flash</doc>
+    <params interface="1" drv="gpio" chip="1" offset="6" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>atmega_rst</name>
+    <doc>atmega_rst</doc>
+    <params interface="1" drv="gpio" chip="1" offset="14" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>at_hwb</name>
+    <doc>at_hwb</doc>
+    <params interface="1" drv="gpio" chip="0" offset="27" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>at_buf_en</name>
+    <doc>at_buf_en</doc>
+    <params interface="1" drv="gpio" chip="2" offset="1" map="onoff_i">
+    </params>
+  </control>
+  <control>
+    <name>jtag_buf_en</name>
+    <doc>jtag_buf_en</doc>
+    <params interface="1" drv="gpio" chip="1" offset="12" map="onoff_i"
+    init="off"></params>
+  </control>
+  <control>
+    <name>fw_wp_en</name>
+    <doc>Enables forwarding of write-protect gpio. Must assert this
+    and set fw_wp_vref prior to changing fw_wp.</doc>
+    <params interface="1" drv="gpio" chip="0" offset="26" map="onoff"
+    init="off"></params>
+  </control>
+  <control>
+    <name>sd_en</name>
+    <doc>Enable for SD Card detect</doc>
+    <params cmd="set" interface="1" drv="gpio" chip="1" offset="13"
+    map="onoff"></params>
+  </control>
+  <control>
+    <name>at_to_ftdi_tx</name>
+    <doc>at_to_ftdi_tx</doc>
+    <params interface="1" drv="gpio" chip="0" offset="30" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>ftdi_to_at_tx</name>
+    <doc>ftdi_to_at_tx</doc>
+    <params interface="1" drv="gpio" chip="0" offset="31" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m1_c2_r1</name>
+    <doc>bb_kbd_m1_c2_r1</doc>
+    <params interface="1" drv="gpio" chip="2" offset="22" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m1_c2_r2</name>
+    <doc>bb_kbd_m1_c2_r2</doc>
+    <params interface="1" drv="gpio" chip="2" offset="12" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m1_c2_r3</name>
+    <doc>bb_kbd_m1_c2_r3</doc>
+    <params interface="1" drv="gpio" chip="1" offset="30" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m2_c2_r1</name>
+    <doc>bb_kbd_m2_c2_r1</doc>
+    <params interface="1" drv="gpio" chip="2" offset="22" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m2_c2_r2</name>
+    <doc>bb_kbd_m2_c2_r2</doc>
+    <params interface="1" drv="gpio" chip="0" offset="22" map="onoff">
+    </params>
+  </control>
+  <control>
+    <name>bb_kbd_m2_c2_r3</name>
+    <doc>bb_kbd_m2_c2_r3</doc>
+    <params interface="1" drv="gpio" chip="2" offset="8" map="onoff">
+    </params>
+  </control>
 </root>
