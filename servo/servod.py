@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Python version of Servo hardware debug & control board server."""
+import errno
 import logging
 import optparse
 import os
@@ -21,6 +22,12 @@ import servo_server
 VERSION = "0.0.1"
 
 MAX_ISERIAL_STR = 128
+
+# If user does not specify a port to use, try ports in this range. Traverse
+# the range from high to low addresses to maintain backwards compatibility
+# (the first checked default port is 9999, the range is such that all possible
+# port numbers are 4 digits).
+DEFAULT_PORT_RANGE = (9990, 9999)
 
 class ServodError(Exception):
   """Exception class for servod server."""
@@ -58,8 +65,9 @@ def _parse_args():
                     help="enable debug messages")
   parser.add_option("", "--host", default="localhost", type=str,
                     help="hostname to start server on")
-  parser.add_option("", "--port", default=9999, type=int,
-                    help="port for server to listen on")
+  parser.add_option("", "--port", default=None, type=int,
+                    help="port for server to listen on, by default " +
+                    "will try ports in %d..%d range" % (DEFAULT_PORT_RANGE))
   parser.add_option("-v", "--vendor", default=None, type=int,
                     help="vendor id of ftdi device to interface to")
   parser.add_option("-p", "--product", default=None, type=int,
@@ -258,11 +266,30 @@ def main():
   logger.debug("Servo is vid:0x%04x pid:0x%04x sid:%s" % \
                  (servo_device.idVendor, servo_device.idProduct,
                   usb_get_iserial(servo_device)))
-  try:
-    server = SimpleXMLRPCServer.SimpleXMLRPCServer((options.host, options.port),
-                                                   logRequests=False)
-  except socket.error as e:
-    logger.fatal("Problem opening Server's socket: %s", str(e))
+
+  if options.port:
+    start_port = options.port
+    end_port = options.port
+  else:
+    end_port, start_port = DEFAULT_PORT_RANGE
+  for servo_port in xrange(start_port, end_port - 1, -1):
+    try:
+      server = SimpleXMLRPCServer.SimpleXMLRPCServer(
+        (options.host, servo_port), logRequests=False)
+      break
+    except socket.error as e:
+      if e.errno == errno.EADDRINUSE:
+        continue   # Port taken, see if there is another one next to it.
+      logger.fatal("Problem opening Server's socket: %s", e)
+      sys.exit(-1)
+  else:
+    if options.port:
+      err_msg = ("Port %d is busy" %  options.port)
+    else:
+      err_msg = ("Could not find a free port in %d..%d range" %  (
+          end_port, start_port))
+
+    logger.fatal(err_msg)
     sys.exit(-1)
 
   servod = servo_server.Servod(scfg, vendor=servo_device.idVendor,
@@ -274,7 +301,7 @@ def main():
   server.register_introspection_functions()
   server.register_multicall_functions()
   server.register_instance(servod)
-  logger.info("Listening on %s port %s" % (options.host, options.port))
+  logger.info("Listening on %s port %s" % (options.host, servo_port))
   server.serve_forever()
 
 if __name__ == '__main__':
