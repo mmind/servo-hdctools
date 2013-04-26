@@ -8,6 +8,7 @@ Provides the following EC controlled function:
 """
 import os
 import pty_driver
+import time
 
 class parrotEcError(Exception):
   """Exception class for parrot ec."""
@@ -55,6 +56,9 @@ class parrotEc(pty_driver.ptyDriver):
     else:
       self._issue_cmd("fbf5=00")
       self._issue_cmd("fbf6=00")
+
+    # Giving Parrot a little bit of time to process the commands
+    time.sleep(0.1)
 
   def _Get_rec_mode(self):
     """Getter of rec_mode.
