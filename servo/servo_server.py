@@ -16,6 +16,7 @@ import urllib
 # TODO(tbroch) deprecate use of relative imports
 from drv.hw_driver import HwDriverError
 import bbi2c
+import bbgpio
 import ftdigpio
 import ftdii2c
 import ftdi_common
@@ -137,10 +138,9 @@ class Servod(object):
 
     return fobj
 
-  # TODO (sbasi) crbug.com/187488 - Implement BBgpio.
   def _init_bb_gpio(self, interface):
     """Initalize beaglebone gpio interface."""
-    pass
+    return bbgpio.BBgpio()
 
   def _init_ftdi_i2c(self, interface):
     """Initialize i2c interface and open for use.

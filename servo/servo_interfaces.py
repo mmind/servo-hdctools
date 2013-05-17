@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Defines the interfaces for the different servo models."""
+
 import collections
 
 INTERFACE_DEFAULTS = collections.defaultdict(dict)
@@ -26,7 +27,7 @@ INTERFACE_DEFAULTS[0x18d1][0x5002] = \
 # Dummy interface 0 == JTAG via openocd
 # Dummy interface 4,5 == SPI via flashrom
 INTERFACE_DEFAULTS[0x18d1][0x5004] = \
-    ['dummy', {'name': 'bb_i2c', 'bus_num': 3},
+    ['bb_gpio', {'name': 'bb_i2c', 'bus_num': 3},
      'bb_uart', 'bb_uart', 'dummy',
      'dummy', 'bb_uart', 'bb_uart']
 

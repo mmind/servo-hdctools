@@ -3,11 +3,13 @@
 # found in the LICENSE file.
 """Allows creation of gpio interface via libftdigpio c library for FTDI
 devices."""
+
 import logging
 import ctypes
 
 import ftdi_utils
 import ftdi_common
+import gpio_interface
 
 
 class FgpioError(Exception):
@@ -33,8 +35,17 @@ class FgpioContext(ctypes.Structure):
               ("gpio", ftdi_common.Gpio)]
 
 
-class Fgpio(object):
-  """Provide interface to libftdigpio c-library via python ctypes module."""
+class Fgpio(gpio_interface.GpioInterface):
+  """Provide interface to libftdigpio c-library via python ctypes module.
+
+  Instance Variables:
+    _fargs: FTDI args for this interface.
+    _is_closed: Whether or not the connection to this UART is closed.
+    _gpio: _gpio: Instance of ftdi_common.GPIO()
+    _fc: FTDI Context object.
+    _fgc: FgpioContext object.
+  """
+
   def __init__(self, vendor=ftdi_common.DEFAULT_VID,
                product=ftdi_common.DEFAULT_PID, interface=4, serialname=None):
     """Fgpio constructor.
@@ -99,7 +110,7 @@ class Fgpio(object):
       raise FgpioError("doing fgpio_close", err)
     self._is_closed = True
 
-  def wr_rd(self, offset, width, dir_val=None, wr_val=None):
+  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None):
     """Write and/or read GPIO bit.
 
     Args:
@@ -111,6 +122,7 @@ class Fgpio(object):
                   1    : configure as output
       wr_val  : value to write to the GPIO.  Note wr_val is irrelevant if
                 dir_val = 0
+      chip    : Not used. defaulted to None.
 
     Returns:
       integer value from reading the gpio value ( masked & aligned )
