@@ -78,4 +78,15 @@
     <params subtype="uart_timeout" interface="7" drv="ec"
     input_type="float"></params>
   </control>
+  <control>
+    <name>ec_uart_capture</name>
+    <doc>ec_uart_capture</doc>
+    <params subtype="uart_capture" interface="7" drv="uart"
+            map="onoff"></params>
+  </control>
+  <control>
+    <name>ec_uart_stream</name>
+    <doc>Ec uart stream collected while ec_uart_capture is set to 'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="7" drv="uart"></params>
+  </control>
 </root>

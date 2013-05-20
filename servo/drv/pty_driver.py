@@ -211,12 +211,7 @@ class ptyDriver(hw_driver.HwDriver):
 
     Args:
       cmd: A string of UART command.
-    Raises:
-      ptyError: If command attempted while capture is active.
     """
-    if self._interface.get_capture_active():
-      raise ptyError("Can't run uart command while capture is active")
-
     if self._dict['uart_regexp']:
       self._dict['uart_cmd'] = self._issue_cmd_get_results(
                                    cmd,
@@ -233,12 +228,7 @@ class ptyDriver(hw_driver.HwDriver):
 
     Args:
       cmds: A semicolon-separated string of UART commands.
-    Raises:
-      ptyError: If command attempted while capture is active.
     """
-    if self._interface.get_capture_active():
-      raise ptyError("Can't run uart command while capture is active")
-
     self._issue_cmd(cmds.split(';'))
 
   def _Get_uart_cmd(self):
