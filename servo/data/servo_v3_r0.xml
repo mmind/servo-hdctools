@@ -11,6 +11,12 @@
     Default is off</doc>
     <params off="0" pp2500="4" pp1800="2" pp3300="1"></params>
   </map>
+  <map>
+    <name>duthub</name>
+    <doc>Determine whether DUT sees USB hub or Servo via USB port
+    (TYPE MICRO-B/J6)</doc>
+    <params dut_sees_hub="0" dut_sees_servo="1"></params>
+  </map>
   <!-- ********** I2c related controls ********** -->
   <!-- slv 0x20 : ioexpander port 0 -->
   <control>
@@ -444,5 +450,181 @@
     <doc>bb_kbd_m2_c2_r3</doc>
     <params interface="1" drv="gpio" chip="2" offset="8" map="onoff">
     </params>
+  </control>
+
+
+  <!-- UART -->
+  <control>
+    <name>uart1_pty</name>
+    <alias>ec_uart_pty</alias>
+    <doc>Psuedo-terminal (pty) thats connnected to EC's uart
+    console</doc>
+    <params cmd="get" subtype="pty" interface="7" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart1_baudrate</name>
+    <alias>ec_uart_baudrate</alias>
+    <doc>Baudrate for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="7"></params>
+  </control>
+  <control>
+    <name>uart1_parity</name>
+    <alias>ec_uart_parity</alias>
+    <doc>Parity for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="7" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart1_sbits</name>
+    <alias>ec_uart_sbits</alias>
+    <doc>Number of stop bits for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="7" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart1_bits</name>
+    <alias>ec_uart_bits</alias>
+    <doc>Numbe of data bits for EC's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="7" map="uart_bits"></params>
+  </control>
+
+
+  <control>
+    <name>uart3_pty</name>
+    <alias>legacy_uart_pty</alias>
+    <doc>Legacy (v1) uart console. Typically connected to CPU's
+    uart console for devices which supported it.</doc>
+    <params cmd="get" subtype="pty" interface="3" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart3_baudrate</name>
+    <alias>legacy_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="3"></params>
+  </control>
+  <control>
+    <name>uart3_parity</name>
+    <alias>legacy_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="3" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart3_sbits</name>
+    <alias>legacy_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="3" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart3_bits</name>
+    <alias>legacy_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="3" map="uart_bits"></params>
+  </control>
+
+
+  <control>
+    <name>uart2_pty</name>
+    <alias>cpu_uart_pty</alias>
+    <doc>Psuedo-terminal (pty) thats connnected to CPU's uart
+    console</doc>
+    <params cmd="get" subtype="pty" interface="8" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart2_baudrate</name>
+    <alias>cpu_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_parity</name>
+    <alias>cpu_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="8" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart2_sbits</name>
+    <alias>cpu_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="8" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart2_bits</name>
+    <alias>cpu_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="8" map="uart_bits"></params>
+  </control>
+  <control>
+    <name>cpu_uart_cmd</name>
+    <doc>Set to send command to CPU UART. Get to obtain the matched
+    results with the regular expression of cpu_uart_regexp.</doc>
+    <params subtype="uart_cmd" interface="8" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>cpu_uart_regexp</name>
+    <doc>List of regular expressions which matches the response of
+    cpu_uart_cmd.</doc>
+    <params subtype="uart_regexp" interface="8" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>cpu_uart_timeout</name>
+    <doc>Timeout value for waiting CPU UART response of issuing an
+    EC command.</doc>
+    <params subtype="uart_timeout" interface="8" drv="uart"
+    input_type="float"></params>
+  </control>
+  <control>
+    <name>cpu_uart_capture</name>
+    <doc>cpu_uart_capture</doc>
+    <params subtype="uart_capture" interface="8" drv="uart"
+            map="onoff"></params>
+  </control>
+  <control>
+    <name>cpu_uart_stream</name>
+    <doc>Cpu uart stream collected while cpu_uart_capture is set to 'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="8" drv="uart"></params>
+  </control>
+
+
+  <!-- TODO (sbasi): crbug.com/248685 refactor these signals. -->
+  <control>
+    <name>kbd_en</name>
+    <doc>Enable servo to assert certain keypresses via kbd_m1 and
+    kbd_m2</doc>
+    <params></params>
+  </control>
+    <control>
+    <name>kbd_m1_a0</name>
+    <doc>kbd_m1_a0</doc>
+    <params></params>
+  </control>
+  <control>
+    <name>kbd_m1_a1</name>
+    <doc>kbd_m1_a1</doc>
+    <params></params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <doc>kbd_m2_a0</doc>
+    <params></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <doc>kbd_m2_a1</doc>
+    <params></params>
   </control>
 </root>

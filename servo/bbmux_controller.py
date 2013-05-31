@@ -64,6 +64,27 @@ class BBmuxController(object):
                                    self._pin_mode_map[field])
                 control_num += 1
 
+  def set_muxfile(self, mux, mode_val, sel_val):
+    """Allow direct access to the muxfiles.
+
+    Useful if a mux is incorrectly labelled.
+
+    Args:
+      mux : Mux we want to set.
+      mode_val : Mode we want to assign to this i/o. Should be a 3-bit hex
+                 number.
+                 Bit 2: 1=Input 0=Output
+                 Bit 1: 1=Pull Up 0=Pull Down
+                 Bit 0: 1=Pull Enabled 0=Pull Disabled.
+      sel_val : Signal we want to choose. Should be a 3-bit hex number.
+    """
+    mode = mode_val * 16 + sel_val
+    mux = os.path.join(MUX_ROOT, mux)
+    with open(mux, 'w') as mux_file:
+      # We want to set the Pin Mux to the correct setting + mode.
+      self._logger.debug('Writing 0x%02x to %s', mode, mux)
+      mux_file.write('0x%02x' % mode)
+
   def set_pin_mode(self, pin_name, mode_val):
     """Select/setup a pin to be used by the Beaglebone.
 
@@ -77,9 +98,4 @@ class BBmuxController(object):
     """
     mux_name = BBmuxController._pin_name_map[pin_name]
     sel_val = BBmuxController._pin_mode_map[pin_name]
-    mode = mode_val * 16 + sel_val
-    mux = os.path.join(MUX_ROOT, mux_name)
-    with open(mux, 'w') as mux_file:
-      # We want to set the Pin Mux to the correct setting + mode.
-      self._logger.debug('Writing 0x%02x to %s', mode, mux)
-      mux_file.write('0x%02x' % mode)
+    self.set_muxfile(mux_name, mode_val, sel_val)

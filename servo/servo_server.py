@@ -17,6 +17,7 @@ import urllib
 from drv.hw_driver import HwDriverError
 import bbi2c
 import bbgpio
+import bbuart
 import ftdigpio
 import ftdii2c
 import ftdi_common
@@ -202,7 +203,8 @@ class Servod(object):
   # TODO (sbasi) crbug.com/187492 - Implement bbuart.
   def _init_bb_uart(self, interface):
     """Initalize beaglebone uart interface."""
-    pass
+    logging.debug('UART INTERFACE: %s', interface)
+    return bbuart.BBuart(interface)
 
   def _init_ftdi_gpiouart(self, interface):
     """Initialize special gpio + uart interface and open for use

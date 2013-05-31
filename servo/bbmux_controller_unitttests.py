@@ -1,7 +1,7 @@
 # Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-"""Tests usage of i2c interface for beaglebone devices."""
+"""Tests control of OMAP Muxes for beaglebone devices."""
 
 import __builtin__
 import mox
@@ -61,18 +61,30 @@ class TestBBmuxController(mox.MoxTestBase):
     self.assertEquals(EXPECTED_PIN_NAME_MAP, mux_controller._pin_name_map)
     self.assertEquals(EXPECTED_PIN_MODE_MAP, mux_controller._pin_mode_map)
 
-  def testSetPinMode(self):
-    """Test Selecting and setting a pin."""
+  def _writeToMuxFileHelper(self):
     mux_file = self.mox.CreateMockAnything()
     open(FAKE_MUX_FILE_PATH, 'w').AndReturn(mux_file)
     mux_file.__enter__().AndReturn(mux_file)
     mux_file.write(MUX_MODE)
     mux_file.__exit__(mox.IgnoreArg(), mox.IgnoreArg(), mox.IgnoreArg())
+
+  def testSetPinMode(self):
+    """Test Selecting and setting a pin."""
+    self._writeToMuxFileHelper()
     self.mox.ReplayAll()
     # Since testInitialization ran first, BBmuxController should not initialize
     # its pin maps as they are class variables.
     mux_controller = bbmux_controller.BBmuxController()
     mux_controller.set_pin_mode('gpio1_25', 0x3)
+
+  def testSetMuxFile(self):
+    """Test Selecting and setting a pin."""
+    self._writeToMuxFileHelper()
+    self.mox.ReplayAll()
+    # Since testInitialization ran first, BBmuxController should not initialize
+    # its pin maps as they are class variables.
+    mux_controller = bbmux_controller.BBmuxController()
+    mux_controller.set_muxfile(FAKE_MUX_FILE, 0x3, 0x7)
 
 if __name__ == '__main__':
     unittest.main()

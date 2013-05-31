@@ -27,9 +27,15 @@ INTERFACE_DEFAULTS[0x18d1][0x5002] = \
 # Dummy interface 0 == JTAG via openocd
 # Dummy interface 4,5 == SPI via flashrom
 INTERFACE_DEFAULTS[0x18d1][0x5004] = \
-    ['bb_gpio', {'name': 'bb_i2c', 'bus_num': 3},
-     'bb_uart', 'bb_uart', 'dummy',
-     'dummy', 'bb_uart', 'bb_uart']
+    ['bb_gpio',
+     {'name': 'bb_i2c', 'bus_num': 3},
+     {'name': 'bb_uart', 'uart_num': 5,
+      'txd' : ['lcd_data8', 0x4], 'rxd' : ['lcd_data9', 0x4]},
+     'dummy',
+     'dummy',
+     'dummy',
+     {'name': 'bb_uart', 'uart_num': 1},
+     {'name': 'bb_uart', 'uart_num': 2}]
 
 INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
 
