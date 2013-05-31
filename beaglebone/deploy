@@ -42,9 +42,12 @@ if [ $# -ne 0 ]; then
   BOARD="$1"
 fi
 CONFIG_TMP=$(mktemp /tmp/hdctools.XXXXXX)
+# The string in REVISION will be interpreted by the shell, so we need
+# quote special characters.  Quote the string with single-quotes to
+# simplify things.
 cat <<END >$CONFIG_TMP
 BOARD="$BOARD"
-REVISION="$(git log -1 --oneline)"
+REVISION=$(printf %q "$(git log -1 --oneline)")
 END
 sudo mv $CONFIG_TMP $CONFIG_FILE
 
