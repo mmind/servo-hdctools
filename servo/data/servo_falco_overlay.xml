@@ -1,0 +1,8 @@
+<root>
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+  <include>
+    <name>x86_ec_common.xml</name>
+  </include>
+</root>
