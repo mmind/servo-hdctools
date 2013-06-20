@@ -48,7 +48,7 @@ class ptyDriver(hw_driver.HwDriver):
     while True:
       try:
         self._child.expect(".", timeout=0.01)
-      except pexpect.TIMEOUT:
+      except (pexpect.TIMEOUT, pexpect.EOF):
         break
 
   def _send(self, cmds):
