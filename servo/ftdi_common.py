@@ -28,6 +28,7 @@ SERVO_PID_DEFAULTS = \
     {'miniservo_v1': [0x5000],
      'servo_v1': [0x5001],
      'servo_v2': [0x5002],
+     'servo_v3': [0x5004, 0x6014],
      'toad_v1': [0x6015], #Vendor ID is 0x403 : FTDI
      }
 
@@ -36,6 +37,7 @@ SERVO_CONFIG_DEFAULTS = \
      'servo_v1': ['servo.xml'],
      'servo_v2_r0': ['servo_v2_r0.xml'],
      'servo_v2': ['servo_v2_r1.xml'],
+     'servo_v3': ['servo_v3_r0.xml'],
      'toad_v1': ['toad.xml'],
      }
 
