@@ -598,33 +598,4 @@
     <doc>Cpu uart stream collected while cpu_uart_capture is set to 'on'</doc>
     <params cmd="get" subtype="uart_stream" interface="8" drv="uart"></params>
   </control>
-
-
-  <!-- TODO (sbasi): crbug.com/248685 refactor these signals. -->
-  <control>
-    <name>kbd_en</name>
-    <doc>Enable servo to assert certain keypresses via kbd_m1 and
-    kbd_m2</doc>
-    <params></params>
-  </control>
-    <control>
-    <name>kbd_m1_a0</name>
-    <doc>kbd_m1_a0</doc>
-    <params></params>
-  </control>
-  <control>
-    <name>kbd_m1_a1</name>
-    <doc>kbd_m1_a1</doc>
-    <params></params>
-  </control>
-  <control>
-    <name>kbd_m2_a0</name>
-    <doc>kbd_m2_a0</doc>
-    <params></params>
-  </control>
-  <control>
-    <name>kbd_m2_a1</name>
-    <doc>kbd_m2_a1</doc>
-    <params></params>
-  </control>
 </root>

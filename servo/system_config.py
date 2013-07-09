@@ -134,7 +134,7 @@ class SystemConfig(object):
     4. specific one for a one-off rework done to a system
 
     Special key parameters in config files:
-      clobber_ok: signifies this control may _clobber_ and existing definition
+      clobber_ok: signifies this control may _clobber_ an existing definition
         of the same name.  Note, its value is ignored ( clobber_ok='' )
 
     NOTE, method is recursive when parsing 'include' elements from XML.
@@ -237,13 +237,13 @@ class SystemConfig(object):
         if 'init' in set_dict:
           self.hwinit.append((name, set_dict['init']))
 
-        # else its a control
-        if clobber_ok:
+        # else it's a control
+        if clobber_ok and name in self.syscfg_dict[tag]:
           self.syscfg_dict[tag][name]['get_params'].update(get_dict)
           self.syscfg_dict[tag][name]['set_params'].update(set_dict)
           continue
 
-        # else its a new control
+        # else it's a new control
         self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
                                        'set_params':set_dict}
         if alias:
