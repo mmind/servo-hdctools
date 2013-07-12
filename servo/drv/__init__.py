@@ -6,17 +6,17 @@
 
 Details of the drivers can be found in hw_driver.py
 """
-import hw_driver
-import pty_driver
+import daisy_ec
+import ec
 import gpio
+import hw_driver
 import i2c_reg
 import ina219
-import tca6416
 import ltc1663
 import parrot_ec
 import pca9500
 import pca9546
 import pca95xx
+import pty_driver
+import tca6416
 import uart
-import ec
-import daisy_ec
