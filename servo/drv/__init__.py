@@ -6,6 +6,7 @@
 
 Details of the drivers can be found in hw_driver.py
 """
+import arm_ec
 import daisy_ec
 import ec
 import gpio

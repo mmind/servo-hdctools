@@ -89,4 +89,10 @@
     <params cmd="get" subtype="milliwatts" interface="7" drv="ec">
     </params>
   </control>
+  <control>
+    <name>rec_mode</name>
+    <doc>Google recovery mode</doc>
+    <params subtype="rec_mode" interface="7" drv="arm_ec" map="onoff"
+            init="off" clobber_ok=""></params>
+  </control>
 </root>
