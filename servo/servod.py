@@ -253,11 +253,12 @@ def main():
 
   if options.board:
     board_config = "servo_" + options.board + "_overlay.xml"
-    if scfg.find_cfg_file(board_config):
-      logger.info("Found XML overlay for board %s", options.board)
-      all_configs.append(board_config)
-    else:
-      logger.warn("No XML overlay for board %s", options.board)
+    if not scfg.find_cfg_file(board_config):
+      logger.error("No XML overlay for board %s", options.board)
+      sys.exit(-1)
+
+    logger.info("Found XML overlay for board %s", options.board)
+    all_configs.append(board_config)
 
   for cfg_file in all_configs:
     scfg.add_cfg_file(cfg_file)
