@@ -1,0 +1,9 @@
+<root>
+  <!-- Note, stout only has limited servo support for FAFT and -->
+  <!--       requires a custom re-work for that -->
+  <!-- TODO(tbroch) Identify limited function and prune/disable -->
+  <!--              all but that from servod -->
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+</root>
