@@ -82,8 +82,8 @@ class BBi2c(object):
       logging.debug(' '.join(args))
       subprocess.check_call(args)
     except subprocess.CalledProcessError:
-      raise BBi2cError('Failed i2c write to slave address: %s data: %s', slv,
-                       wlist)
+      raise BBi2cError('Failed i2c write to slave address: %s data: %s' % (slv,
+                       wlist))
 
   def _read(self, slv, address, rcnt):
     """Read from a slave i2c device.
@@ -128,7 +128,8 @@ class BBi2c(object):
       logging.debug(' '.join(args))
       read_value = subprocess.check_output(args)
     except subprocess.CalledProcessError:
-      raise BBi2cError('Failed i2c read of 1 byte from slave address: %s', slv)
+      raise BBi2cError('Failed i2c read of 1 byte from slave address: %s' %
+                       slv)
     read_value_int = int(read_value, 0)
     read_bytes.append(read_value_int)
     return read_bytes
@@ -153,7 +154,7 @@ class BBi2c(object):
       read_value = subprocess.check_output(args)
     except subprocess.CalledProcessError:
       raise BBi2cError('Failed i2c read of 2 bytes from slave address: %s, '
-                       'data address: %s.', slv, address)
+                       'data address: %s.' % (slv, address))
     read_value_int = int(read_value, 0)
     # Grab the second byte first (converting little endian to big).
     read_bytes.append(read_value_int & 0xff)
