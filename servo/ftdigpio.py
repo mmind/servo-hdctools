@@ -110,7 +110,8 @@ class Fgpio(gpio_interface.GpioInterface):
       raise FgpioError("doing fgpio_close", err)
     self._is_closed = True
 
-  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None):
+  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None,
+            muxfile=None):
     """Write and/or read GPIO bit.
 
     Args:
@@ -123,6 +124,7 @@ class Fgpio(gpio_interface.GpioInterface):
       wr_val  : value to write to the GPIO.  Note wr_val is irrelevant if
                 dir_val = 0
       chip    : Not used. defaulted to None.
+      muxfile : Not used. defaulted to None.
 
     Returns:
       integer value from reading the gpio value ( masked & aligned )

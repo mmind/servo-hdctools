@@ -15,6 +15,7 @@ EXPORT_FILE =  os.path.join(GPIO_ROOT, 'export')
 UNEXPORT_FILE = os.path.join(GPIO_ROOT, 'unexport')
 GPIO_PIN_PATTERN = os.path.join(GPIO_ROOT, 'gpio%d')
 GPIO_MODE_VALUE = 0x3
+GPIO_SELECT_VALUE = 7
 DIR_IN = 0
 DIR_OUT = 1
 DIR_VAL_MAP = {DIR_IN  : 'in',
@@ -103,7 +104,8 @@ class BBgpio(gpio_interface.GpioInterface):
       f.write(DIR_VAL_MAP[dir_val])
 
 
-  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None):
+  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None,
+            muxfile=None):
     """Write and/or read GPIO bit.
 
     Args:
@@ -116,12 +118,16 @@ class BBgpio(gpio_interface.GpioInterface):
       wr_val  : value to write to the GPIO.  Note wr_val is irrelevant if
                 dir_val = 0
       chip    : beaglebone gpio chip number.
+      muxfile : used to specify the correct omap_mux muxfile to select this
+                gpio.
+
 
     Returns:
       integer value from reading the gpio value ( masked & aligned )
     """
     self._logger.debug('offset: %s, width:%s, dir_val: %s, wr_val: %s, '
-                       'chip: %s', offset, width, dir_val, wr_val, chip)
+                       'chip: %s, muxfile: %s', offset, width, dir_val, wr_val,
+                       chip, muxfile)
     if not chip:
       raise BBgpioError('BBgpio requires chip id for writes and reads.')
     rd_val = 0
@@ -129,7 +135,11 @@ class BBgpio(gpio_interface.GpioInterface):
     gpio_name = 'gpio%s_%s' % (chip, offset)
     gpio_index = 32 * int(chip, 0) + offset
 
-    self._bbmux_controller.set_pin_mode(gpio_name, GPIO_MODE_VALUE)
+    if muxfile:
+        self._bbmux_controller.set_muxfile(muxfile, GPIO_MODE_VALUE,
+                                           GPIO_SELECT_VALUE)
+    else:
+        self._bbmux_controller.set_pin_mode(gpio_name, GPIO_MODE_VALUE)
 
     self._export_gpio(gpio_index)
     gpio_path = GPIO_PIN_PATTERN % gpio_index

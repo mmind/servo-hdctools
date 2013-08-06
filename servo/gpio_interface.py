@@ -13,7 +13,8 @@ class GpioInterface(object):
     """Close access to GPIO's."""
     raise NotImplementedError('close not yet implemented.')
 
-  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None):
+  def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None,
+            muxfile=None):
     """Write and/or read GPIO bit.
 
     Args:
@@ -26,6 +27,8 @@ class GpioInterface(object):
       wr_val  : value to write to the GPIO.  Note wr_val is irrelevant if
                 dir_val = 0
       chip    : beaglebone gpio chip number. [IF REQUIRED]
+      muxfile : used to specify the correct omap_mux muxfile to select this
+                gpio. [IF REQUIRED]
 
     Returns:
       integer value from reading the gpio value ( masked & aligned )

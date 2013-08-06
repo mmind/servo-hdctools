@@ -26,8 +26,9 @@ class gpio(hw_driver.HwDriver):
 
   def __init__(self, interface, params):
     super(gpio, self).__init__(interface, params)
-    # TODO (sbasi/tbroch) crbug.com/241507 - Deprecate Chip param.
+    # TODO (sbasi/tbroch) crbug.com/241507 - Deprecate chip & muxfile params.
     self._chip = params.get('chip', None)
+    self._muxfile = params.get('muxfile', None)
 
   def get(self):
     """Get value for gpio driver
@@ -44,7 +45,8 @@ class gpio(hw_driver.HwDriver):
     if hasattr(self._interface, 'gpio_wr_rd'):
       return self._interface.gpio_wr_rd(offset, width)
     else:
-      return self._interface.wr_rd(offset, width, chip=self._chip)
+      return self._interface.wr_rd(offset, width, chip=self._chip,
+                                   muxfile=self._muxfile)
 
   def set(self, value):
     """Set value for gpio driver
@@ -71,7 +73,8 @@ class gpio(hw_driver.HwDriver):
     if hasattr(self._interface, 'gpio_wr_rd'):
       self._interface.gpio_wr_rd(offset, width, is_output, value)
     else:
-      self._interface.wr_rd(offset, width, is_output, value, chip=self._chip)
+      self._interface.wr_rd(offset, width, is_output, value, chip=self._chip,
+                            muxfile=self._muxfile)
 
   def _get_common_params(self):
     """Get common parameters for gpio control
