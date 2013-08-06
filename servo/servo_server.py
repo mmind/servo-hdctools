@@ -43,7 +43,7 @@ class Servod(object):
   _USB_J3_PWR_OFF = "off"
 
   def __init__(self, config, vendor, product, serialname=None,
-               interfaces=None, board=""):
+               interfaces=None, board="", version=None):
     """Servod constructor.
 
     Args:
@@ -53,6 +53,8 @@ class Servod(object):
       product: usb product id of FTDI device
       serialname: string of device serialname/number as defined in FTDI eeprom.
       interfaces: list of strings of interface types the server will instantiate
+      version: String. Servo board version. Examples: servo_v1, servo_v2,
+          servo_v2_r0, servo_v3
 
     Raises:
       ServodError: if unable to locate init method for particular interface
@@ -70,6 +72,7 @@ class Servod(object):
     # Ex) _drv_dict[name]['get'] = (params, drv)
     self._drv_dict = {}
     self._board = board
+    self._version = version
 
     # Note, interface i is (i - 1) in list
     if not interfaces:
@@ -651,6 +654,10 @@ class Servod(object):
   def get_board(self):
     """Return the board specified at startup, if any."""
     return self._board
+
+  def get_version(self):
+    """Get servo board version."""
+    return self._version
 
 
 def test():

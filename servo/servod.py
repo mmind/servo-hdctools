@@ -179,17 +179,18 @@ def get_board_version(lot_id, product_id):
 
   return None
 
-def get_auto_configs(logger, servo):
-  """Get xml configs that should be loaded.
+def get_lot_id(logger, servo):
+  """Get lot_id for a given servo.
 
   Args:
     servo: usb.Device object
 
   Returns:
-    configs: list of XML config files that should be loaded
+    lot_id of the servo device.
   """
   lot_id = None
   iserial = usb_get_iserial(servo)
+  logger.debug('iserial = %s', iserial)
   if not iserial:
     logger.warn("Servo device has no iserial value")
   else:
@@ -197,9 +198,17 @@ def get_auto_configs(logger, servo):
       (lot_id, _) = iserial.split('-')
     except ValueError:
       logger.warn("Servo device's iserial was unrecognized.")
+  return lot_id
 
-  board_version = get_board_version(lot_id, servo.idProduct)
-  logger.debug('iserial = %s board_version = %s', iserial, board_version)
+def get_auto_configs(logger, board_version):
+  """Get xml configs that should be loaded.
+
+  Args:
+    board_version: string, board & version
+
+  Returns:
+    configs: list of XML config files that should be loaded
+  """
   if board_version not in ftdi_common.SERVO_CONFIG_DEFAULTS:
     logger.warning('Unable to determine configs to load for board version = %s',
                  board_version)
@@ -233,9 +242,13 @@ def main():
 
   servo_device = servo_like_devices[0]
 
+
+  lot_id = get_lot_id(logger, servo_device)
+  board_version = get_board_version(lot_id, servo_device.idProduct)
+  logger.debug('board_version = %s', board_version)
   all_configs = []
   if not options.noautoconfig:
-    all_configs += get_auto_configs(logger, servo_device)
+    all_configs += get_auto_configs(logger, board_version)
 
   if options.config:
     for config in options.config:
@@ -298,7 +311,8 @@ def main():
                                product=servo_device.idProduct,
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split(),
-                               board=options.board)
+                               board=options.board,
+                               version=board_version)
   servod.hwinit(verbose=True)
   server.register_introspection_functions()
   server.register_multicall_functions()
