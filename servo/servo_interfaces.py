@@ -24,14 +24,12 @@ INTERFACE_DEFAULTS[0x18d1][0x5002] = \
      'dummy', 'ftdi_uart', 'ftdi_uart']
 
 # servo v3
-# Dummy interface 0 == JTAG via openocd
-# Dummy interface 4,5 == SPI via flashrom
 INTERFACE_DEFAULTS[0x18d1][0x5004] = \
     ['bb_gpio',
      {'name': 'bb_i2c', 'bus_num': 2},
      {'name': 'bb_uart', 'uart_num': 5,
       'txd' : ['lcd_data8', 0x4], 'rxd' : ['lcd_data9', 0x4]},
-     'dummy',
+     {'name': 'bb_i2c', 'bus_num': 3},
      'dummy',
      'dummy',
      {'name': 'bb_uart', 'uart_num': 1},
