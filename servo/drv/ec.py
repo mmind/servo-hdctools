@@ -26,6 +26,9 @@ KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],
 LID_STATUS_ADDR = "0x40080730"
 LID_STATUS_MASK = 0x1
 
+# EC console mask for enabling only command channel
+COMMAND_CHANNEL_MASK = 0x1
+
 class ecError(Exception):
   """Exception class for ec."""
 
@@ -57,39 +60,25 @@ class ec(pty_driver.ptyDriver):
     # Add locals to the values dictionary.
     self._dict["kbd"] = KEY_STATE
 
-  def _limit_channel(self, name):
+  def _limit_channel(self):
     """
     Save the current console channel setting and limit the output to
-    only one channel.
-
-    Args:
-      name: The channel to listen to.
+    the command channel (only print output from commands issued on console).
 
     Raises:
       ecError: when failing to retrieve channel settings
     """
-    open_mask = 0 if name == "command" else None
-    channels = self._issue_cmd_get_multi_results("chan",
-            "(\d+)\s+(\d+)\s+([* ])\s+(\S+)")
-    self._saved_chan = 0
-
-    if len(channels) == 0:
-      raise ecError("Cannot retrieve channel settings.")
-
-    for chan in channels:
-      if chan[3] == "*":
-        mask = int(chan[2], 16)
-        self._saved_chan |= mask
-      if name != "command" and chan[4] == name:
-        open_mask = int(chan[2], 16)
-    logging.debug("Saved channel mask: %d" % self._saved_chan)
-    if open_mask is None:
-      raise ecError("Cannot find channel '%s'." % name)
-    self._issue_cmd("chan %d" % open_mask)
+    self._issue_cmd("chan save")
+    self._issue_cmd("chan %d" % COMMAND_CHANNEL_MASK)
 
   def _restore_channel(self):
     """Load saved channel setting"""
-    self._issue_cmd("chan %d" % self._saved_chan)
+    # To improve backward compatibility on EC images that do not have save/
+    # restore, set channel mask to power-on default before running restore.
+    # TODO(shawnn): Remove this line once all test units have new EC image.
+    self._issue_cmd("chan 0xffffffff")
+
+    self._issue_cmd("chan restore")
 
   def _set_key_pressed(self, key_rc, pressed):
     """Press/release a key.
@@ -198,7 +187,7 @@ class ec(pty_driver.ptyDriver):
       0: Lid closed.
       1: Lid opened.
     """
-    self._limit_channel("command")
+    self._limit_channel()
     result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
         ["read %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
     self._restore_channel()
@@ -224,7 +213,7 @@ class ec(pty_driver.ptyDriver):
     Returns:
       CPU temperature in degree C.
     """
-    self._limit_channel("command")
+    self._limit_channel()
     result = self._issue_cmd_get_results("temps",
         ["PECI[ \t]*:[ \t]*[0-9]* K[ \t]*=[ \t]*([0-9]*)[ \t]*C"])[0]
     self._restore_channel()
@@ -262,7 +251,7 @@ class ec(pty_driver.ptyDriver):
         millivolts: battery voltage in millivolts
         milliamps: battery amps in milliamps
     """
-    self._limit_channel("command")
+    self._limit_channel()
     results = self._issue_cmd_get_results('battery',
                                          ['V:[\s0-9a-fx]*= (-*\d+) mV',
                                           'I:[\s0-9a-fx]*= (-*\d+) mA'])
@@ -304,7 +293,7 @@ class ec(pty_driver.ptyDriver):
         fan_trg_rpm: Target fan RPM.
         fan_duty: Current fan duty cycle.
     """
-    self._limit_channel("command")
+    self._limit_channel()
     results = self._issue_cmd_get_results('faninfo',
                                          ['Actual:[ \t]*(\d+) rpm',
                                           'Target:[ \t]*(\d+) rpm',
