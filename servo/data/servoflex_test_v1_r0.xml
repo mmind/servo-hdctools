@@ -5,100 +5,100 @@
   <control>
     <name>test_lid_open</name>
     <doc>test lid_open.</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="0" map="yesno"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="0" map="yesno"></params>
   </control>
   <control>
     <name>test_pwr_button</name>
     <doc>test pwr_button</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="1" map="press"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="1" map="press"></params>
   </control>
   <control>
     <name>test_fw_wp</name>
     <doc>test fw_wp</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="2" map="onoff_i"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="2" map="onoff_i"></params>
   </control>
   <control>
     <name>kbd_col1</name>
     <doc>test keyboard by setting column and servod's kbd_mX_aX bit
     and seeing corresponding row == column</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="3" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="3" map="onoff"></params>
   </control>
   <control>
     <name>kbd_col2</name>
     <doc>test keyboard by setting column and servod's kbd_mX_aX bit
     and seeing corresponding row == column</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="4" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="4" map="onoff"></params>
   </control>
   <control>
     <name>kbd_row1</name>
     <doc>test kbd_row1</doc>
-    <params cmd="set" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="5" map="onoff"></params>
+    <params cmd="set" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="5" map="onoff"></params>
   </control>
   <control>
     <name>kbd_row2</name>
     <doc>test kbd_row2</doc>
-    <params cmd="set" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="6" map="onoff"></params>
+    <params cmd="set" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="6" map="onoff"></params>
   </control>
   <control>
     <name>kbd_row3</name>
     <doc>test kbd_row3</doc>
-    <params cmd="set" interface="2" drv="tca6416" slv="0x26"
-    port="0" offset="7" map="onoff"></params>
+    <params cmd="set" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="0" offset="7" map="onoff"></params>
   </control>
   <!-- slv 0x26 : ioexpander port 1 -->
   <control>
     <name>test_rec_mode</name>
     <doc>test rec_mode</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="0" map="onoff_i"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="0" map="onoff_i"></params>
   </control>
   <control>
     <name>test_fw_up</name>
     <doc>test fw_up</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="1" map="onoff_i"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="1" map="onoff_i"></params>
   </control>
   <control>
     <name>test_dev_mode</name>
     <doc>test dev_mode.</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="2" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="2" map="onoff"></params>
   </control>
   <control>
     <name>test_warm_reset</name>
     <doc>test warm_reset</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="3" map="onoff_i"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="3" map="onoff_i"></params>
   </control>
   <control>
     <name>test_cold_reset</name>
     <doc>test cold_reset</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="4" map="onoff_i"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="4" map="onoff_i"></params>
   </control>
   <control>
     <name>test_dut_nmi</name>
     <doc>test dut_nmi</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="5" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="5" map="onoff"></params>
   </control>
   <control>
     <name>test_dut_flagb</name>
     <doc>test dut_flagb</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="6" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="6" map="onoff"></params>
   </control>
   <control>
     <name>test_dut_flaga</name>
     <doc>test dut_flaga</doc>
-    <params cmd="get" interface="2" drv="tca6416" slv="0x26"
-    port="1" offset="7" map="onoff"></params>
+    <params cmd="get" interface="2" servo_v3_interface="4" drv="tca6416"
+    slv="0x26" port="1" offset="7" map="onoff"></params>
   </control>
 </root>
