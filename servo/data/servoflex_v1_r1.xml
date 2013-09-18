@@ -51,17 +51,4 @@
     <params interface="2" servo_v3_interface="4" drv="pca9500" subtype="gpio"
     slv="0x27" offset="7" map="onoff_i"></params>
   </control>
-  <control>
-    <name>id_eeprom_baddr</name>
-    <doc>Set ID EEPROM byte address to write to</doc>
-    <params cmd="set" interface="2" servo_v3_interface="4" drv="pca9500"
-    subtype="byte_addr" slv="0x57"></params>
-  </control>
-  <control>
-    <name>id_eeprom</name>
-    <doc>ID EEPROM (256bytes). Write starting at
-    id_eeprom_baddr or read entire EEPROM</doc>
-    <params interface="2" servo_v3_interface="4" drv="pca9500" subtype="eeprom"
-    slv="0x57" input_type="str"></params>
-  </control>
 </root>

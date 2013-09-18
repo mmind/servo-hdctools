@@ -133,7 +133,7 @@ class pca9500(hw_driver.HwDriver):
       pca9500Error: if byte_addr > EEPROM_BYTES
 
     """
-    self._logger.debug('')
+    raise pca9500Error, 'Fix crbug.com/294248'
     if byte_addr > EEPROM_BYTES:
       raise pca9500Error, 'Byte address not valid'
     pca9500._byte_addr = byte_addr
@@ -163,7 +163,7 @@ class pca9500(hw_driver.HwDriver):
       pca9500Error: if I2c write failed to complete successfully
 
     """
-    self._logger.debug('')
+    raise pca9500Error, 'Fix crbug.com/294248'
     byte_list = [int(byte_str, 0) for byte_str in value.split()]
     self._write_byte_addr(pca9500._byte_addr)
 
@@ -203,7 +203,7 @@ class pca9500(hw_driver.HwDriver):
     Raises:
       pca9500Error: if I2c read failed to complete successfully
     """
-    self._logger.debug('')
+    raise pca9500Error, 'Fix crbug.com/294248'
     error = False
     self._write_byte_addr(0)
     try:
