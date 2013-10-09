@@ -1,0 +1,8 @@
+<root>
+  <!-- TODO(bhthompson) this board will use servoflex_v2_r0_p50.xml -->
+  <!--                  on future revisions -->
+  <!-- ******** Includes ******** -->
+  <include>
+    <name>x86_ec_common.xml</name>
+  </include>
+</root>
