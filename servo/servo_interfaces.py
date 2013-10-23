@@ -50,3 +50,10 @@ for vid, pid in TOAD_ID_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
 
 SERVO_ID_DEFAULTS.extend(TOAD_ID_DEFAULTS)
+
+# Reston
+RESTON_ID_DEFAULTS = [(0x18d1, 0x5007)]
+for vid, pid in RESTON_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+
+SERVO_ID_DEFAULTS.extend(RESTON_ID_DEFAULTS)

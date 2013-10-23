@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>common.xml</name>
+  </include>
+  <!-- STM32 UART -->
+  <control>
+    <name>ec_uart_pty</name>
+    <doc>Pseudo-terminal (pty) thats connected to uart console</doc>
+    <params cmd="get" interface="2" subtype="pty" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>ec_uart_baudrate</name>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="2"></params>
+  </control>
+  <control>
+    <name>ec_uart_parity</name>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="2" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>ec_uart_sbits</name>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="2" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>ec_uart_bits</name>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="2" map="uart_bits"></params>
+  </control>
+  <!-- GPIOS -->
+  <control>
+    <name>boot_mode</name>
+    <doc>EC monitor mode gpio</doc>
+    <params interface="1" drv="gpio" offset="0" map="yesno">
+    </params>
+  </control>
+  <control>
+    <name>cold_reset</name>
+    <doc>STM32 reset line</doc>
+    <params interface="1" drv="gpio" offset="1" map="onoff_i" od="PU">
+    </params>
+  </control>
+</root>
