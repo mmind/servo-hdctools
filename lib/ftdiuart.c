@@ -227,6 +227,81 @@ int fuart_open(struct fuart_context *fuartc,
   return rv;
 }
 
+// Send a break over the FTDI port
+static int cmd_do_break(struct fuart_context *fuartc) {
+  struct ftdi_context *fc = fuartc->fc;
+  int err;
+
+  err = ftdi_set_line_property2(fc, fuartc->cfg.bits, fuartc->cfg.sbits,
+                                fuartc->cfg.parity, BREAK_ON);
+  if (err)
+    return err;
+
+  err = ftdi_set_line_property2(fc, fuartc->cfg.bits, fuartc->cfg.sbits,
+                                fuartc->cfg.parity, BREAK_OFF);
+  return err;
+}
+
+#define ESCAPE_CHAR   '`'
+#define BREAK_CHAR    'z'
+
+enum escape_state {
+  ESCAPE_STATE_START,
+  ESCAPE_STATE_SAW_RETURN,
+  ESCAPE_STATE_SAW_ESCAPE,
+};
+
+// Watch the stream of characters.  If we see a return followed by an escape
+// character then we'll look at the next character to use as a special command.
+static int handle_commands(struct fuart_context *fuartc, char ch) {
+  static enum escape_state state;
+  int err;
+
+  switch (state) {
+  case ESCAPE_STATE_START:
+    /* If we see a CR or LR we'll look for escape next; don't eat the return. */
+    if (ch == '\n' || ch == '\r') {
+      state = ESCAPE_STATE_SAW_RETURN;
+    }
+    return 0;
+
+  case ESCAPE_STATE_SAW_RETURN:
+    if (ch == ESCAPE_CHAR) {
+      /* We saw a return and saw escape, eat the escape and wait for the cmd */
+      state = ESCAPE_STATE_SAW_ESCAPE;
+      return 1;
+    } else if (ch != '\n' && ch != '\r') {
+      /* We saw a return but no escape, back to square one */
+      state = ESCAPE_STATE_START;
+    }
+    return 0;
+
+  case ESCAPE_STATE_SAW_ESCAPE:
+    /* We're always back to square one after */
+    state = ESCAPE_STATE_START;
+
+    /* Two escapes in a row just sends one char to the other side */
+    if (ch == ESCAPE_CHAR) {
+      return 0;
+    }
+
+    /* Handle commands */
+    if (ch == BREAK_CHAR) {
+      prn_info("Sending break");
+      err = cmd_do_break(fuartc);
+      if (err)
+        prn_error("Error sending break: %d", err);
+    } else {
+      /* We'll eat unknown commands */
+      prn_error("Unknown escape sequence: %c%c", ESCAPE_CHAR, ch);
+    }
+    return 1;
+
+  default:
+    return 0;
+  }
+}
+
 static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
 
   int rv = FUART_ERR_NONE;
@@ -234,11 +309,21 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
   struct ftdi_context *fc = fuartc->fc;
 
   if ((bytes = read(fuartc->fd, fuartc->buf, sizeof(fuartc->buf))) > 0) {
-    bytes_written = ftdi_write_data(fc, fuartc->buf, bytes);
-    if (bytes_written != bytes) {
-      ERROR_FTDI("writing to uart", fc);
-      rv = FUART_ERR_WR;
-   }
+    /*
+     * Only look for special commands if we're getting byte at a time.  This
+     * not only simplifies the logic but also should make it harder to end up
+     * with an escape in the case that someone's doing a file transfer or
+     * somesuch.  TODO: Need to enforce more of a delay here?
+     */
+    if (bytes == 1 && handle_commands(fuartc, fuartc->buf[0])) {
+      bytes = 0;
+    } else {
+      bytes_written = ftdi_write_data(fc, fuartc->buf, bytes);
+      if (bytes_written != bytes) {
+        ERROR_FTDI("writing to uart", fc);
+        rv = FUART_ERR_WR;
+      }
+    }
   }
   rv = FUART_ERR_NONE;
   // guarantee at least a usec for yielding
