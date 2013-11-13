@@ -247,7 +247,8 @@ class SystemConfig(object):
         self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
                                        'set_params':set_dict}
         if alias:
-          self.syscfg_dict[tag][alias] = self.syscfg_dict[tag][name]
+          for aliasname in (elem.strip() for elem in alias.split(',')):
+            self.syscfg_dict[tag][aliasname] = self.syscfg_dict[tag][name]
 
   def lookup_control_params(self, name, is_get=True):
     """Lookup & return control parameter dictionary.
