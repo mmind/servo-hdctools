@@ -12,21 +12,8 @@ import os
 import sys
 
 import ftdi_common
+import libftdi_for_servo
 
-
-def _ftdi_libname_for_version_installed():
-  """Determine proper ftdi library name based on pkg-config.
-
-  Prefers newer versions (currently libftdi1) over older ones.
-
-  Returns:
-    string, name of of ftdi library.
-  """
-  cmd = 'pkg-config --modversion libftdi1'
-  (status, _) = commands.getstatusoutput(cmd)
-  if not status:
-    return 'ftdi1'
-  return 'ftdi'
 
 def ftdi_locate_lib(lib_name):
   """Locate FTDI related dll path.
@@ -70,7 +57,7 @@ def load_libs(*args):
   dll_list = []
   for lib_name in args:
     if lib_name == 'ftdi':
-      lib_name = _ftdi_libname_for_version_installed()
+      lib_name = libftdi_for_servo.LIB_NAME
 
     lib_path = ftdi_locate_lib(lib_name)
     logging.debug("lib_path for %s is %s\n", lib_name, lib_path)
