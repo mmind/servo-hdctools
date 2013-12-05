@@ -28,7 +28,7 @@ cd $(dirname $0)/..
 sudo true
 
 sudo stop servod || true
-sudo make BEAGLEBONE=true install
+sudo make EXTRA_DIRS=beaglebone HOSTOS_STACK_PROTECTOR= install
 sudo python setup.py install
 sudo python setup.py develop
 

@@ -6,8 +6,8 @@ export HDCTOOLS_DIR = $(shell pwd)
 include $(HDCTOOLS_DIR)/defs/definitions.mk
 
 SUBDIRS		= lib test src servo usbkm232
-ifdef BEAGLEBONE
-SUBDIRS		+= beaglebone
+ifdef EXTRA_DIRS
+SUBDIRS		+= $(EXTRA_DIRS)
 endif
 
 SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)

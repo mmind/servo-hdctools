@@ -14,6 +14,12 @@
 #	-Wstrict-prototypes			\
 #	-pedantic-errors			\
 
+ifndef HOSTOS_STACK_PROTECTOR
+# -Wstack-protector breaks the build on Beaglebone boards, so we
+# need to be able to omit it there.
+HOSTOS_STACK_PROTECTOR =	-Wstack-protector
+endif
+
 HOSTOS_CWARN	=				\
 	-Waddress				\
 	-Waggregate-return			\
@@ -83,14 +89,8 @@ HOSTOS_CWARN	=				\
 	-Wvariadic-macros			\
 	-Wvla					\
 	-Wvolatile-register-var			\
-	-Wwrite-strings
-
-ifndef BEAGLEBONE
-# -Wstack-protector breaks the build on Beaglebone boards, so omit
-# it there.
-HOSTOS_CWARN	+=				\
-	-Wstack-protector
-endif
+	-Wwrite-strings				\
+	$(HOSTOS_STACK_PROTECTOR)
 
 HOSTOS_LD_LIB	= -shared -Wl,-soname,$@
 HOSTOS_LIB_EXT	= so
