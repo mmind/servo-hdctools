@@ -30,6 +30,31 @@ MAX_ISERIAL_STR = 128
 # port numbers are 4 digits).
 DEFAULT_PORT_RANGE = (9990, 9999)
 
+# This text file holds servod configuration parameters. This is especially
+# handy for multi servo operation.
+#
+# The file format is pretty loose:
+#  - text starting with # is ignored til the end of the line
+#  - empty lines are ignored
+#  - configuration lines consist of up to 4 comma separated fields (all
+#    but the first field optional):
+#        servo-name, serial-number, port-number, board-name
+#
+#    where
+#     . servo-name - a user defined symbolic name, just a reference
+#                     to a certain servo board
+#     . serial-number - serial number of the servo board this line pertains to
+#     . port-number - desired port number for servod for this board, can be
+#                     overridden by the command line switch --port or
+#                     environment variable setting SERVOD_PORT
+#     . board-name - board configuration file to use, can be
+#                     overridden by the command line switch --board
+#
+# Since the same parameters could be defined using different means, there is a
+# hierarchy of definitions:
+#   command line <- environment definition <- rc config file
+DEFAULT_RC_FILE = '/home/%s/.servodrc' % os.getenv('SUDO_USER', '')
+
 class ServodError(Exception):
   """Exception class for servod server."""
 
@@ -67,8 +92,10 @@ def _parse_args():
   parser.add_option("", "--host", default="localhost", type=str,
                     help="hostname to start server on")
   parser.add_option("", "--port", default=None, type=int,
-                    help="port for server to listen on, by default " +
-                    "will try ports in %d..%d range" % (DEFAULT_PORT_RANGE))
+                    help="port for server to listen on, by default "
+                    "will try ports in %d..%d range, could also be "
+                    "supplied through environment variable SERVOD_PORT" %
+                    DEFAULT_PORT_RANGE)
   parser.add_option("-v", "--vendor", default=None, type=int,
                     help="vendor id of ftdi device to interface to")
   parser.add_option("-p", "--product", default=None, type=int,
@@ -84,6 +111,14 @@ def _parse_args():
   parser.add_option("-i", "--interfaces", type=str, default='',
                     help="ordered space-delimited list of interfaces.  " +
                     "Valid choices are gpio|i2c|uart|gpiouart|dummy")
+  parser.add_option("-r", "--rcfile", type=str,
+                    default=DEFAULT_RC_FILE,
+                    help="servo description file for multi-servo operation,"
+                    " %s is used by default." % DEFAULT_RC_FILE)
+  parser.add_option("-n", "--name", type=str,
+                    help="symbolic name of the servo board, "
+                    "used as a config shortcut, could also be supplied "
+                    "through environment variable SERVOD_NAME")
 
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
@@ -133,25 +168,174 @@ def usb_find(vendor, product, serialname):
         matched_devices.append(device)
   return matched_devices
 
-def discover_servo(logger, vendor, product, serialname):
-  """Find unique servo USB device.
+def parse_rc(logger, rc_file):
+  """Parse servodrc configuration file
+
+  The format of the configuration file is described above in comments to
+  DEFAULT_RC_FILE. I the file is not found or is mis-formatted, a warning is
+  printed but the program tries to continue.
 
   Args:
-    vendor: USB vendor id (integer)
-    product: USB product id (integer)
-    serial: USB serial id (string)
+    logger: a logging instance used by this servod driver
+    rc_file: a string, name of the file storing the configuration
 
   Returns:
-    devices: list of usb.Device objects that are servo board(s) or
-      empty list if none
+    a dictionary, where keys are symbolic servo names, and values are
+    dictionaries representing servo parameters read from the config file,
+    keyed by strings 'sn' (for serial number), 'port', and 'board'.
   """
+
+  rc = {}
+  if os.path.isfile(rc_file):
+    for rc_line in open(rc_file, 'r').readlines():
+      line = rc_line.split('#')[0].strip()
+      if not line:
+        continue
+      elts = [x.strip() for x in line.split(',')]
+      name = elts[0]
+      if not name or len(elts) < 2 or [x for x in elts if ' ' in x]:
+        logger.info('ignoring rc line "%s"', rc_line.rstrip())
+        continue
+      rc[name] = {
+        'sn': elts[1],
+        'port': None,
+        'board': None
+        }
+      if (len(elts) > 2):
+        rc[name]['port'] = int(elts[2])
+        if len(elts) > 3:
+          rc[name]['board'] = elts[3]
+          if len(elts) > 4:
+            logger.info("discarding %s for for %s", ' '.join(elts[4:]), name)
+  return rc
+
+def find_servod_match(logger, options, all_servos, servodrc):
+  """Find a servo matching one of servodrc lines
+
+  Given a list of servod objects matching discovered servos, display the list
+  to the user and check if there is a configuration file line corresponding to
+  one of the servos.
+
+  If a line like that exists, and it includes options which are not yet
+  defined in the options object - set these options' values. If the option is
+  already defined - report that this config line setting is ignored.
+
+  Args:
+    logger: a logging instance used by this servod driver
+    options: an options object as returned by parse_options
+    all_servos: a list of servod objects corresponding to discovered servo
+                devices
+    servodrc: a dictionary representing the contents of the servodrc file, as
+              returned by parse_rc() above (if any)
+
+  Returns:
+    a matching servod object, if found, None otherwise
+
+  Raises:
+    ServodEror in case required name is not found in the config file
+  """
+
+  for servo in all_servos:
+    logger.info("Found servo, vid: 0x%04x pid: 0x%04x sid: %s", servo.idVendor,
+                servo.idProduct, usb_get_iserial(servo))
+
+  # If user specified servod name in the command line - match it to the serial
+  # number.
+
+  if options.name:
+    config = servodrc.get(options.name)
+    if not config:
+      raise ServodError("Name '%s' not in the config file" % options.name)
+    options.serialname = config['sn']
+  elif options.serialname:
+    # Let's try finding config for a serial name
+    for config in servodrc.itervalues():
+      if config['sn'] == options.serialname:
+        break
+    else:
+      return None
+
+  if not options.serialname:
+    # There is nothing to match
+    return None
+
+  for servo in all_servos:
+    if usb_get_iserial(servo) != options.serialname:
+      continue
+
+    # Match found, some sanity checks/updates before using it
+    matching_servo = servo
+    rc_port = config['port']
+    if rc_port:
+      if not options.port:
+        options.port = rc_port
+      else:
+        logger.warning('Ignoring rc configured port %s for servo %s',
+                       rc_port, name)
+
+    rc_board = config['board']
+    if rc_board:
+      if not options.board:
+        options.board = rc_board
+      else:
+        logger.warning('Ignoring rc configured board name %s for servo %s',
+                       rc_board, name)
+    return matching_servo
+
+  raise ServodError("No matching servo found")
+
+def discover_servo(logger, options, servodrc):
+  """Find a servo USB device to use
+
+  First, find all servo devices matching command line options, this may result
+  in discovering none, one or more devices.
+
+  Then try matching discovered servos and the configuration defined in
+  servodrc. A match this will result in reading missing options from servodrc
+  file.
+
+  If there is a match - return the matching device.
+
+  If no match found, but there is only one servo connected - return it. If
+  there is no match found and multiple servos are connected - report an error
+  and return None.
+
+  Args:
+    logger: a logging instance used by this servod driver
+    options: the options object returned by opt_parse
+    servodrc: a dictionary representing the contents of the servodrc file, as
+              returned by parse_rc() above (if any)
+  Returns:
+    servo object for the matching (or single) device, otherwise None
+  """
+
+  vendor, product, serialname = (options.vendor, options.product,
+                                 options.serialname)
   all_servos = []
   for (vid, pid) in servo_interfaces.SERVO_ID_DEFAULTS:
     if (vendor and vendor != vid) or \
           (product and product != pid):
       continue
     all_servos.extend(usb_find(vid, pid, serialname))
-  return all_servos
+
+  if not all_servos:
+    logger.error("No servos found")
+    return None
+
+  # See if there is a matching entry in servodrc
+  matching_servo = find_servod_match(logger, options, all_servos, servodrc)
+
+  if matching_servo:
+    return matching_servo
+
+  if len(all_servos) == 1:
+    return all_servos[0]
+
+  logger.error("Use --vendor, --product or --serialname switches to "
+               "identify servo uniquely, or create a servodrc file "
+               " and use the --name switch")
+
+  return None
 
 def get_board_version(lot_id, product_id):
   """Get board version string.
@@ -215,6 +399,27 @@ def get_auto_configs(logger, board_version):
     return []
   return ftdi_common.SERVO_CONFIG_DEFAULTS[board_version]
 
+def get_env_options(logger, options):
+  """Look for non-defined options in the environment
+
+  SERVOD_PORT and SERVOD_NAME environment variables can be used if --port
+  and --name command line switches are not set. Set the options values as
+  necessary.
+
+  Args:
+    logger: a logging instance used by this servod driver
+    options: the options object returned by opt_parse
+  """
+  if not options.port:
+    env_port = os.getenv('SERVOD_PORT')
+    if env_port:
+      try:
+        options.port = int(env_port)
+      except ValueError:
+        logger.warning('Ignoring environment port definition "%s"', env_port)
+  if not options.name:
+    options.name = os.getenv('SERVOD_NAME')
+
 def main_function():
   (options, args) = _parse_args()
   loglevel = logging.INFO
@@ -227,21 +432,16 @@ def main_function():
 
   logger = logging.getLogger(os.path.basename(sys.argv[0]))
   logger.info("Start")
+  get_env_options(logger, options)
 
-  servo_like_devices = discover_servo(logger, options.vendor, options.product,
-                                      options.serialname)
-  for device in servo_like_devices:
-    logger.info("Found servo, vid: 0x%04x pid: 0x%04x sid: %s", device.idVendor,
-                device.idProduct, usb_get_iserial(device))
-  if not servo_like_devices:
-    logger.error("No servos found")
-  if len(servo_like_devices) != 1:
-    logger.error("Use --vendor, --product or --serialname switches to "
-                 "identify servo uniquely")
+  if options.name and options.serialname:
+    logger.error("Mutually exclusive '--name' or '--serialname' is allowed")
     sys.exit(-1)
 
-  servo_device = servo_like_devices[0]
-
+  servo_device = discover_servo(logger, options,
+                                parse_rc(logger, options.rcfile))
+  if not servo_device:
+    sys.exit(-1)
 
   lot_id = get_lot_id(logger, servo_device)
   board_version = get_board_version(lot_id, servo_device.idProduct)

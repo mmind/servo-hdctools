@@ -1,0 +1,12 @@
+# This file describes servo boards connected to this host.
+#
+# Line text starting with # to end of line is ignored, as well as empy lines.
+#
+# Configuration lines consist of up to 4 comma separated fields, the last
+# two are optional:
+#
+# name serial-number port-number board
+#
+
+pit-2gb, 868534-00014, 9900, peach_pit
+pit-4gb, 780735-00047, 9901, peach_pit
