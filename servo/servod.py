@@ -215,7 +215,7 @@ def get_auto_configs(logger, board_version):
     return []
   return ftdi_common.SERVO_CONFIG_DEFAULTS[board_version]
 
-def main():
+def main_function():
   (options, args) = _parse_args()
   loglevel = logging.INFO
   format="%(asctime)s - %(name)s - %(levelname)s"
@@ -320,8 +320,15 @@ def main():
   logger.info("Listening on %s port %s" % (options.host, servo_port))
   server.serve_forever()
 
-if __name__ == '__main__':
+def main():
+  """Main function wrapper to catch exceptions properly"""
   try:
-    main()
+    main_function()
   except KeyboardInterrupt:
     sys.exit(0)
+  except ServodError as e:
+    print "Error: ", e.message
+    sys.exit(1)
+
+if __name__ == '__main__':
+  main()
