@@ -10,6 +10,18 @@ SIGNALS_RE = '^signals'
 MUX_ROOT = '/sys/kernel/debug/omap_mux'
 
 
+def use_omapmux():
+  """Whether or not to utilize the Kernel OMAPMUX Controls.
+
+  If the omap mux controls exists utilize them, otherwise assume the
+  device-tree has been properly configured.
+
+  Returns:
+    True is the device-tree path exists and is not populated. False otherwise.
+  """
+  return os.path.exists(MUX_ROOT)
+
+
 class BBmuxController(object):
   """Provides omap mux controls to interfaces that require them.
 

@@ -51,6 +51,7 @@ class TestBBgpio(mox.MoxTestBase):
     """Mock the mux settings."""
     bbmux_controller = self.mox.CreateMockAnything()
     bbgpio.bbmux_controller = bbmux_controller
+    bbgpio.bbmux_controller.use_omapmux().AndReturn(True)
     bbmux_controller.BBmuxController().AndReturn(bbmux_controller)
     bbgpio.bbmux_controller.set_pin_mode(mox.IgnoreArg(), mox.IgnoreArg())
 

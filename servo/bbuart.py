@@ -78,11 +78,12 @@ class BBuart(uart.Uart):
     self._interface = interface
     self._uart_num = interface['uart_num']
     self._pty = TTY_MAP[self._uart_num]
-    self._bbmux_controller = bbmux_controller.BBmuxController()
+    if bbmux_controller.use_omapmux():
+      self._bbmux_controller = bbmux_controller.BBmuxController()
+      self.open()
     self._logger = logging.getLogger('bbuart')
     self._logger.debug('Initialized BBuart for interface %s with tty:%s',
                        interface, self._pty)
-    self.open()
     # Beaglebone defaults to a baudrate of 9600, set it to what servo expects.
     self.set_uart_props(DEFAULT_UART_SETTINGS)
 
@@ -110,7 +111,10 @@ class BBuart(uart.Uart):
                                           mode)
 
   def open(self):
-    """Opens access to beaglebone uart interface."""
+    """Opens access to beaglebone uart interface.
+
+    Only necessary on Beaglebone kernel 3.2
+    """
     self._open_pin(self._interface.get('txd', None), TXD_PATTERN, TXD_MODE)
     self._open_pin(self._interface.get('rxd', None), RXD_PATTERN, RXD_MODE)
 

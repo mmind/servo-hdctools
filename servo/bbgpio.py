@@ -49,7 +49,9 @@ class BBgpio(gpio_interface.GpioInterface):
     self._logger = logging.getLogger('BBGpio')
     self._logger.debug('')
     self._exported_gpios = []
-    self._bbmux_controller = bbmux_controller.BBmuxController()
+    self._bbmux_controller = None
+    if bbmux_controller.use_omapmux():
+      self._bbmux_controller = bbmux_controller.BBmuxController()
     # Ensure we release the system resources at exit time.
     atexit.register(self.close)
 
@@ -103,6 +105,19 @@ class BBgpio(gpio_interface.GpioInterface):
                          gpio_path)
       f.write(DIR_VAL_MAP[dir_val])
 
+  def _set_pinmux(self, gpio_name, muxfile=None):
+    """Set pinmux to route this pin as a GPIO
+
+    Args:
+      gpio_name: gpio naming convention for the pinmux-es.
+      muxfile : used to specify the correct omap_mux muxfile to select this
+                gpio.
+    """
+    if muxfile:
+      self._bbmux_controller.set_muxfile(muxfile, GPIO_MODE_VALUE,
+                                         GPIO_SELECT_VALUE)
+    else:
+      self._bbmux_controller.set_pin_mode(gpio_name, GPIO_MODE_VALUE)
 
   def wr_rd(self, offset, width, dir_val=None, wr_val=None, chip=None,
             muxfile=None):
@@ -135,11 +150,8 @@ class BBgpio(gpio_interface.GpioInterface):
     gpio_name = 'gpio%s_%s' % (chip, offset)
     gpio_index = 32 * int(chip, 0) + offset
 
-    if muxfile:
-        self._bbmux_controller.set_muxfile(muxfile, GPIO_MODE_VALUE,
-                                           GPIO_SELECT_VALUE)
-    else:
-        self._bbmux_controller.set_pin_mode(gpio_name, GPIO_MODE_VALUE)
+    if self._bbmux_controller:
+      self._set_pinmux(gpio_name, muxfile)
 
     self._export_gpio(gpio_index)
     gpio_path = GPIO_PIN_PATTERN % gpio_index

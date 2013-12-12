@@ -5,6 +5,8 @@
 import logging
 import subprocess
 
+import bbmux_controller
+
 
 class BBi2cError(Exception):
   """Class for exceptions of BBi2c."""
@@ -26,6 +28,9 @@ class BBi2c(object):
     self._logger = logging.getLogger("BBi2c")
     self._interface = interface
     self._bus_num = interface['bus_num']
+    # Older kernels utilizing the omap mux starts counting from 1
+    if bbmux_controller.use_omapmux():
+      self._bus_num += 1
 
   def open(self):
     """Opens access to FTDI interface as a i2c (MPSSE mode) interface.

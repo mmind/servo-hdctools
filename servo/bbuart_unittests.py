@@ -52,6 +52,7 @@ class TestBBuart(mox.MoxTestBase):
     super(TestBBuart, self).setUp()
     bbuart.bbmux_controller = self.mox.CreateMockAnything()
     self._bbmux_controller = self.mox.CreateMockAnything()
+    bbuart.bbmux_controller.use_omapmux().AndReturn(True)
     bbuart.bbmux_controller.BBmuxController().AndReturn(self._bbmux_controller)
     bbuart.subprocess = self.mox.CreateMockAnything()
 

@@ -18,7 +18,8 @@ class TestBBi2c(mox.MoxTestBase):
   def setUp(self):
     super(TestBBi2c, self).setUp()
     bbi2c.subprocess = self.mox.CreateMockAnything()
-    self.bbi2c = bbi2c.BBi2c({'bus_num': 3})
+    bbi2c.bbmux_controller = self.mox.CreateMockAnything()
+    bbi2c.bbmux_controller.use_omapmux().AndReturn(True)
 
   def readTestHelper(self, data, send_address=True):
     if send_address:
@@ -43,6 +44,7 @@ class TestBBi2c(mox.MoxTestBase):
     data = [0x10]
     self.readTestHelper(data)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     result = self.bbi2c.wr_rd(SLAVE_ADDRESS, [DATA_ADDRESS], len(data))
     self.assertEquals(result, data)
 
@@ -50,6 +52,7 @@ class TestBBi2c(mox.MoxTestBase):
     data = [0x10, 0x01]
     self.readTestHelper(data)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     result = self.bbi2c.wr_rd(SLAVE_ADDRESS, [DATA_ADDRESS], len(data))
     self.assertEquals(result, data)
 
@@ -57,22 +60,27 @@ class TestBBi2c(mox.MoxTestBase):
     data = [0x7]
     self.singleWriteTestHelper(data)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     self.bbi2c.wr_rd(SLAVE_ADDRESS, data, 0)
 
   def testTwoByteWrite(self):
     data = [0x7, 0x8]
     self.singleWriteTestHelper(data)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     self.bbi2c.wr_rd(SLAVE_ADDRESS, data, 0)
 
   def testThreeByteWrite(self):
     data = [0x7, 0x8, 0x9]
     self.singleWriteTestHelper(data)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     self.bbi2c.wr_rd(SLAVE_ADDRESS, data, 0)
 
   def testBlockWriteFailure(self):
     data = [0x7, 0x8, 0x9, 0x10, 0x11, 0x12, 0x13]
+    self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     with self.assertRaises(bbi2c.BBi2cError):
       self.bbi2c.wr_rd(SLAVE_ADDRESS, data, 0)
 
@@ -82,6 +90,7 @@ class TestBBi2c(mox.MoxTestBase):
     self.singleWriteTestHelper(wr_data)
     self.readTestHelper(rd_data, send_address=False)
     self.mox.ReplayAll()
+    self.bbi2c = bbi2c.BBi2c({'bus_num': 2})
     result = self.bbi2c.wr_rd(SLAVE_ADDRESS, wr_data, len(rd_data))
     self.assertEquals(result, rd_data)
 
