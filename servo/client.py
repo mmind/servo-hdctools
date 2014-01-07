@@ -45,9 +45,9 @@ class ServoClientError(Exception):
           error_msg += "Consider %s" % ' '.join(candidates)
       else:
         error_msg = xml_error
-      self.error_message = '%s :: %s' % (text, error_msg)
+      self.message = '%s :: %s' % (text, error_msg)
     else:
-      self.error_message = text
+      self.message = text
 
 
 class ServoClient(object):

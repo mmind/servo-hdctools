@@ -10,6 +10,8 @@ import optparse
 import sys
 import time
 
+from socket import error as SocketError
+
 import numpy
 
 import client
@@ -350,7 +352,10 @@ def main():
   except KeyboardInterrupt:
     sys.exit(0)
   except client.ServoClientError as e:
-    sys.stderr.write(e.error_message + '\n')
+    sys.stderr.write(e.message + '\n')
+    sys.exit(1)
+  except SocketError as e:
+    sys.stderr.write(e.strerror + '\n')
     sys.exit(1)
 
 # global start time for script
