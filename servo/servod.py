@@ -14,9 +14,10 @@ import usb
 
 import dut
 import ftdi_common
+import multiservo
 import servo_interfaces
-import system_config
 import servo_server
+import system_config
 
 
 # TODO(tbroch) determine version string methodology.
@@ -111,20 +112,13 @@ def _parse_args():
   parser.add_option("-i", "--interfaces", type=str, default='',
                     help="ordered space-delimited list of interfaces.  " +
                     "Valid choices are gpio|i2c|uart|gpiouart|dummy")
-  parser.add_option("-r", "--rcfile", type=str,
-                    default=DEFAULT_RC_FILE,
-                    help="servo description file for multi-servo operation,"
-                    " %s is used by default." % DEFAULT_RC_FILE)
-  parser.add_option("-n", "--name", type=str,
-                    help="symbolic name of the servo board, "
-                    "used as a config shortcut, could also be supplied "
-                    "through environment variable SERVOD_NAME")
   parser.add_option("-u", "--usbkm232", type=str,
                     help="path to USB-KM232 device which allow for "
                     "sending keyboard commands to DUTs that do not "
                     "have built in keyboards. Used in FAFT tests. "
                     "(Optional), e.g. /dev/ttyUSB0")
 
+  multiservo.add_multiservo_parser_options(parser)
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
 
@@ -172,47 +166,6 @@ def usb_find(vendor, product, serialname):
             (not serialname or usb_get_iserial(device) == serialname):
         matched_devices.append(device)
   return matched_devices
-
-def parse_rc(logger, rc_file):
-  """Parse servodrc configuration file
-
-  The format of the configuration file is described above in comments to
-  DEFAULT_RC_FILE. I the file is not found or is mis-formatted, a warning is
-  printed but the program tries to continue.
-
-  Args:
-    logger: a logging instance used by this servod driver
-    rc_file: a string, name of the file storing the configuration
-
-  Returns:
-    a dictionary, where keys are symbolic servo names, and values are
-    dictionaries representing servo parameters read from the config file,
-    keyed by strings 'sn' (for serial number), 'port', and 'board'.
-  """
-
-  rc = {}
-  if os.path.isfile(rc_file):
-    for rc_line in open(rc_file, 'r').readlines():
-      line = rc_line.split('#')[0].strip()
-      if not line:
-        continue
-      elts = [x.strip() for x in line.split(',')]
-      name = elts[0]
-      if not name or len(elts) < 2 or [x for x in elts if ' ' in x]:
-        logger.info('ignoring rc line "%s"', rc_line.rstrip())
-        continue
-      rc[name] = {
-        'sn': elts[1],
-        'port': None,
-        'board': None
-        }
-      if (len(elts) > 2):
-        rc[name]['port'] = int(elts[2])
-        if len(elts) > 3:
-          rc[name]['board'] = elts[3]
-          if len(elts) > 4:
-            logger.info("discarding %s for for %s", ' '.join(elts[4:]), name)
-  return rc
 
 def find_servod_match(logger, options, all_servos, servodrc):
   """Find a servo matching one of servodrc lines
@@ -404,27 +357,6 @@ def get_auto_configs(logger, board_version):
     return []
   return ftdi_common.SERVO_CONFIG_DEFAULTS[board_version]
 
-def get_env_options(logger, options):
-  """Look for non-defined options in the environment
-
-  SERVOD_PORT and SERVOD_NAME environment variables can be used if --port
-  and --name command line switches are not set. Set the options values as
-  necessary.
-
-  Args:
-    logger: a logging instance used by this servod driver
-    options: the options object returned by opt_parse
-  """
-  if not options.port:
-    env_port = os.getenv('SERVOD_PORT')
-    if env_port:
-      try:
-        options.port = int(env_port)
-      except ValueError:
-        logger.warning('Ignoring environment port definition "%s"', env_port)
-  if not options.name:
-    options.name = os.getenv('SERVOD_NAME')
-
 def main_function():
   (options, args) = _parse_args()
   loglevel = logging.INFO
@@ -437,14 +369,14 @@ def main_function():
 
   logger = logging.getLogger(os.path.basename(sys.argv[0]))
   logger.info("Start")
-  get_env_options(logger, options)
+  multiservo.get_env_options(logger, options)
 
   if options.name and options.serialname:
     logger.error("Mutually exclusive '--name' or '--serialname' is allowed")
     sys.exit(-1)
 
   servo_device = discover_servo(logger, options,
-                                parse_rc(logger, options.rcfile))
+                                multiservo.parse_rc(logger, options.rcfile))
   if not servo_device:
     sys.exit(-1)
 
