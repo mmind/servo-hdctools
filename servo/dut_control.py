@@ -14,7 +14,11 @@ from socket import error as SocketError
 
 import numpy
 
+import multiservo
 import client
+
+class ControlError(Exception):
+  pass
 
 # TODO(tbroch) determine version string methodology.
 VERSION = "0.0.1"
@@ -66,7 +70,7 @@ def _parse_args():
   parser.add_option("-s", "--server", help="host where servod is running",
                     default=client.DEFAULT_HOST)
   parser.add_option("-p", "--port", help="port where servod is listening",
-                    default=str(client.DEFAULT_PORT))
+                    default=None)
   parser.add_option("-v", "--verbose", help="show verbose info about controls",
                     action="store_true", default=False)
   parser.add_option("-i", "--info", help="show info about controls",
@@ -87,6 +91,7 @@ def _parse_args():
   parser.add_option("-d", "--debug", help="enable debug messages",
                     action="store_true", default=False)
 
+  multiservo.add_multiservo_parser_options(parser)
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
 
@@ -313,6 +318,19 @@ def real_main():
   logging.basicConfig(level=loglevel,
                       format="%(asctime)s - %(name)s - " +
                       "%(levelname)s - %(message)s")
+  logger = logging.getLogger()
+  multiservo.get_env_options(logger, options)
+  rc = multiservo.parse_rc(logger, options.rcfile)
+  if not options.port:
+    if options.name:
+      if options.name not in rc:
+        raise ControlError('%s not in the config file' % options.name)
+      options.port = int(rc.get(options.name)['port'])
+      if not options.port:
+        raise ControlError('unknown port for %s' % options.name)
+    else:
+      options.port = client.DEFAULT_PORT
+
   if options.verbose and options.gnuplot:
     logging.critical("Can't use --verbose with --gnuplot")
     sys.exit(-1)
@@ -351,7 +369,7 @@ def main():
     real_main()
   except KeyboardInterrupt:
     sys.exit(0)
-  except client.ServoClientError as e:
+  except (client.ServoClientError, ControlError) as e:
     sys.stderr.write(e.message + '\n')
     sys.exit(1)
   except SocketError as e:
