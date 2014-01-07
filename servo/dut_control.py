@@ -227,7 +227,7 @@ def do_iteration(requests, options, sclient, stats):
         continue
       results.append(sclient.doc(control))
   else:
-      results = sclient.set_get_all(requests)
+    results = sclient.set_get_all(requests)
 
   if options.print_time:
     time_str = "%.4f " % (time.time() - _start_time)
@@ -294,7 +294,7 @@ def iterate(controls, options, sclient):
   for _ in iterate_over:
     iter_output = do_iteration(controls, options, sclient, stats)
     if iter_output: # Avoid printing empty lines
-        print iter_output
+      print iter_output
 
   if (options.repeat != 1) or (options.time_in_secs > 0):
     prefix = STATS_PREFIX
@@ -338,9 +338,9 @@ def real_main():
     print sclient.get_all()
   else:
     if not ':' in ' '.join(args):
-        # Sort args only if none of them sets values - otherwise the order is
-        # important.
-        args = sorted(args)
+      # Sort args only if none of them sets values - otherwise the order is
+      # important.
+      args = sorted(args)
     iterate(args, options, sclient)
 
 
