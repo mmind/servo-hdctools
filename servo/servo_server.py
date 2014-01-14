@@ -22,6 +22,7 @@ import ftdigpio
 import ftdii2c
 import ftdi_common
 import ftdiuart
+import keyboard_handlers
 import servo_interfaces
 
 MAX_I2C_CLOCK_HZ = 100000
@@ -43,7 +44,7 @@ class Servod(object):
   _USB_J3_PWR_OFF = "off"
 
   def __init__(self, config, vendor, product, serialname=None,
-               interfaces=None, board="", version=None):
+               interfaces=None, board="", version=None, usbkm232=None):
     """Servod constructor.
 
     Args:
@@ -55,6 +56,10 @@ class Servod(object):
       interfaces: list of strings of interface types the server will instantiate
       version: String. Servo board version. Examples: servo_v1, servo_v2,
           servo_v2_r0, servo_v3
+      usbkm232: String. Optional. Path to USB-KM232 device which allow for
+                sending keyboard commands to DUTs that do not have built in
+                keyboards. Used in FAFT tests.
+                e.g. /dev/ttyUSB0
 
     Raises:
       ServodError: if unable to locate init method for particular interface
@@ -73,6 +78,9 @@ class Servod(object):
     self._drv_dict = {}
     self._board = board
     self._version = version
+    self._usbkm232 = usbkm232
+
+    self._keyboard = self._init_keyboard_handler(self, self._board)
 
     # Note, interface i is (i - 1) in list
     if not interfaces:
@@ -107,6 +115,25 @@ class Servod(object):
         self._interface_list.extend(result)
       else:
         self._interface_list.append(result)
+
+  def _init_keyboard_handler(self, servo, board=''):
+    """Initialize the correct keyboard handler for board.
+
+    @param servo: servo object.
+    @param board: string, board name.
+
+    """
+    if board == 'parrot':
+      return keyboard_handlers.ParrotHandler(servo)
+    elif board == 'stout':
+      return keyboard_handlers.StoutHandler(servo)
+    elif board == 'panther':
+      if self._usbkm232 is None:
+        raise Exception("No device specified when "
+                        "initializing usbkm232 keyboard handler")
+      return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
+    else:
+      return keyboard_handlers.DefaultHandler(servo)
 
   def __del__(self):
     """Servod deconstructor."""
@@ -668,6 +695,85 @@ class Servod(object):
   def get_version(self):
     """Get servo board version."""
     return self._version
+
+  def power_long_press(self):
+    """Simulate a long power button press."""
+    # After a long power press, the EC may ignore the next power
+    # button press (at least on Alex).  To guarantee that this
+    # won't happen, we need to allow the EC one second to
+    # collect itself.
+    self._keyboard.power_long_press()
+    return True
+
+  def power_normal_press(self):
+    """Simulate a normal power button press."""
+    self._keyboard.power_normal_press()
+    return True
+
+  def power_short_press(self):
+    """Simulate a short power button press."""
+    self._keyboard.power_short_press()
+    return True
+
+  def power_key(self, secs=''):
+    """Simulate a power button press.
+
+    Args:
+      secs: Time in seconds to simulate the keypress.
+    """
+    self._keyboard.power_key(secs)
+    return True
+
+  def ctrl_d(self, press_secs=''):
+    """Simulate Ctrl-d simultaneous button presses."""
+    self._keyboard.ctrl_d(press_secs)
+    return True
+
+  def ctrl_u(self):
+    """Simulate Ctrl-u simultaneous button presses."""
+    self._keyboard.ctrl_u()
+    return True
+
+  def ctrl_enter(self, press_secs=''):
+    """Simulate Ctrl-enter simultaneous button presses."""
+    self._keyboard.ctrl_enter(press_secs)
+    return True
+
+  def d_key(self, press_secs=''):
+    """Simulate Enter key button press."""
+    self._keyboard.d_key(press_secs)
+    return True
+
+  def ctrl_key(self, press_secs=''):
+    """Simulate Enter key button press."""
+    self._keyboard.ctrl_key(press_secs)
+    return True
+
+  def enter_key(self, press_secs=''):
+    """Simulate Enter key button press."""
+    self._keyboard.enter_key(press_secs)
+    return True
+
+  def refresh_key(self, press_secs=''):
+    """Simulate Refresh key (F3) button press."""
+    self._keyboard.refresh_key(press_secs)
+    return True
+
+  def ctrl_refresh_key(self, press_secs=''):
+    """Simulate Ctrl and Refresh (F3) simultaneous press.
+
+    This key combination is an alternative of Space key.
+    """
+    self._keyboard.ctrl_refresh_key(press_secs)
+    return True
+
+  def imaginary_key(self, press_secs=''):
+    """Simulate imaginary key button press.
+
+    Maps to a key that doesn't physically exist.
+    """
+    self._keyboard.imaginary_key(press_secs)
+    return True
 
 
 def test():

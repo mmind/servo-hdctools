@@ -119,6 +119,11 @@ def _parse_args():
                     help="symbolic name of the servo board, "
                     "used as a config shortcut, could also be supplied "
                     "through environment variable SERVOD_NAME")
+  parser.add_option("-u", "--usbkm232", type=str,
+                    help="path to USB-KM232 device which allow for "
+                    "sending keyboard commands to DUTs that do not "
+                    "have built in keyboards. Used in FAFT tests. "
+                    "(Optional), e.g. /dev/ttyUSB0")
 
   parser.set_usage(parser.get_usage() + examples)
   return parser.parse_args()
@@ -512,7 +517,8 @@ def main_function():
                                serialname=usb_get_iserial(servo_device),
                                interfaces=options.interfaces.split(),
                                board=options.board,
-                               version=board_version)
+                               version=board_version,
+                               usbkm232=options.usbkm232)
   servod.hwinit(verbose=True)
   server.register_introspection_functions()
   server.register_multicall_functions()
