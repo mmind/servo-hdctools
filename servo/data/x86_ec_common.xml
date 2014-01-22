@@ -38,12 +38,6 @@
     clobber_ok=""></params>
   </control>
   <control>
-    <name>lid_open</name>
-    <doc>emulated lid switch on ec</doc>
-    <params subtype="lid_open" interface="7" drv="ec" map="yesno"
-    clobber_ok=""></params>
-  </control>
-  <control>
     <name>cpu_temp</name>
     <doc>CPU temperature reading in degC. Only works when device is
     powered on.</doc>

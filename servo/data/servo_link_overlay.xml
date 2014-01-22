@@ -3,4 +3,11 @@
   <include>
     <name>x86_ec_common.xml</name>
   </include>
+  <!-- ******** Controls ******** -->
+  <control>
+    <name>lid_open</name>
+    <doc>emulated lid switch on ec</doc>
+    <params subtype="lid_open" interface="7" drv="ec" map="yesno"
+    clobber_ok=""></params>
+  </control>
 </root>
