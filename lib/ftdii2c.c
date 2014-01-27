@@ -101,7 +101,8 @@ static int fi2c_read_from_ftdi(struct ftdi_context *fc, uint8_t *rdbuf,
 //              the payload to/from ftdi queues.  At the very least use
 //              WAIT_ON to h/w check the ack for speeds sake
 static int fi2c_send_byte_and_check(struct fi2c_context *fic, uint8_t data) {
-  uint8_t rdbuf[1];
+  uint8_t rdbuf_byte;
+  uint8_t *rdbuf = &rdbuf_byte;
 
   // clk the single byte out
   FI2C_WBUF(fic, FTDI_CMD_MFE_CLK_BIT_OUT);
@@ -234,7 +235,7 @@ int fi2c_open(struct fi2c_context *fic, struct ftdi_common_args *fargs) {
 }
 
 int fi2c_setclock(struct fi2c_context *fic, uint32_t clk) {
-  uint8_t  buf[3] = { 0, 0, 0 };
+  uint8_t  buf[4] = { 0, 0, 0 }; /* Only three bytes used. */
   int divide_result;
 
 
