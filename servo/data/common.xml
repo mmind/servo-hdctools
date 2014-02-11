@@ -40,4 +40,9 @@
     <doc>Number of data bits for uart line properties</doc>
     <params five="5" six="6" seven="7" eight="8"></params>
   </map>
+  <control>
+    <name>sleep</name>
+    <doc>Forces a delay in seconds, according to the parameter</doc>
+    <params cmd="set" interface="servo" drv="sleep" input_type="float"/>
+  </control>
 </root>

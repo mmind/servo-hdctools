@@ -19,5 +19,6 @@ import pca9500
 import pca9546
 import pca95xx
 import pty_driver
+import sleep
 import tca6416
 import uart

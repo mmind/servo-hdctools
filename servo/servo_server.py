@@ -314,20 +314,16 @@ class Servod(object):
     if 'interface' not in params:
       self._logger.error("Unable to determine interface for %s" %
                          control_name)
-
       raise ServodError("'interface' key not found in params dict")
 
-    version_specific_interface = params.get('%s_interface' % self._version,
-                                            None)
-    if version_specific_interface:
-      index = int(version_specific_interface) - 1
-      self._logger.debug('Overriding interface for control: %s on servo board '
-                         'version: %s, using interface %d.', control_name,
-                         self._version, index)
+    interface_id = params.get(
+            '%s_interface' % self._version, params['interface'])
+    if interface_id == 'servo':
+      interface = self
     else:
-      index = int(params['interface']) - 1
+      index = int(interface_id) - 1
+      interface = self._interface_list[index]
 
-    interface = self._interface_list[index]
     servo_pkg = imp.load_module('servo', *imp.find_module('servo'))
     drv_pkg = imp.load_module('drv',
                               *imp.find_module('drv', servo_pkg.__path__))
@@ -632,10 +628,6 @@ class Servod(object):
     Raises:
       HwDriverError: Error occurred while using driver
     """
-    if name == 'sleep':
-      time.sleep(float(wr_val_str))
-      return True
-
     self._logger.debug("name(%s) wr_val(%s)" % (name, wr_val_str))
     (params, drv) = self._get_param_drv(name, False)
     wr_val = self._syscfg.resolve_val(params, wr_val_str)
