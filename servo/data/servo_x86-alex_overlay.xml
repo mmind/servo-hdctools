@@ -7,4 +7,9 @@
     <name>fw_up</name>
     <remap>rec_mode</remap>
   </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params cmd="set" interface="servo" drv="alex_power" input_type="str"/>
+  </control>
 </root>

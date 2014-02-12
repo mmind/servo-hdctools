@@ -15,4 +15,10 @@
     <name>spi1_vref</name>
     <params init="pp3300" clobber_ok=""></params>
   </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params cmd="set" interface="servo" drv="parrot_power" input_type="str"
+      reset_hold="0.0" reset_recovery="0.5"/>
+  </control>
 </root>
