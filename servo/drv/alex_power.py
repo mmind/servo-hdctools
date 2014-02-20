@@ -22,4 +22,4 @@ class alexPower(power_state.PowerStateDriver):
     self._interface.power_short_press()
     if rec_mode == self.REC_ON:
       time.sleep(self._RECOVERY_INSERT_DELAY)
-      self._interface.set('rec_mode', REC_OFF)
+      self._interface.set('rec_mode', self.REC_OFF)
