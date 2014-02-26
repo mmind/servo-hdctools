@@ -9,6 +9,7 @@ Details of the drivers can be found in hw_driver.py
 import alex_power
 import arm_ec
 import daisy_ec
+import daisy_power
 import ec
 import gpio
 import hw_driver
