@@ -331,8 +331,8 @@
   <control>
     <name>usb_mux_sel4</name>
     <doc>usb_mux_sel4</doc>
-    <params interface="1" drv="gpio" chip="1" offset="1" map="onoff"
-    init="servo_sees_usbkey"></params>
+    <params interface="1" drv="gpio" chip="1" offset="1" map="onoff">
+    </params>
   </control>
   <control>
     <name>dut_usb2_prtctl</name>
