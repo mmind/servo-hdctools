@@ -8,14 +8,15 @@ Details of the drivers can be found in hw_driver.py
 """
 import alex_power
 import arm_ec
+import cros_ec_power
+import cros_ec_power_arm
+import cros_ec_power_x86
 import daisy_ec
-import daisy_power
 import ec
 import gpio
 import hw_driver
 import i2c_reg
 import ina219
-import link_power
 import ltc1663
 import lumpy_power
 import parrot_ec

@@ -13,7 +13,6 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params cmd="set" interface="servo" drv="link_power" input_type="str"
-      reset_hold="0.1" reset_recovery="0.0"/>
+    <params  clobber_ok="" cmd="set" shutdown_ec_command="x86shutdown"/>
   </control>
 </root>
