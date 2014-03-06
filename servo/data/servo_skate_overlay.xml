@@ -1,0 +1,15 @@
+<root>
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+  <include>
+    <name>arm_ec_common.xml</name>
+  </include>
+  <!-- ******** Controls ******** -->
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params cmd="set" interface="servo" drv="daisy_power" input_type="str"
+      reset_hold="0.1" reset_recovery="0.0"/>
+  </control>
+</root>
