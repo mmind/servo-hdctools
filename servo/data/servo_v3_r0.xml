@@ -9,7 +9,7 @@
     <name>vref_sel_v3</name>
     <doc>Determine VREF between pp3300, pp2500, pp1800 and off.
     Default is off</doc>
-    <params off="0" pp2500="4" pp1800="2" pp3300="1"></params>
+    <params off="0" pp1800="4" pp2500="2" pp3300="1"></params>
   </map>
   <map>
     <name>duthub</name>
