@@ -13,6 +13,7 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params  clobber_ok="" cmd="set" shutdown_ec_command="x86shutdown"/>
+    <params  clobber_ok="" cmd="set" drv="link_power"
+      shutdown_ec_command="x86shutdown"/>
   </control>
 </root>

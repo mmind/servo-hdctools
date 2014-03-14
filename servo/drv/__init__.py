@@ -18,6 +18,7 @@ import hw_driver
 import i2c_reg
 import ina219
 import ltc1663
+import link_power
 import lumpy_power
 import parrot_ec
 import parrot_power

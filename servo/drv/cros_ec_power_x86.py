@@ -13,12 +13,20 @@ class crosEcPowerX86(cros_ec_power.CrosECPower):
   # 'rec_mode' signal after cold reset.
   _RECOVERY_DETECTION_DELAY = 2.5
 
+  def _power_on_rec(self):
+    """Power on with recovery mode."""
+    self._interface.set('rec_mode', self.REC_ON)
+    time.sleep(self._RECOVERY_DETECTION_DELAY)
+    self._cold_reset()
+    time.sleep(self._RECOVERY_DETECTION_DELAY)
+    self._interface.set('rec_mode', self.REC_OFF)
+
+  def _power_on_normal(self):
+    """Power on with in normal mode, i.e., no recovery."""
+    self._interface.power_short_press()
+
   def _power_on(self, rec_mode):
     if rec_mode == self.REC_ON:
-      self._interface.set('rec_mode', self.REC_ON)
-      time.sleep(self._RECOVERY_DETECTION_DELAY)
-      self._cold_reset()
-      time.sleep(self._RECOVERY_DETECTION_DELAY)
-      self._interface.set('rec_mode', self.REC_OFF)
+      self._power_on_rec()
     else:
-      self._interface.power_short_press()
+      self._power_on_normal()
