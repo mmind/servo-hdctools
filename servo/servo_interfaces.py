@@ -57,3 +57,10 @@ for vid, pid in RESTON_ID_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
 
 SERVO_ID_DEFAULTS.extend(RESTON_ID_DEFAULTS)
+
+# Fruitpie
+FRUITPIE_ID_DEFAULTS = [(0x18d1, 0x5009)]
+for vid, pid in FRUITPIE_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+
+SERVO_ID_DEFAULTS.extend(FRUITPIE_ID_DEFAULTS)
