@@ -1040,7 +1040,7 @@ int cmdConsole(struct ftdi_context *ftdi, const char *option,
     int ret = 0;
     const char *poll_err = NULL;
     struct pollfd *fds = NULL;
-    int num_fds = 0;
+    nfds_t num_fds = 0;
     struct ftdi_transfer_control *read_tc = NULL;
     struct timeval tv;
 
@@ -1054,7 +1054,7 @@ int cmdConsole(struct ftdi_context *ftdi, const char *option,
     // Main IO loop
     while (1) {
         const struct libusb_pollfd** libusb_fds;
-        int cur_fds, i;
+        nfds_t cur_fds, i;
 
         // Print any available FTDI output, and start input monitoring.
         // NOTE: calls libusb_handle_events_timout for async stuff.
