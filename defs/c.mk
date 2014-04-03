@@ -79,7 +79,7 @@ CPPFLAGS	+=				\
 
 CFLAGS 	+=					\
 	-std=gnu99				\
-	-MD					\
+	-MMD					\
 	$(PTHREAD)				\
 	$(CWARN)				\
 	$(CGC)					\
