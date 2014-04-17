@@ -177,6 +177,12 @@ static int fuart_open_locked(struct fuart_context *fuartc,
   if (fuart_stty_locked(fuartc, &fargs->uart_cfg))
     return FUART_ERR_OPEN;
 
+  // Minimize read latency to improve bidirectional protocol responsiveness
+  if (ftdi_set_latency_timer(fc, 1)) {
+    ERROR_FTDI("latency timer", fc);
+    return FUART_ERR_OPEN;
+  }
+
   if ((fd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
     perror("opening pty master");
     return FUART_ERR_OPEN;
