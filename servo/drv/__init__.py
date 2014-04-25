@@ -12,6 +12,7 @@ import cros_ec_power
 import cros_ec_power_arm
 import cros_ec_power_x86
 import daisy_ec
+import daisy_power
 import ec
 import gpio
 import hw_driver

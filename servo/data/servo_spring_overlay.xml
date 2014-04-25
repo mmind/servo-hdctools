@@ -9,6 +9,7 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params clobber_ok="" cmd="set" shutdown_ec_command="power off"/>
+    <params clobber_ok="" cmd="set" interface="servo" drv="daisy_power"
+            reset_recovery="5" input_type="str"/>
   </control>
 </root>
