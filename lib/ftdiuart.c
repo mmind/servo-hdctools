@@ -339,10 +339,19 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
   bytes = ftdi_read_data(fc, fuartc->buf, sizeof(fuartc->buf));
   if (bytes > 0) {
     int bytes_remaining = bytes;
-    while ((bytes = write(fuartc->fd, fuartc->buf, bytes_remaining)) > 0) {
+    uint8_t *rd_buf = fuartc->buf;
+
+ retry_write:
+    while (bytes_remaining &&
+           ((bytes = write(fuartc->fd, rd_buf, bytes_remaining)) > 0)) {
+      rd_buf += bytes;
       bytes_remaining -= bytes;
     }
-    if ((bytes == -1) && (errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+    if ((bytes == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+      goto retry_write;
+    }
+
+    if (bytes == -1) {
       perror("writing ftdi data to pty");
     }
 
