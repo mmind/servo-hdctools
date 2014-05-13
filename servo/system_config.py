@@ -232,15 +232,14 @@ class SystemConfig(object):
         if 'init' in set_dict:
           self.hwinit.append((name, set_dict['init']))
 
-        # else it's a control
         if clobber_ok and name in self.syscfg_dict[tag]:
+          # it's an existing control
           self.syscfg_dict[tag][name]['get_params'].update(get_dict)
           self.syscfg_dict[tag][name]['set_params'].update(set_dict)
-          continue
-
-        # else it's a new control
-        self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
-                                       'set_params':set_dict}
+        else:
+          # it's a new control
+          self.syscfg_dict[tag][name] = {'doc':doc, 'get_params':get_dict,
+                                         'set_params':set_dict}
         if alias:
           for aliasname in (elem.strip() for elem in alias.split(',')):
             self.syscfg_dict[tag][aliasname] = self.syscfg_dict[tag][name]
