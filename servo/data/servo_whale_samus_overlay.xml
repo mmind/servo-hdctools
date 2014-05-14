@@ -1,0 +1,30 @@
+<root>
+  <!-- TODO (jchuang): include samus config with different flex setting -->
+  <map>
+    <name>color_timing</name>
+    <params timing_12ms="12" timing_100ms="100" timing_400ms="400"></params>
+  </map>
+  <map>
+    <name>color_gain</name>
+    <params gain_1x="1" gain_4x="4" gain_16x="16" gain_64x="64">
+    </params>
+  </map>
+  <control>
+    <name>whale_color1_HSV</name>
+    <doc>HSV coordinates of color sensor 1</doc>
+    <params cmd="get" subtype="HSV" interface="2" drv="tcs3414" slv="0x39">
+    </params>
+  </control>
+  <control>
+    <name>whale_color1_timing</name>
+    <doc>Integration time of color sensor 1</doc>
+    <params cmd="set" subtype="timing" interface="2" drv="tcs3414" slv="0x39"
+            map="color_timing" init="timing_12ms"></params>
+  </control>
+  <control>
+    <name>whale_color1_gain</name>
+    <doc>ADC gain of color sensor 1</doc>
+    <params cmd="set" subtype="gain" interface="2" drv="tcs3414" slv="0x39"
+            map="color_gain" init="gain_1x"></params>
+  </control>
+</root>

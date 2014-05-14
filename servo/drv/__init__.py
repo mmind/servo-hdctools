@@ -33,4 +33,5 @@ import pty_driver
 import sleep
 import stumpy_power
 import tca6416
+import tcs3414
 import uart
