@@ -82,7 +82,7 @@
   </control>
   <control>
     <name>spi1_buf_en</name>
-    <alias>usbpd_uart_buf_en</alias>
+    <alias>usbpd_uart_en</alias>
     <params clobber_ok="" init="on"></params>
   </control>
   <control>
