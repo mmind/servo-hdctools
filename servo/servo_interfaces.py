@@ -28,7 +28,7 @@ INTERFACE_DEFAULTS[0x18d1][0x5004] = \
     ['bb_gpio',
      {'name': 'bb_i2c', 'bus_num': 1},
      {'name': 'bb_uart', 'uart_num': 5,
-      'txd' : ['lcd_data8', 0x4], 'rxd' : ['lcd_data9', 0x4]},
+      'txd': ['lcd_data8', 0x4], 'rxd': ['lcd_data9', 0x4]},
      {'name': 'bb_i2c', 'bus_num': 2},
      'dummy',
      'dummy',
@@ -64,3 +64,14 @@ for vid, pid in FRUITPIE_ID_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
 
 SERVO_ID_DEFAULTS.extend(FRUITPIE_ID_DEFAULTS)
+
+# Allow Board overrides of interfaces as we've started to overload some servo V2
+# pinout functionality.  To-date just swapping EC SPI interface for USB PD MCU
+# UART
+# TODO(tbroch) See about availability of extra uart on Servo V3/beaglebone
+INTERFACE_BOARDS = collections.defaultdict(
+    lambda: collections.defaultdict(dict))
+# samus re-purposes EC SPI to be USB PD UART
+INTERFACE_BOARDS['samus'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'

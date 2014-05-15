@@ -84,7 +84,10 @@ class Servod(object):
 
     # Note, interface i is (i - 1) in list
     if not interfaces:
-      interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
+      try:
+        interfaces = servo_interfaces.INTERFACE_BOARDS[board][vendor][product]
+      except KeyError:
+        interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
     for i, interface in enumerate(interfaces):
       is_ftdi_interface = False
