@@ -8,4 +8,16 @@
   <include>
     <name>usbpd.xml</name>
   </include>
+  <!-- Override from definition in servo_v2_r0.xml -->
+  <control>
+    <name>dev_mode</name>
+    <alias>usbpd_boot_mode</alias>
+    <params clobber_ok="" od="PP"></params>
+  </control>
+  <!-- TODO(tbroch) Implement dev mode via EC uart. -->
+  <control>
+    <name>pch_disable</name>
+    <alias>usbpd_reset</alias>
+    <params clobber_ok=""></params>
+  </control>
 </root>
