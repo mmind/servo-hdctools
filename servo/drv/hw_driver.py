@@ -4,13 +4,40 @@
 """Base class for servo drivers."""
 import logging
 
+VALID_IO_TYPES = ['PU', 'PP']
+
 
 class HwDriverError(Exception):
   """Exception class for HwDriver."""
 
 
+def _get_io_type(params):
+  """Retrieve IO driver type.
+
+  Valid driver types are:
+    PU == Pull-up
+    PP == Push-pull
+
+  Returns: string either 'PP' or 'PU'
+
+  Raises: HwDriverError if:
+     io type is invalid
+     controls width > 1
+  """
+  if 'od' in params:
+    width = params.get('width', 1)
+    if width > 1:
+      raise HwDriverError("Open drain not implemented for widths != 1")
+    io_type = params['od'].upper()
+    if io_type not in VALID_IO_TYPES:
+      raise HwDriverError("Unrecognized io type (param 'od') %s" % io_type)
+    return io_type
+  return False
+
+
 class HwDriver(object):
   """Base class for all hardware drivers."""
+
   def __init__(self, interface, params):
     """Driver constructor.
 
@@ -34,11 +61,13 @@ class HwDriver(object):
       _logger: logger object.  May be accessed via sub-class
       _interface: interface object.  May be accessed via sub-class
       _params: parameter dictionary.  May be accessed via sub-class
+      _io_type: String of io type or False if not explicitly assigned.
     """
     self._logger = logging.getLogger("Driver")
     self._logger.debug("")
     self._interface = interface
     self._params = params
+    self._io_type = _get_io_type(params)
 
   def set(self, logical_value):
     """Set hardware control to a particular value.
@@ -166,3 +195,4 @@ class HwDriver(object):
       offset = None
       mask = None
     return (offset, mask)
+

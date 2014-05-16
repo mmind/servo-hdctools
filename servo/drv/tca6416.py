@@ -105,19 +105,9 @@ class tca6416(hw_driver.HwDriver):
     if mask is None:
         raise Tca6416Error("Unable to determine mask.  Is offset declared?")
 
-    open_drain = None
-    if 'od' in self._params:
-      width = self._params.get('width', 1)
-      if width > 1:
-        raise Tca6416Error("Open drain not implemented for widths != 1")
-      open_drain = self._params['od'].upper()
-      if open_drain != "PU":
-        raise Tca6416Error("Unrecognized open-drain %s" % open_drain)
-
     change_to_input = False
-    if (open_drain == "PU" and fmt_value == 1):
-      self._logger.debug("Set to input because its an open-drain %s",
-                         open_drain)
+    if self._io_type == "PU" and fmt_value == 1:
+      self._logger.debug("Set to input because its io type is PU")
       change_to_input = True
 
     # output register handling

@@ -61,12 +61,7 @@ class gpio(hw_driver.HwDriver):
     (offset, width) = self._get_common_params()
 
     is_output = 1
-    if 'od' in self._params:
-      if width > 1:
-        raise gpioError("Open drain not implemented for widths != 1")
-      open_drain = self._params['od'].upper()
-      if open_drain != "PU":
-        raise gpioError("Unrecognized open-drain %s" % open_drain)
+    if self._io_type == 'PU':
       if value == 1:
         is_output = 0
 
