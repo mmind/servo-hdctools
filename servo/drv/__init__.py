@@ -18,6 +18,7 @@ import gpio
 import hw_driver
 import i2c_reg
 import ina219
+import ina231
 import ltc1663
 import link_power
 import lumpy_power
