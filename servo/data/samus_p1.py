@@ -15,7 +15,7 @@ inas = [
         (0x4A, 'pp3300_lcd', 3.3, 0.02, 'rem', True),      # A0: SDA, A1: SDA
         (0x4B, 'pp3300_dsw_gated', 3.3, 0.1, 'rem', True), # A0: SCL, A1: SDA
         (0x4C, 'pp1050_modphy', 1.05, 0.02, 'rem', True),  # A0: GND, A1: SCL
-        (0x4D, 'pp3300_ec', 3.3, 0.1, 'rem', True),        # A0: Vs+, A1: SCL
+        (0x4D, 'pp1200_ldoin', 1.2, 0.015, 'rem', True),   # A0: Vs+, A1: SCL
         (0x4E, 'pp3300_wlan', 3.3, 0.05, 'rem', True),     # A0: SDA, A1: SCL
         (0x4F, 'pp5000', 5.0, 0.01, 'rem', True),          # A0: SCL, A1: SCL
        ]
