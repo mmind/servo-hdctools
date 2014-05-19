@@ -8,30 +8,41 @@ High- or Low-side Measurement, Bidirectional current/power monitor with 1.8v i2c
 import ina2xx
 
 
-class Ina231Error(Exception):
-  """Error occurred accessing ina231."""
-
-
 class ina231(ina2xx.ina2xx):
   """Object to access drv=ina231 controls.
 
   Device is largely similar to the ina219 in function but with various register
-  subfields shifted around.
-  TODO(tbroch, crosbug.com/p/28588)
-  1. Implement necessary changes to base class to provide access to milliamps &
-     milliwatts for ina231.  This will require a bit more surgery as the INA219
-     provided CNVR & OVF bits inside the BUSV registers while the INA231 has
-     moved them to the REG_MSKEN register.
+  sub-fields shifted around.  Most notably the overflow(OVF) and
+  conversion-ready(CNVR) status bits have moved from the BUSV register on INA219
+  to a separate mask/enable register(REG_MSKEN) on INA231.
+
+  Beyond that the coefficients for calculating current & power LSBs are slightly
+  different.
   """
   REG_MSKEN = 6
   REG_ALRT = 7
+
+  MAX_CALIB = 0xffff
+
+  MSKEN_CNVR = 0x8
+  MSKEN_OVF = 0x4
 
   BUSV_MV_PER_LSB = 1.25
   BUSV_MV_OFFSET = 0
   BUSV_MAX = 28000
 
-  def _Get_milliamps(self):
-    raise NotImplementedError('_Get_milliamps not implemented')
+  CUR_LSB_COEFFICIENT = 5.12
+  PWR_LSB_COEFFICIENT = 25
 
-  def _Get_milliwatts(self):
-    raise NotImplementedError('_Get_milliwatts not implemented')
+  def _read_cnvr_ovf(self):
+    """Read mask/enable register and return needed values.
+
+    Returns:
+      tuple (is_cnvr, is_ovf, voltage) where:
+        is_cnvr: boolean True if conversion ready else False
+        is_ovf: boolean True if math overflow occurred else False
+    """
+    msken_reg = self._read_reg(self.REG_MSKEN)
+    is_cnvr = (self.MSKEN_CNVR & msken_reg) != 0
+    is_ovf = (self.MSKEN_OVF & msken_reg) != 0
+    return (is_cnvr, is_ovf)
