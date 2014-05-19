@@ -13,68 +13,6 @@ import hw_driver
 import i2c_reg
 
 
-# TODO(tbroch) Need to investigate modal uses and need to change configuration
-# register.  As it stands we capture samples continuously w/ 12-bit samples
-# averaged across 532usecs
-# TODO(tbroch) For debug, provide shuntv readings
-
-# Register indexes of various INA219 registers
-REG_CFG = 0
-REG_SHV = 1
-REG_BUSV = 2
-REG_PWR = 3
-REG_CUR = 4
-REG_CALIB = 5
-
-# 800mA range, ~12.5uA/lsb for a 50mOhm rsense.  Note lsb is SBZ
-MAX_CALIB = 0xfffe
-
-# maximum number of re-reads of bus voltage to do before raising
-# exception for failing to see a data conversion.  Note the CNVR bit
-# is affected by averaging and multiplication as well. I decided on
-# 100 by sampling the number average retries during calibration and
-# multiplying by 2x to be on the safe side
-BUSV_READ_RETRY = 100
-# millivolts per lsb of bus voltage register
-BUSV_MV_PER_LSB = 4
-# offset of 13-bit bus voltage measurement.  
-# <2> reserved
-# <1> CNVR: conversion ready bit
-# <0> OVF: overflow bit
-BUSV_MV_OFFSET = 3
-# Bit <1> of Bus voltage register signals conversion is ready.  Meaning the
-# device has successfully converted a sample to the output registers
-BUSV_CNVR = 0x2
-# Bit <0> of Bus voltage register signals overflow has occurred during
-# calculation of current or power calculations and those output registers data
-# is meaningless
-BUSV_OVF  = 0x1
-# bus voltage can measure up to 32V
-BUSV_MAX = 32000
-
-# sign bit of current output register
-CUR_SIGN = 0x8000
-# maximum value of current output register.
-CUR_MAX = 0x7fff
-# coefficient for determining current per lsb.  See datasheet for details
-CUR_LSB_COEFFICIENT = 40.96
-# maximum number of re-reads of current register to do before raising exception
-# because current reading is still saturated
-CUR_READ_RETRY = 10
-
-# coefficient for determining power per lsb.  See datasheet for details
-PWR_LSB_COEFFICIENT = 20
-# maximum value of power output register.
-PWR_MAX = 0x7fff
-
-# mask ( 3-bits ) for ina219 configuration modes
-CFG_MODE_MASK = 0x7
-# continuous mode
-CFG_MODE_CONT = 0x7
-# sleep mode
-CFG_MODE_SLEEP = 0
-
-
 class Ina219Error(Exception):
   """Error occurred accessing INA219."""
 
@@ -89,6 +27,68 @@ class ina219(hw_driver.HwDriver):
   For example, a control to read the millivolts of an ADC would be
   dispatched to call _Get_millivolts.
   """
+  # TODO(tbroch) Need to investigate modal uses and need to change configuration
+  # register.  As it stands we capture samples continuously w/ 12-bit samples
+  # averaged across 532usecs
+  # TODO(tbroch) For debug, provide shuntv readings
+
+  # Register indexes of various INA219 registers
+  REG_CFG = 0
+  REG_SHV = 1
+  REG_BUSV = 2
+  REG_PWR = 3
+  REG_CUR = 4
+  REG_CALIB = 5
+
+  # 800mA range, ~12.5uA/lsb for a 50mOhm rsense.  Note lsb is SBZ
+  MAX_CALIB = 0xfffe
+
+  # maximum number of re-reads of bus voltage to do before raising
+  # exception for failing to see a data conversion.  Note the CNVR bit
+  # is affected by averaging and multiplication as well. I decided on
+  # 100 by sampling the number average retries during calibration and
+  # multiplying by 2x to be on the safe side
+  BUSV_READ_RETRY = 100
+  # millivolts per lsb of bus voltage register
+  BUSV_MV_PER_LSB = 4
+  # offset of 13-bit bus voltage measurement.
+  # <2> reserved
+  # <1> CNVR: conversion ready bit
+  # <0> OVF: overflow bit
+  BUSV_MV_OFFSET = 3
+  # Bit <1> of Bus voltage register signals conversion is ready.  Meaning the
+  # device has successfully converted a sample to the output registers
+  BUSV_CNVR = 0x2
+  # Bit <0> of Bus voltage register signals overflow has occurred during
+  # calculation of current or power calculations and those output registers data
+  # is meaningless
+  BUSV_OVF  = 0x1
+  # bus voltage can measure up to 32V
+  BUSV_MAX = 32000
+
+  # sign bit of current output register
+  CUR_SIGN = 0x8000
+  # maximum value of current output register.
+  CUR_MAX = 0x7fff
+  # coefficient for determining current per lsb.  See datasheet for details
+  CUR_LSB_COEFFICIENT = 40.96
+  # maximum number of re-reads of current register to do before raising
+  # exception because current reading is still saturated
+  CUR_READ_RETRY = 10
+
+  # coefficient for determining power per lsb.  See datasheet for details
+  PWR_LSB_COEFFICIENT = 20
+  # maximum value of power output register.
+  PWR_MAX = 0x7fff
+
+  # mask ( 3-bits ) for ina219 configuration modes
+  CFG_MODE_MASK = 0x7
+  # continuous mode
+  CFG_MODE_CONT = 0x7
+  # sleep mode
+  CFG_MODE_SLEEP = 0
+
+
   def __init__(self, interface, params):
     """Constructor.
 
@@ -148,8 +148,8 @@ class ina219(hw_driver.HwDriver):
     output registers. Per datasheet, page 15 (SBOS448C-AUGUST 2008-REVISED MARCH
     2009) this bit is cleared when:
 
-      1. Writing config register (CFG_REG) except when power-down or off
-      2. Reading status register (CFG_BUSV)
+      1. Writing config register (self.CFG_REG) except when power-down or off
+      2. Reading status register (self.CFG_BUSV)
       3. Triggering with convert pin.  Not applicable to INA219 (only INA209)
 
     Overflow bit(<0>), OVF, has occurred during calculation of current or power
@@ -165,15 +165,15 @@ class ina219(hw_driver.HwDriver):
     """
     is_cnvr = False
     is_ovf = False
-    busv = self._i2c_obj._read_reg(REG_BUSV)
-    if BUSV_CNVR & busv:
+    busv = self._i2c_obj._read_reg(self.REG_BUSV)
+    if self.BUSV_CNVR & busv:
       is_cnvr = True
-    if BUSV_OVF & busv:
+    if self.BUSV_OVF & busv:
       is_ovf = True
-    millivolts = (busv >> BUSV_MV_OFFSET) * BUSV_MV_PER_LSB
-    assert millivolts < BUSV_MAX, \
+    millivolts = (busv >> self.BUSV_MV_OFFSET) * self.BUSV_MV_PER_LSB
+    assert millivolts < self.BUSV_MAX, \
         "bus voltage measurement exceeded maximum"
-    if millivolts >= BUSV_MAX:
+    if millivolts >= self.BUSV_MAX:
       self._logger.error("bus voltage measurement exceeded maximum %x" %
                          millivolts)
     return (is_cnvr, is_ovf, millivolts)
@@ -184,9 +184,9 @@ class ina219(hw_driver.HwDriver):
     Note datasheet doesn't spell this out but it seems logical.
 
     Raises:
-      Ina219Error: if conversion didn't assert after BUSV_READ_RETRY times
+      Ina219Error: if conversion didn't assert after self.BUSV_READ_RETRY times
     """
-    for _ in xrange(BUSV_READ_RETRY):
+    for _ in xrange(self.BUSV_READ_RETRY):
       (is_cnvr, is_ovf, millivolts) = self._read_busv()
       if is_cnvr:
         break
@@ -219,8 +219,8 @@ class ina219(hw_driver.HwDriver):
 
     # for first calibrate after instance object created
     if self._calib_reg is None:
-      self._i2c_obj._write_reg(REG_CALIB, MAX_CALIB)
-      self._calib_reg = MAX_CALIB
+      self._i2c_obj._write_reg(self.REG_CALIB, self.MAX_CALIB)
+      self._calib_reg = self.MAX_CALIB
       is_ovf = self._get_next_ovf()
     else:
       (_, is_ovf, _) = self._read_busv()
@@ -231,14 +231,14 @@ class ina219(hw_driver.HwDriver):
     #milliwatts but be  unaware of the change for the milliamps calculations as
     #each control has a separate instance of ina219 object and therefore a
     #private copy of the calibration register.
-    self._calib_reg = self._i2c_obj._read_reg(REG_CALIB)
+    self._calib_reg = self._i2c_obj._read_reg(self.REG_CALIB)
 
     while is_ovf:
-      calib_reg = (self._calib_reg >> 1) & MAX_CALIB
+      calib_reg = (self._calib_reg >> 1) & self.MAX_CALIB
       if calib_reg == 0:
         raise Ina219Error("Failed to calibrate for lowest precision")
       self._logger.debug("writing calibrate to 0x%04x" % (calib_reg))
-      self._i2c_obj._write_reg(REG_CALIB, calib_reg)
+      self._i2c_obj._write_reg(self.REG_CALIB, calib_reg)
       self._calib_reg = calib_reg
       is_ovf = self._get_next_ovf()
 
@@ -270,9 +270,9 @@ class ina219(hw_driver.HwDriver):
     """
     self._logger.debug("")
     milliamps_per_lsb = self._milliamps_per_lsb()
-    raw_cur = self._i2c_obj._read_reg(REG_CUR)
-    assert raw_cur != CUR_MAX, "current saturated"
-    if raw_cur == CUR_MAX:
+    raw_cur = self._i2c_obj._read_reg(self.REG_CUR)
+    assert raw_cur != self.CUR_MAX, "current saturated"
+    if raw_cur == self.CUR_MAX:
       self._logger.error("current saturated %x\n" % raw_cur)
     raw_cur = int(numpy.int16(raw_cur))
     return raw_cur * milliamps_per_lsb
@@ -288,13 +288,13 @@ class ina219(hw_driver.HwDriver):
     self._logger.debug("")
     # call first to force compulsory calibration 
     milliwatts_per_lsb = self._milliwatts_per_lsb()
-    raw_pwr = self._i2c_obj._read_reg(REG_PWR)
+    raw_pwr = self._i2c_obj._read_reg(self.REG_PWR)
     assert not (raw_pwr & 0x8000), \
         "Unknown whether power register is signed or unsigned"
     if raw_pwr & 0x8000:
       self._logger.error("Power may be signed %x\n" % raw_pwr)
-    assert raw_pwr != PWR_MAX, "power saturated"
-    if raw_pwr == PWR_MAX:
+    assert raw_pwr != self.PWR_MAX, "power saturated"
+    if raw_pwr == self.PWR_MAX:
       self._logger.error("power saturated %x\n" % raw_pwr)
     raw_pwr = int(numpy.int16(raw_pwr))
     return raw_pwr * milliwatts_per_lsb
@@ -312,7 +312,7 @@ class ina219(hw_driver.HwDriver):
     if 'reg' not in self._params:
       raise Ina219Error("no register defined in paramters")
     reg = int(self._params['reg'])
-    if reg > REG_CALIB or reg < REG_CFG:
+    if reg > self.REG_CALIB or reg < self.REG_CFG:
       raise Ina219Error("register index %d, out of range" % reg)
     return self._i2c_obj._read_reg(reg)
 
@@ -332,22 +332,22 @@ class ina219(hw_driver.HwDriver):
       reg = int(self._params['reg'])
     except ValueError, e:
       raise Ina219Error(e)
-    if reg > REG_CALIB or reg < REG_CFG:
+    if reg > self.REG_CALIB or reg < self.REG_CFG:
       raise Ina219Error("register index %d, out of range" % reg)
     return self._i2c_obj._write_reg(reg, value)
 
   def _wake(self):
     """Wake up the INA219 adc from sleep."""
     self._logger.debug("")
-    if self._mode is None or (self._mode != CFG_MODE_CONT):
-      self._set_cfg_mode(CFG_MODE_CONT)
+    if self._mode is None or (self._mode != self.CFG_MODE_CONT):
+      self._set_cfg_mode(self.CFG_MODE_CONT)
 
   def _sleep(self):
     """Place device in low-power ( no measurement state )."""
     self._logger.debug("")
-    if self._mode is None or (self._mode != CFG_MODE_SLEEP):
+    if self._mode is None or (self._mode != self.CFG_MODE_SLEEP):
       self._reset()
-      self._set_cfg_mode(CFG_MODE_SLEEP)
+      self._set_cfg_mode(self.CFG_MODE_SLEEP)
 
   def _set_cfg_mode(self, mode):
     """Set the configuration mode of the INA219.
@@ -360,9 +360,10 @@ class ina219(hw_driver.HwDriver):
       mode: integer value to write to configuration register to change the mode.
     """
     self._logger.debug("")
-    assert (mode & CFG_MODE_MASK) == mode, "Invalid mode: %d" % mode
-    cfg_reg = self._i2c_obj._read_reg(REG_CFG)
-    self._i2c_obj._write_reg(REG_CFG, (cfg_reg & ~CFG_MODE_MASK) | mode)
+    assert (mode & self.CFG_MODE_MASK) == mode, "Invalid mode: %d" % mode
+    cfg_reg = self._i2c_obj._read_reg(self.REG_CFG)
+    self._i2c_obj._write_reg(self.REG_CFG,
+                             (cfg_reg & ~self.CFG_MODE_MASK) | mode)
     self._mode = mode
                         
   def _milliamps_per_lsb(self):
@@ -374,7 +375,7 @@ class ina219(hw_driver.HwDriver):
     self._logger.debug("")
     self._calibrate()
     assert self._calib_reg, "Calibration reg not calibrated"
-    lsb = CUR_LSB_COEFFICIENT / (self._calib_reg * self._rsense)
+    lsb = self.CUR_LSB_COEFFICIENT / (self._calib_reg * self._rsense)
     self._logger.debug("lsb = %f" % lsb)
     return lsb
 
@@ -385,7 +386,7 @@ class ina219(hw_driver.HwDriver):
       float of power per lsb value in milliwatts.
     """
     self._logger.debug("")
-    lsb = PWR_LSB_COEFFICIENT * self._milliamps_per_lsb()
+    lsb = self.PWR_LSB_COEFFICIENT * self._milliamps_per_lsb()
     self._logger.debug("lsb = %f" % lsb)
     return lsb
 
