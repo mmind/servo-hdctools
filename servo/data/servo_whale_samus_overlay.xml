@@ -14,6 +14,15 @@
     <params gain_1x="1" gain_4x="4" gain_16x="16" gain_64x="64">
     </params>
   </map>
+  <!-- ********** INAs *********** -->
+  <!-- INAs on Larvae board -->
+  <include>
+    <name>whale_samus_larvae.xml</name>
+  </include>
+  <!-- INAs on DUT -->
+  <include>
+    <name>whale_samus_dut.xml</name>
+  </include>
   <!-- ********** I2C related controls *********** -->
   <!-- BB_I2C slv 0x39 : TCS3414 -->
   <control>
