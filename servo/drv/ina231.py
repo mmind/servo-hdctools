@@ -5,21 +5,20 @@
 
 High- or Low-side Measurement, Bidirectional current/power monitor with 1.8v i2c
 """
-import ina219
+import ina2xx
 
 
 class Ina231Error(Exception):
-  """Error occurred accessing INA219."""
+  """Error occurred accessing ina231."""
 
 
-class ina231(ina219.ina219):
+class ina231(ina2xx.ina2xx):
   """Object to access drv=ina231 controls.
 
   Device is largely similar to the ina219 in function but with various register
   subfields shifted around.
   TODO(tbroch, crosbug.com/p/28588)
-  1. Rename ina219 to ina2xx base class
-  2. Implement necessary changes to base class to provide access to milliamps &
+  1. Implement necessary changes to base class to provide access to milliamps &
      milliwatts for ina231.  This will require a bit more surgery as the INA219
      provided CNVR & OVF bits inside the BUSV registers while the INA231 has
      moved them to the REG_MSKEN register.

@@ -17,6 +17,7 @@ import ec
 import gpio
 import hw_driver
 import i2c_reg
+import ina2xx
 import ina219
 import ina231
 import ltc1663
