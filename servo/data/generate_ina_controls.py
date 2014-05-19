@@ -7,18 +7,18 @@ import os
 import sys
 import time
 
-def dump_adcs(adcs):
+def dump_adcs(adcs, drvname='ina219'):
   """Dump xml formatted INA219 adcs for servod.
 
   Args:
-    module_name: name of python module file to load that contains ina array
-      specification.  Each array element is a tuple consisting of:
+    adcs: array of adc elements.  Each array element is a tuple consisting of:
         slv: int representing the i2c slave address
         name: string name of the power rail
         sense: float of sense resitor size in ohms
         nom: float of nominal voltage of power rail.
         mux: string name of i2c mux leg these ADC's live on
         is_calib: boolean to determine if calibration is possible for this rail
+    drvname: string name of adc driver to enumerate for controlling the adc.
 
   Returns:
     string (large) of xml for the system config of these ADCs to eventually be
@@ -30,10 +30,11 @@ def dump_adcs(adcs):
     rsp += (
       '<control><name>%(name)s_mv</name>\n'
       '<doc>Voltage of %(name)s rail in millivolts on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="2" drv="ina219" slv="%(slv)s"'
+      '<params interface="2" drv="%(drvname)s" slv="%(slv)s"'
       ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="millivolts"'
       ' nom="%(nom)s">\n</params></control>\n'
-      ) % {'name':name, 'slv':slv, 'mux':mux, 'sense':sense, 'nom':nom}
+      ) % {'name':name, 'drvname':drvname, 'slv':slv, 'mux':mux, 'sense':sense,
+           'nom':nom}
 
     # in some instances we may not know sense resistor size ( re-work ) or other
     # custom factors may not allow for calibration and those reliable readings
@@ -43,41 +44,47 @@ def dump_adcs(adcs):
       rsp += (
       '<control><name>%(name)s_ma</name>\n'
       '<doc>Current of %(name)s rail in milliamps on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="2" drv="ina219" slv="%(slv)s"'
+      '<params interface="2" drv="%(drvname)s" slv="%(slv)s"'
       'rsense="%(sense)s" type="get" subtype="milliamps">\n'
       '</params></control>\n'
       '<control><name>%(name)s_mw</name>\n'
       '<doc>Power of %(name)s rail in milliwatts on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="2" drv="ina219" slv="%(slv)s"'
+      '<params interface="2" drv="%(drvname)s" slv="%(slv)s"'
       ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="milliwatts">\n'
-      '</params></control>\n')  % {'name':name, 'slv':slv, 'mux':mux,
-                                   'sense':sense, 'nom':nom}
+      '</params></control>\n')  % {'name':name, 'drvname':drvname, 'slv':slv,
+                                   'mux':mux, 'sense':sense, 'nom':nom}
 
     for i, reg in enumerate(regs):
       rsp += (
         '<control><name>%(name)s_%(reg)s_reg</name>\n'
         '<doc>Raw register value of %(reg)s on i2c_mux:%(mux)s</doc>'
-        '<params cmd="get" interface="2" drv="ina219" slv="%(slv)s"'
+        '<params cmd="get" interface="2" drv="%(drvname)s" slv="%(slv)s"'
         ' subtype="readreg" reg="%(i)s" mux="%(mux)s"'
-        ' fmt="hex">\n</params>') % {'name':name, 'slv':slv,
+        ' fmt="hex">\n</params>') % {'name':name, 'drvname':drvname, 'slv':slv,
                                                'mux':mux, 'sense':sense,
                                                'reg':reg, 'i':i}
       if reg == "cfg":
         rsp += (
-          '<params cmd="set" interface="2" drv="ina219" slv="%(slv)s"'
+          '<params cmd="set" interface="2" drv="%(drvname)s" slv="%(slv)s"'
           ' subtype="writereg" reg="%(i)s" mux="%(mux)s"'
-          ' fmt="hex">\n</params></control>') % {'slv':slv, 'mux':mux,
-                                                 'sense':sense, 'reg':reg,
-                                                 'i':i}
+          ' fmt="hex">\n</params></control>') % {'drvname':drvname, 'slv':slv,
+                                                 'mux':mux, 'sense':sense,
+                                                 'reg':reg, 'i':i}
       else:
         rsp += ('</control>')
   return rsp
 
 def main():
-  if len(sys.argv) != 2:
-    raise Exception("Missing arg with name of py file w/ inas list declared")
+  if len(sys.argv) != 3:
+    raise Exception("Missing args.  %s <filename.py> <drvname>" % sys.argv[0])
+
   module_name = sys.argv[1]
   ina_pkg = imp.load_module(module_name, *imp.find_module(module_name))
+  drvname = sys.argv[2]
+  drvpath = os.path.join(os.environ['HDCTOOLS_SOURCE_DIR'], '..', 'drv',
+                         drvname + '.py')
+  if not os.path.isfile(drvpath):
+    raise Exception("Unable to locate driver for %s at %s" % (drvname, drvpath))
 
   f = open('%s.xml' % module_name, 'w')
   f.write("<?xml version=\"1.0\"?>\n<root>\n")
@@ -90,7 +97,7 @@ def main():
   except Exception:
     raise
 
-  f.write(dump_adcs(ina_pkg.inas))
+  f.write(dump_adcs(ina_pkg.inas, drvname))
   f.write("</root>")
   f.close()
   rv = os.system("tidy -quiet -mi -xml %s.xml" % module_name)
