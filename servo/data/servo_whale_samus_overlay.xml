@@ -1,14 +1,21 @@
 <root>
-  <!-- TODO (jchuang): include samus config with different flex setting -->
+  <!-- ********** Maps ********** -->
+  <include>
+    <name>common.xml</name>
+  </include>
   <map>
     <name>color_timing</name>
+    <doc>Integration time of color sensor</doc>
     <params timing_12ms="12" timing_100ms="100" timing_400ms="400"></params>
   </map>
   <map>
     <name>color_gain</name>
+    <doc>Analog gain of color sensor</doc>
     <params gain_1x="1" gain_4x="4" gain_16x="16" gain_64x="64">
     </params>
   </map>
+  <!-- ********** I2C related controls *********** -->
+  <!-- BB_I2C slv 0x39 : TCS3414 -->
   <control>
     <name>whale_color1_HSV</name>
     <doc>HSV coordinates of color sensor 1</doc>
@@ -26,5 +33,122 @@
     <doc>ADC gain of color sensor 1</doc>
     <params cmd="set" subtype="gain" interface="2" drv="tcs3414" slv="0x39"
             map="color_gain" init="gain_1x"></params>
+  </control>
+  <!-- BB_I2C slv 0x74 : ioexpander port 0 -->
+  <control>
+    <name>whale_usbhub_rst</name>
+    <doc>Reset USB Hub on Larvae. Need to assert and deassert.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="0" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>whale_xpander_rst</name>
+    <doc>Reset IO expanders. This will reset the IO expanders itself. Need to
+    restart servod after asserting this.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="6" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>whale_input_rst</name>
+    <doc>Reset SR latches of input buttons. Need to assert and deassert.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="7" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x74 : ioexpander port 1 -->
+  <control>
+    <name>whale_elctro_magnet</name>
+    <doc>Enable electro magnet (to emulate lid switch)</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="0" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_audio_plug_det</name>
+    <doc>Enable audio plug detection for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_battery_on</name>
+    <doc>Enable battery for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_dc_in</name>
+    <doc>Enable DC for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_write_protect</name>
+    <doc>Enable write protect for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="4" width="1" map="onoff" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x75 : ioexpander port 0 -->
+  <control>
+    <name>whale_pass_led</name>
+    <doc>Enable Pass LED</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="6" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fail_led</name>
+    <doc>Enable Fail LED</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="7" width="1" map="onoff" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x75 : ioexpander port 1 -->
+  <!-- BB_I2C slv 0x76 : ioexpander port 0 -->
+  <control>
+    <name>whale_debug_mode_en</name>
+    <doc>Debug mode is enabled</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="0" width="1" map="onoff"></params>
+  </control>
+  <!-- BB_I2C slv 0x76 : ioexpander port 1 -->
+  <control>
+    <name>whale_ec_flash_btn</name>
+    <doc>Latched state of EC flashing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="0" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_fw_flash_btn</name>
+    <doc>Latched state of firmware flashing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="1" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_image_flash_btn</name>
+    <doc>Latched state of button to flash default image</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="2" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_bug_filing_btn</name>
+    <doc>Latched state of bug filing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="3" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_usbimg_flash_btn</name>
+    <doc>Latched state of button to flash image from external USB disk</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="4" width="1" map="onoff"></params>
+  </control>
+  <!-- BB_I2C slv 0x77 : ioexpander port 0 -->
+  <!-- BB_I2C slv 0x77 : ioexpander port 1 -->
+  <control>
+    <name>whale_fixture_start_btn</name>
+    <doc>Latched state of fixture start button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_fixture_stop_btn</name>
+    <doc>Latched state of fixture stop button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="7" width="1" map="onoff"></params>
   </control>
 </root>
