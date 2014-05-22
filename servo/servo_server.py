@@ -132,8 +132,10 @@ class Servod(object):
       return keyboard_handlers.StoutHandler(servo)
     elif board in ('mccloud', 'monroe', 'panther', 'tricky', 'zako'):
       if self._usbkm232 is None:
-        raise Exception("No device specified when "
-                        "initializing usbkm232 keyboard handler")
+        logging.warn("No device path specified for usbkm232 handler. Returning "
+                     "the DefaultHandler, which is likely the wrong keyboard "
+                     "handler for the board type specified.")
+        return keyboard_handlers.DefaultHandler(servo)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
       return keyboard_handlers.DefaultHandler(servo)
