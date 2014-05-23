@@ -9,7 +9,7 @@ import hw_driver
 class PowerStateDriver(hw_driver.HwDriver):
   """Abstract superclass to provide board-specific power operations.
 
-  This driver handles a single control with three settings:
+  This driver handles a single control with these settings:
     * 'off' - This must power the DUT off, regardless of its
       current state.
     * 'on' - This powers the DUT on in normal (not recovery) mode.
@@ -17,6 +17,9 @@ class PowerStateDriver(hw_driver.HwDriver):
       currently powered off.
     * 'rec' - Equivalent to 'on', except that the DUT boots in
       recovery mode.
+    * 'reset' - Equivalent to 'off' followed by 'on'.
+      Additionally, the EC will be reset as by the 'cold_reset'
+      signal.
 
   Actual implementation of the required behaviors is delegated to
   the methods `_power_off()` and `_power_on()`, which must be
@@ -27,6 +30,7 @@ class PowerStateDriver(hw_driver.HwDriver):
   _STATE_OFF = 'off'
   _STATE_ON = 'on'
   _STATE_REC_MODE = 'rec'
+  _STATE_RESET_CYCLE = 'reset'
 
   REC_ON = 'on'
   REC_OFF = 'off'
@@ -89,6 +93,17 @@ class PowerStateDriver(hw_driver.HwDriver):
     """
     raise NotImplementedError()
 
+  def _reset_cycle(self):
+    """Force a power cycle using cold reset.
+
+    After the call, the DUT will be powered on in normal (not
+    recovery) mode; the call is guaranteed to work regardless of
+    the state of the DUT prior to the call.  This call must use
+    cold_reset to guarantee that the EC also restarts.
+
+    """
+    self._cold_reset()
+
   def set(self, statename):
     """Set power state according to `statename`."""
     if statename == self._STATE_OFF:
@@ -97,8 +112,11 @@ class PowerStateDriver(hw_driver.HwDriver):
       self._power_on(self.REC_OFF)
     elif statename == self._STATE_REC_MODE:
       self._power_on(self.REC_ON)
+    elif statename == self._STATE_RESET_CYCLE:
+      self._reset_cycle()
     else:
       raise ValueError("Invalid power_state setting: '%s'. Try one of "
-                       "'%s', '%s', or '%s'." % (statename,
+                       "'%s', '%s', '%s', or '%s'." % (statename,
                            self._STATE_ON, self._STATE_OFF,
-                           self._STATE_REC_MODE))
+                           self._STATE_REC_MODE,
+                           self._STATE_RESET_CYCLE))

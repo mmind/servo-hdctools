@@ -23,3 +23,9 @@ class alexPower(power_state.PowerStateDriver):
     if rec_mode == self.REC_ON:
       time.sleep(self._RECOVERY_INSERT_DELAY)
       self._interface.set('rec_mode', self.REC_OFF)
+
+  def _reset_cycle(self):
+    # Use _power_off() rather than _cold_reset() directly
+    # for the sake of Stumpy, which inherits this method.
+    self._power_off()
+    self._power_on(self.REC_OFF)
