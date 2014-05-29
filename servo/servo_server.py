@@ -130,7 +130,7 @@ class Servod(object):
       return keyboard_handlers.ParrotHandler(servo)
     elif board == 'stout':
       return keyboard_handlers.StoutHandler(servo)
-    elif board in ('monroe', 'panther', 'tricky', 'zako'):
+    elif board in ('mccloud', 'monroe', 'panther', 'tricky', 'zako'):
       if self._usbkm232 is None:
         raise Exception("No device specified when "
                         "initializing usbkm232 keyboard handler")
