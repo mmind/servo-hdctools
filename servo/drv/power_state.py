@@ -62,6 +62,20 @@ class PowerStateDriver(hw_driver.HwDriver):
     # re-initialize.
     time.sleep(self._reset_recovery_time)
 
+  def _warm_reset(self):
+    """Apply warm reset to the DUT.
+
+    This asserts, then de-asserts the 'warm_reset' signal.  The
+    exact affect on the hardware varies depending on the board type.
+
+    """
+    self._interface.set('warm_reset', 'on')
+    time.sleep(self._reset_hold_time)
+    self._interface.set('warm_reset', 'off')
+    # After the reset, give the EC the time it needs to
+    # re-initialize.
+    time.sleep(self._reset_recovery_time)
+
   def _power_off(self):
     """Power off the DUT.
 
