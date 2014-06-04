@@ -12,4 +12,9 @@
     <params subtype="lid_open" interface="7" drv="ec" map="yesno"
     clobber_ok=""></params>
   </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params clobber_ok="" reset_recovery="5.0"/>
+  </control>
 </root>
