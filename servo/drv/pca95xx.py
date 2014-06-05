@@ -10,8 +10,31 @@ Either:
    pca9500 compatible:
      PCA9500 -- 8bit GPIO expander + EEPROM
 """
+import contextlib
+import os
+import sys
+
 import pca9500
 import pca9537
+
+@contextlib.contextmanager
+def stderr_redirected(to=os.devnull):
+  """Quiet stderr."""
+
+  fd = sys.stderr.fileno()
+  def _redirect_stdout(to):
+    sys.stderr.close()
+    os.dup2(to.fileno(), fd)
+    sys.stderr = os.fdopen(fd, 'w')
+
+  with os.fdopen(os.dup(fd), 'w') as old_stderr:
+    with open(to, 'w') as file:
+      _redirect_stderr(to=file)
+    try:
+      yield
+    finally:
+      _redirect_stderr(to=old_stderr)
+
 
 def pca95xx(interface, params):
   """Method to determine real driver object to instantiate.
@@ -29,19 +52,17 @@ def pca95xx(interface, params):
     formally distiguish them but the pca9500 does have an EEPROM at + 0x30 from
     the base slave address which serves as a reasonable identifier.
 
-    TODO(crbug.com/233747): In case of I2c interface via ftdi (libftdii2c.so)
-    there is no simple way inside python to disable stdout if it is being
-    printed from libc.  For that reason, when pca9537 device is encountered
-    you'll see the following benign error during hwinit:
-      -E- :: Slave 0x56 failed wr_rd with fic->error:0 err:2
-
     Returns:
       driver object pca9500 if EEPROM identified else pca9537.
     """
     eeprom_slave = 0x30 + slave
 
     try:
-      interface.wr_rd(eeprom_slave, [], 1)
+      # Due to stderr messages generated for failure to read pca9500 slave we
+      # quiet stderr for those flex cables that have pca9537 instead.  See
+      # crbug.com/233747 for more details.
+      with stderr_redirected():
+        interface.wr_rd(eeprom_slave, [], 1)
       base = pca9500.pca9500
     except Exception:
       base = pca9537.pca9537
