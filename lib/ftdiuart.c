@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 #include <termios.h>
 #include <unistd.h>
-#include <usb.h>
 
 #include "ftdi_common.h"
 #include "ftdiuart.h"
