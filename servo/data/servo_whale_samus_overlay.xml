@@ -53,7 +53,8 @@
   <control>
     <name>whale_xpander_rst</name>
     <doc>Reset IO expanders. This will reset the IO expanders itself. Need to
-    restart servod after asserting this.</doc>
+    restart servod after asserting this. Setting this control will always fail
+    because the IO expander 0x74 will reset itself.</doc>
     <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
             offset="6" width="1" map="onoff_i" init="off"></params>
   </control>
@@ -94,7 +95,61 @@
     <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
             offset="4" width="1" map="onoff" init="off"></params>
   </control>
+  <control>
+    <name>whale_output_reserve1</name>
+    <doc>Output reserve 1</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="5" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_output_reserve2</name>
+    <doc>Output reserve 2</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="6" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_output_reserve3</name>
+    <doc>Output reserve 3</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="7" width="1" map="onoff" init="off"></params>
+  </control>
   <!-- BB_I2C slv 0x75 : ioexpander port 0 -->
+  <control>
+    <name>whale_fixture_ctrl1</name>
+    <doc>Fixture control 1</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="0" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl2</name>
+    <doc>Fixture control 2</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl3</name>
+    <doc>Fixture control 3</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl4</name>
+    <doc>Fixture control 4</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl5</name>
+    <doc>Fixture control 5</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="4" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl6</name>
+    <doc>Fixture control 6</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="5" width="1" map="onoff" init="off"></params>
+  </control>
   <control>
     <name>whale_pass_led</name>
     <doc>Enable Pass LED</doc>
@@ -145,6 +200,24 @@
     <doc>Latched state of button to flash image from external USB disk</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
             offset="4" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn1</name>
+    <doc>Latched state of reserve button 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="5" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn2</name>
+    <doc>Latched state of reserve button 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn3</name>
+    <doc>Latched state of reserve button 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="7" width="1" map="onoff"></params>
   </control>
   <!-- BB_I2C slv 0x77 : ioexpander port 0 -->
   <!-- BB_I2C slv 0x77 : ioexpander port 1 -->
