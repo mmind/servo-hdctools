@@ -6,8 +6,13 @@ import time
 import cros_ec_power
 
 
-class crosEcPowerX86(cros_ec_power.CrosECPower):
-  """Driver for power_state for x86 boards, link (a.k.a. Pixel) etc."""
+class crosEcHardrecPower(cros_ec_power.CrosECPower):
+
+  """Driver for power_state that uses the rec_mode signal.
+
+  A number of boards (generally x86-based systems) support triggering
+  recovery with the hardware `rec_mode` signal.
+  """
 
   # Time in seconds to allow the BIOS and EC to detect the
   # 'rec_mode' signal after cold reset.

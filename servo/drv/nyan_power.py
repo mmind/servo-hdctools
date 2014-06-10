@@ -1,12 +1,11 @@
 # Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-import time
 
-import cros_ec_power_arm
+import cros_ec_softrec_power
 
 
-class nyanPower(cros_ec_power_arm.crosEcPowerArm):
+class nyanPower(cros_ec_softrec_power.crosEcSoftrecPower):
   """Driver for power_state for nyan boards, e.g., nyan, big, blaze."""
 
   def _reset_cycle(self):

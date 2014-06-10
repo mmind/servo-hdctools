@@ -5,11 +5,16 @@ import time
 
 import cros_ec_power
 
-HOSTEVENT_KEYBOARD_RECOVERY = 0x00004000
 
+class crosEcSoftrecPower(cros_ec_power.CrosECPower):
 
-class crosEcPowerArm(cros_ec_power.CrosECPower):
-  """Driver for power_state for arm boards, e.g., daisy."""
+  """Driver for power_state that uses the EC to trigger recovery.
+
+  A number of boards (generally, the ARM based boards and some x86
+  based board) require using the EC to trigger recovery mode.
+  """
+
+  _HOSTEVENT_RECOVERY_CMD = 'hostevent set 0x4000'
 
   # Time in seconds to allow the BIOS and EC to detect the
   # 'rec_mode' signal after cold reset.
@@ -26,5 +31,5 @@ class crosEcPowerArm(cros_ec_power.CrosECPower):
       time.sleep(self._RECOVERY_DETECTION_DELAY)
       # ... and tell the EC to tell the CPU we're in recovery mode.
       self._interface.set('ec_uart_cmd',
-                          'hostevent set %#x' % HOSTEVENT_KEYBOARD_RECOVERY)
+                          self._HOSTEVENT_RECOVERY_CMD)
     self._interface.power_short_press()

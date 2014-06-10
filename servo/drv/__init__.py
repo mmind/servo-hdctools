@@ -8,9 +8,9 @@ Details of the drivers can be found in hw_driver.py
 """
 import alex_power
 import arm_ec
+import cros_ec_hardrec_power
 import cros_ec_power
-import cros_ec_power_arm
-import cros_ec_power_x86
+import cros_ec_softrec_power
 import daisy_ec
 import daisy_power
 import ec

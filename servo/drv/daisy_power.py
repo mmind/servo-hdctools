@@ -1,13 +1,10 @@
 # Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-"""Driver for power_state for daisy.
-"""
-import time
 
-import cros_ec_power_arm
+import cros_ec_softrec_power
 
-class daisyPower(cros_ec_power_arm.crosEcPowerArm):
+class daisyPower(cros_ec_softrec_power.crosEcSoftrecPower):
   """Driver for power_state for daisy and spring."""
 
   def _power_off(self):

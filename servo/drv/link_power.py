@@ -3,10 +3,10 @@
 # found in the LICENSE file.
 import time
 
-import cros_ec_power_x86
+import cros_ec_hardrec_power
 
 
-class linkPower(cros_ec_power_x86.crosEcPowerX86):
+class linkPower(cros_ec_hardrec_power.crosEcHardrecPower):
   """Driver for power_state for link."""
 
   def _power_on_normal(self):
