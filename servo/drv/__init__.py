@@ -8,6 +8,7 @@ Details of the drivers can be found in hw_driver.py
 """
 import alex_power
 import arm_ec
+import beltino_power
 import cros_ec_hardrec_power
 import cros_ec_power
 import cros_ec_softrec_power
