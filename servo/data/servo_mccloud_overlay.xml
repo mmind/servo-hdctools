@@ -1,5 +1,5 @@
 <root>
   <include>
-    <name>servoflex_v2_r0_p50.xml</name>
+    <name>servo_beltino_overlay.xml</name>
   </include>
 </root>

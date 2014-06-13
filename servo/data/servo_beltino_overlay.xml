@@ -1,0 +1,11 @@
+<root>
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params clobber_ok="" cmd="set" interface="servo" drv="beltino_power"
+            input_type="str" reset_hold="0.1" reset_recovery="0.0"/>
+  </control>
+</root>
