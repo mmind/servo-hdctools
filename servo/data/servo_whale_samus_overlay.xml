@@ -163,6 +163,54 @@
             offset="7" width="1" map="onoff" init="off"></params>
   </control>
   <!-- BB_I2C slv 0x75 : ioexpander port 1 -->
+  <control>
+    <name>plankton_fb1</name>
+    <doc>Plankton feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb2</name>
+    <doc>Plankton feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb3</name>
+    <doc>Plankton feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb4</name>
+    <doc>Plankton feedback 4</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb5</name>
+    <doc>Plankton feedback 5</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb6</name>
+    <doc>Plankton feedback 6</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb7</name>
+    <doc>Plankton feedback 7</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="6" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb8</name>
+    <doc>Plankton feedback 8</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="7" width="1" map="onoff_i"></params>
+  </control>
   <!-- BB_I2C slv 0x76 : ioexpander port 0 -->
   <control>
     <name>whale_debug_mode_en</name>
@@ -170,6 +218,26 @@
     <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
             offset="0" width="1" map="onoff"></params>
   </control>
+  <!-- Do not expose KRILL_NXP_INT, XPANDER3_INT and XPANDER4_INT -->
+  <control>
+    <name>whale_a_fb1</name>
+    <doc>Latched state of Whale reserved feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="4" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_a_fb2</name>
+    <doc>Latched state of Whale reserved feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="5" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_a_fb3</name>
+    <doc>Latched state of Whale reserved feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <!-- KB_SHFG_FB is deprecated  -->
   <!-- BB_I2C slv 0x76 : ioexpander port 1 -->
   <control>
     <name>whale_ec_flash_btn</name>
@@ -220,7 +288,91 @@
             offset="7" width="1" map="onoff"></params>
   </control>
   <!-- BB_I2C slv 0x77 : ioexpander port 0 -->
+  <control>
+    <name>fixture_fb1</name>
+    <doc>Fixture feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb2</name>
+    <doc>Fixture feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb3</name>
+    <doc>Fixture feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb4</name>
+    <doc>Fixture feedback 4</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb5</name>
+    <doc>Fixture feedback 5</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb6</name>
+    <doc>Fixture feedback 6</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb7</name>
+    <doc>Fixture feedback 7</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="6" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb8</name>
+    <doc>Fixture feedback 8</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="7" width="1" map="onoff_i"></params>
+  </control>
   <!-- BB_I2C slv 0x77 : ioexpander port 1 -->
+  <control>
+    <name>fixture_fb9</name>
+    <doc>Fixture feedback 9</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb10</name>
+    <doc>Fixture feedback 10</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb11</name>
+    <doc>Fixture feedback 11</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb12</name>
+    <doc>Fixture feedback 12</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb13</name>
+    <doc>Fixture feedback 13</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb14</name>
+    <doc>Fixture feedback 14</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
   <control>
     <name>whale_fixture_start_btn</name>
     <doc>Latched state of fixture start button</doc>
