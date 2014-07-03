@@ -51,6 +51,36 @@
             offset="0" width="1" map="onoff_i" init="off"></params>
   </control>
   <control>
+    <name>whale_kb_shfg_data</name>
+    <doc>Connect to SER pin of first keyboard shift register.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_latch</name>
+    <doc>Connect to RCLK pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_clk</name>
+    <doc>Connect to SRCLK pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_en</name>
+    <doc>Connect to OE pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="4" width="1" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_rst</name>
+    <doc>Connect to SRCLR pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="5" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
     <name>whale_xpander_rst</name>
     <doc>Reset IO expanders. This will reset the IO expanders itself. Need to
     restart servod after asserting this. Setting this control will always fail
