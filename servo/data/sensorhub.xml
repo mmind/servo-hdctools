@@ -1,0 +1,93 @@
+<root>
+  <!-- Sensor Hub UART Controls -->
+  <control>
+    <name>sh_uart_pty</name>
+    <doc>Pseudo-terminal (pty) thats connnected to Sensor Hub
+    uart console</doc>
+    <params cmd="get" subtype="pty" interface="6" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>sh_uart_baudrate</name>
+    <doc>Baudrate for Sensor Hub uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="6"></params>
+  </control>
+  <control>
+    <name>sh_uart_parity</name>
+    <doc>Parity for Sensor Hub uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="6" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>sh_uart_sbits</name>
+    <doc>Number of stop bits for Sensor Hub uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="6" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>sh_uart_bits</name>
+    <doc>Number of data bits for Sensor Hub uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="6" map="uart_bits"></params>
+  </control>
+  <!-- Sensor Hub UART Automation Controls -->
+  <control>
+    <name>sh_uart_cmd</name>
+    <doc>Set to send command to Sensor Hub UART. Get to obtain the
+    matched results with the regular expression of
+    sh_uart_regexp.</doc>
+    <params subtype="uart_cmd" interface="6" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>sh_uart_multicmd</name>
+    <doc>Set to send multiple commands to Sensor Hub UART.</doc>
+    <params subtype="uart_multicmd" interface="6" drv="uart"
+    input_type="str" cmd="set"></params>
+  </control>
+  <control>
+    <name>sh_uart_regexp</name>
+    <doc>List of regular expressions to match the response of
+    sh_uart_cmd.</doc>
+    <params subtype="uart_regexp" interface="6" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>sh_uart_timeout</name>
+    <doc>Timeout value for a response after issuing a command on
+    sh_uart_cmd.</doc>
+    <params subtype="uart_timeout" interface="6" drv="uart"
+    input_type="float"></params>
+  </control>
+  <control>
+    <name>sh_uart_capture</name>
+    <doc>Enables capture of Sensor Hub console via
+    sh_uart_stream</doc>
+    <params subtype="uart_capture" interface="6" drv="uart"
+    map="onoff"></params>
+  </control>
+  <control>
+    <name>sh_uart_stream</name>
+    <doc>Sensor Hub console stream captured while sh_uart_capture is
+    set to 'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="6"
+    drv="uart"></params>
+  </control>
+  <!-- Sensor Hub UART Buffers & VREF Controls -->
+  <control>
+    <name>spi1_vref</name>
+    <alias>sh_uart_vref</alias>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>spi1_buf_en</name>
+    <alias>sh_uart_en</alias>
+    <params clobber_ok="" init="on"></params>
+  </control>
+  <control>
+    <name>spi1_buf_on_flex_en</name>
+    <alias>sh_uart_buf_on_flex_en</alias>
+    <params clobber_ok="" init="on"></params>
+  </control>
+</root>
