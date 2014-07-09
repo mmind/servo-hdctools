@@ -14,6 +14,16 @@
     <params gain_1x="1" gain_4x="4" gain_16x="16" gain_64x="64">
     </params>
   </map>
+  <map>
+    <name>lcm_row</name>
+    <doc>LCM cursor ranges from 0 to 3</doc>
+    <params r0="0" r1="1" r2="2" r3="3"></params>
+  </map>
+  <map>
+    <name>lcm_cmd</name>
+    <doc>LCM command list</doc>
+    <params clear="clear" home="home" bklon="bklon" bkloff="bkloff"></params>
+  </map>
   <!-- ********** INAs *********** -->
   <!-- INAs on Larvae board -->
   <include>
@@ -414,5 +424,24 @@
     <doc>Latched state of fixture stop button</doc>
     <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
             offset="7" width="1" map="onoff"></params>
+  </control>
+  <!-- LCM2004 -->
+  <control>
+    <name>whale_lcm_row</name>
+    <doc>Position LCM cursor</doc>
+    <params cmd="set" subtype="lcm_row" interface="2" drv="lcm2004" slv="0x27"
+            map="lcm_row"></params>
+  </control>
+  <control>
+    <name>whale_lcm_text</name>
+    <doc>Print text to LCM</doc>
+    <params cmd="set" subtype="lcm_text" interface="2" drv="lcm2004" slv="0x27"
+            input_type="str"></params>
+  </control>
+  <control>
+    <name>whale_lcm_cmd</name>
+    <doc>Send command to LCM</doc>
+    <params cmd="set" subtype="lcm_cmd" interface="2" drv="lcm2004" slv="0x27"
+             input_type="str" map="lcm_cmd"></params>
   </control>
 </root>
