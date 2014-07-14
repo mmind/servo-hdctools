@@ -65,6 +65,13 @@ for vid, pid in FRUITPIE_ID_DEFAULTS:
 
 SERVO_ID_DEFAULTS.extend(FRUITPIE_ID_DEFAULTS)
 
+# Plankton
+PLANKTON_ID_DEFAULTS = [(0x18d1, 0x500c)]
+for vid, pid in PLANKTON_ID_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+
+SERVO_ID_DEFAULTS.extend(PLANKTON_ID_DEFAULTS)
+
 # Allow Board overrides of interfaces as we've started to overload some servo V2
 # pinout functionality.  To-date just swapping EC SPI interface for USB PD MCU
 # UART

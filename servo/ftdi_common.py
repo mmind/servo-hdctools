@@ -32,6 +32,7 @@ SERVO_PID_DEFAULTS = \
      'toad_v1': [0x6015], #Vendor ID is 0x403 : FTDI
      'reston': [0x5007],
      'fruitpie': [0x5009],
+     'plankton': [0x500c],
      }
 
 SERVO_CONFIG_DEFAULTS = \
@@ -43,6 +44,7 @@ SERVO_CONFIG_DEFAULTS = \
      'toad_v1': ['toad.xml'],
      'reston': ['reston.xml'],
      'fruitpie': ['fruitpie.xml'],
+     'plankton': ['plankton.xml'],
      }
 
 class FtdiContext(ctypes.Structure):
