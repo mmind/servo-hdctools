@@ -4,7 +4,8 @@
 """Design Under Test (DUT) specifics."""
 
 # dictionary of alias names for various designs.
-DUT_ALIASES = {'daisy_spring': 'spring'}
+DUT_ALIASES = {'daisy_spring': 'spring',
+               'rush_ryu': 'ryu'}
 
 def get_board_name(board):
   """Return DUT board name.
