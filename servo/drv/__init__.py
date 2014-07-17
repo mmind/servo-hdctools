@@ -25,6 +25,7 @@ import lcm2004
 import ltc1663
 import link_power
 import lumpy_power
+import m24c02
 import parrot_ec
 import parrot_power
 import pca9500

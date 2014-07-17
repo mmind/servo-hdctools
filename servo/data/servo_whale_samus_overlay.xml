@@ -442,6 +442,23 @@
     <name>whale_lcm_cmd</name>
     <doc>Send command to LCM</doc>
     <params cmd="set" subtype="lcm_cmd" interface="2" drv="lcm2004" slv="0x27"
-             input_type="str" map="lcm_cmd"></params>
+            input_type="str" map="lcm_cmd"></params>
+  </control>
+  <!-- BB_I2C-2 slv 0x50 - 0X57 : EEPROM M24C02 -->
+  <control>
+    <name>plankton_rom_1_params</name>
+    <doc>Get or set EEPROM paramters on plankton 1</doc>
+    <params cmd="get" subtype="rom_params" interface="4" drv="m24c02"
+            slv="0x50"></params>
+    <params cmd="set" subtype="rom_params" interface="4" drv="m24c02"
+            slv="0x50" input_type="str"></params>
+  </control>
+  <control>
+    <name>plankton_rom_1_data</name>
+    <doc>Get or set EEPROM data on plankton 1</doc>
+    <params cmd="get" subtype="data" interface="4" drv="m24c02"
+            slv="0x50"></params>
+    <params cmd="set" subtype="data" interface="4" drv="m24c02"
+            slv="0x50" input_type="str"></params>
   </control>
 </root>
