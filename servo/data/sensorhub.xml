@@ -78,7 +78,7 @@
   <control>
     <name>spi1_vref</name>
     <alias>sh_uart_vref</alias>
-    <params clobber_ok="" init="pp3300"></params>
+    <params clobber_ok="" init="off"></params>
   </control>
   <control>
     <name>spi1_buf_en</name>
