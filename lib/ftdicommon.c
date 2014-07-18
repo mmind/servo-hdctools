@@ -148,6 +148,7 @@ int fcom_args(struct ftdi_common_args *fargs, int argc, char **argv) {
       case 'd':
         fargs->serialname = malloc(strlen(optarg)+1);
         strcpy(fargs->serialname, optarg);
+        break;
       case 'g':
         fargs->direction = strtoul(optarg, &ptr, 0);
         if (ptr[0] != ':') {
