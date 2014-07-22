@@ -85,4 +85,38 @@
     <params interface="1" drv="gpio" offset="3" map="onoff" od="PU" init="off">
     </params>
   </control>
+  <!-- USB-C control -->
+  <map>
+    <name>pdrole</name>
+    <doc>map for USB-PD port role</doc>
+    <params sink="0" src5v="1" src12v="2"></params>
+  </map>
+  <map>
+    <name>usbcmux</name>
+    <doc>map for USB-C port mux</doc>
+    <params usb="0" dp="1"></params>
+  </map>
+  <map>
+    <name>polarity</name>
+    <doc>map for USB-C polarity</doc>
+    <params cc1="0" cc2="1"></params>
+  </map>
+  <control>
+    <name>usbc_role</name>
+    <doc>USB-PD port role</doc>
+    <params interface="2" drv="plankton" subtype="usbc_role" map="pdrole"
+    init="src5v"></params>
+  </control>
+  <control>
+    <name>usbc_mux</name>
+    <doc>USB-C port mux</doc>
+    <params interface="2" drv="plankton" subtype="usbc_mux" map="usbcmux"
+    init="usb"></params>
+  </control>
+  <control>
+    <name>usbc_polarity</name>
+    <doc>USB-C polarity</doc>
+    <params interface="2" drv="plankton" subtype="usbc_polarity" map="polarity"
+    init="cc1"></params>
+  </control>
 </root>
