@@ -11,7 +11,8 @@ INA219		= wario.xml waluigi.xml servo_loc.xml link_dvt.xml link.xml    \
 		  snow.xml daisy.xml mccroskey.xml spring_v0_r0.xml spring.xml \
 		  pi.xml pit.xml falco.xml peppy.xml rambi.xml nyan.xml \
 		  samus_p1.xml rambi_1v5_r0_loc.xml rambi_2v0_r0_loc.xml \
-		  skate.xml big.xml whale_samus_larvae.xml storm.xml
+		  skate.xml big.xml whale_samus_larvae.xml storm.xml \
+		  veyron_p0.xml
 
 INA231		= samus.xml whale_samus_dut.xml
 
