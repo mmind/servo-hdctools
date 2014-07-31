@@ -15,6 +15,7 @@ import urllib
 
 # TODO(tbroch) deprecate use of relative imports
 from drv.hw_driver import HwDriverError
+import bbadc
 import bbi2c
 import bbgpio
 import bbuart
@@ -180,6 +181,10 @@ class Servod(object):
       raise ServodError('Opening gpio interface. %s ( %d )' % (e.msg, e.value))
 
     return fobj
+
+  def _init_bb_adc(self, interface):
+    """Initalize beaglebone ADC interface."""
+    return bbadc.BBadc()
 
   def _init_bb_gpio(self, interface):
     """Initalize beaglebone gpio interface."""
