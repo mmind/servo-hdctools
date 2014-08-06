@@ -26,6 +26,9 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
     parsed by servod daemon ( servo/system_config.py )
   """
   regs = ['cfg', 'shv', 'busv', 'pwr', 'cur', 'cal']
+  if drvname == 'ina231':
+    regs.extend(['msken', 'alrt'])
+
   rsp = ""
   for (slv, name, nom, sense, mux, is_calib) in adcs:
     rsp += (

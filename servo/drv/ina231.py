@@ -19,9 +19,6 @@ class ina231(ina2xx.ina2xx):
   Beyond that the coefficients for calculating current & power LSBs are slightly
   different.
   """
-  REG_MSKEN = 6
-  REG_ALRT = 7
-
   MAX_CALIB = 0xffff
 
   MSKEN_CNVR = 0x8

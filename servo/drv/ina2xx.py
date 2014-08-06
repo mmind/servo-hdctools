@@ -41,6 +41,9 @@ class ina2xx(hw_driver.HwDriver):
   REG_PWR = 3
   REG_CUR = 4
   REG_CALIB = 5
+  # Additional registers of INA231
+  REG_MSKEN = 6
+  REG_ALRT = 7
 
   # maximum number of re-reads of bus voltage to do before raising
   # exception for failing to see a data conversion.  Note the CNVR bit
@@ -132,6 +135,21 @@ class ina2xx(hw_driver.HwDriver):
     # so I'm whacking everything stateful
     self._calib_reg = None
     self._reg_cache = None
+
+  def _check_reg_index(self, reg):
+    """Validate register index is valid.
+
+    Args:
+      reg: integer of register index to check.
+
+    Raises: Ina2xxError if index out of range.
+    """
+    max_reg = self.REG_CALIB
+    if self._params['drv'] == 'ina231':
+      max_reg = self.REG_ALRT
+
+    if reg > max_reg or reg < self.REG_CFG:
+      raise Ina2xxError("register index %d, out of range" % reg)
 
   def _read_reg(self, reg):
     """Read architected register and return value."""
@@ -283,8 +301,7 @@ class ina2xx(hw_driver.HwDriver):
     if 'reg' not in self._params:
       raise Ina2xxError("no register defined in paramters")
     reg = int(self._params['reg'])
-    if reg > self.REG_CALIB or reg < self.REG_CFG:
-      raise Ina2xxError("register index %d, out of range" % reg)
+    self._check_reg_index(reg)
     return self._read_reg(reg)
 
   def _Set_writereg(self, value):
@@ -303,8 +320,7 @@ class ina2xx(hw_driver.HwDriver):
       reg = int(self._params['reg'])
     except ValueError, e:
       raise Ina2xxError(e)
-    if reg > self.REG_CALIB or reg < self.REG_CFG:
-      raise Ina2xxError("register index %d, out of range" % reg)
+    self._check_reg_index(reg)
     self._i2c_obj._write_reg(reg, value)
 
   def _wake(self):
