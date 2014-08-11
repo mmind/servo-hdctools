@@ -26,10 +26,10 @@ INTERFACE_DEFAULTS[0x18d1][0x5002] = \
 # servo v3
 INTERFACE_DEFAULTS[0x18d1][0x5004] = \
     ['bb_gpio',
-     {'name': 'bb_i2c', 'bus_num': 1},
+     {'name': 'dev_i2c', 'bus_num': 1},
      {'name': 'bb_uart', 'uart_num': 5,
       'txd': ['lcd_data8', 0x4], 'rxd': ['lcd_data9', 0x4]},
-     {'name': 'bb_i2c', 'bus_num': 2},
+     {'name': 'dev_i2c', 'bus_num': 2},
      'bb_adc',
      'dummy',
      {'name': 'bb_uart', 'uart_num': 1},

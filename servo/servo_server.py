@@ -23,6 +23,7 @@ import ftdigpio
 import ftdii2c
 import ftdi_common
 import ftdiuart
+import i2cbus
 import keyboard_handlers
 import servo_interfaces
 
@@ -219,6 +220,10 @@ class Servod(object):
   def _init_bb_i2c(self, interface):
     """Initalize beaglebone i2c interface."""
     return bbi2c.BBi2c(interface)
+
+  def _init_dev_i2c(self, interface):
+    """Initalize Linux i2c-dev interface."""
+    return i2cbus.I2CBus('/dev/i2c-%d' % interface['bus_num'])
 
   def _init_ftdi_uart(self, interface):
     """Initialize ftdi uart inteface and open for use
