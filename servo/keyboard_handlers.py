@@ -27,7 +27,7 @@ class _BaseHandler(object):
     # existing platforms, but if this code is to be used for
     # qualification of new hardware, we should be less generous.
     LONG_DELAY = 8.5
-    SHORT_DELAY = 0.1
+    SHORT_DELAY = 0.2
     NORMAL_TRANSITION_DELAY = 1.2
 
     # Maximum number of times to re-read power button on release.
