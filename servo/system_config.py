@@ -230,7 +230,17 @@ class SystemConfig(object):
           continue
 
         if 'init' in set_dict:
-          self.hwinit.append((name, set_dict['init']))
+          hwinit_found = False
+          # only allow one hwinit per control
+          if clobber_ok:
+            for i, (hwinit_name, _) in enumerate(self.hwinit):
+              if hwinit_name == name:
+                self.hwinit[i] = (name, set_dict['init'])
+                hwinit_found = True
+                break
+
+          if not hwinit_found:
+            self.hwinit.append((name, set_dict['init']))
 
         if clobber_ok and name in self.syscfg_dict[tag]:
           # it's an existing control

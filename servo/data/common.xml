@@ -40,6 +40,11 @@
     <doc>Number of data bits for uart line properties</doc>
     <params five="5" six="6" seven="7" eight="8"></params>
   </map>
+  <map>
+    <name>na</name>
+    <doc>not applicable map</doc>
+    <params not_applicable="0"></params>
+  </map>
   <control>
     <name>sleep</name>
     <doc>Forces a delay in seconds, according to the parameter</doc>

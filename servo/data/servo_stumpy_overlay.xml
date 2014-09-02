@@ -1,4 +1,7 @@
 <root>
+  <include>
+    <name>chromebox.xml</name>
+  </include>
   <control>
     <name>dev_mode</name>
     <params clobber_ok="" map="onoff"></params>

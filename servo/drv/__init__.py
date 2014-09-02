@@ -27,6 +27,7 @@ import ltc1663
 import link_power
 import lumpy_power
 import m24c02
+import na
 import parrot_ec
 import parrot_power
 import pca9500
