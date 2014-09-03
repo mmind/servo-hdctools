@@ -74,6 +74,13 @@
   </control>
   <!-- GPIOS -->
   <control>
+    <name>prog_en</name>
+    <doc>Enable boot_mode and cold_reset GPIOs</doc>
+    <params interface="1" drv="gpio" offset="0" map="yesno_i" init="no">
+    </params>
+  </control>
+  <!-- CBUS1 is no connect -->
+  <control>
     <name>boot_mode</name>
     <doc>EC monitor mode gpio</doc>
     <params interface="1" drv="gpio" offset="2" map="yesno" init="no">
@@ -82,7 +89,7 @@
   <control>
     <name>cold_reset</name>
     <doc>STM32 reset line</doc>
-    <params interface="1" drv="gpio" offset="3" map="onoff" od="PU" init="off">
+    <params interface="1" drv="gpio" offset="3" map="onoff" init="off">
     </params>
   </control>
   <!-- USB-C control -->
