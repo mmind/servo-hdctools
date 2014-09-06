@@ -11,7 +11,8 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params clobber_ok="" reset_recovery="5.0"/>
+    <params drv="cros_ec_softrec_power" clobber_ok=""
+    shutdown_delay="11.0" />
   </control>
   <!-- Override from definition in servo_v2_r0.xml -->
   <control>
