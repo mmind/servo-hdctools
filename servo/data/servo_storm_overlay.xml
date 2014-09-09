@@ -2,4 +2,9 @@
   <include>
     <name>servoflex_v2_r0_p50.xml</name>
   </include>
+  <control>
+    <name>dev_mode</name>
+    <doc>dev_mode GPIO is inverted on storm</doc>
+    <params map="onoff_i" clobber_ok=""></params>
+  </control>
 </root>
