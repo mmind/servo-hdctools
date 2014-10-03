@@ -19,4 +19,10 @@
     <alias>sh_reset</alias>
     <params clobber_ok=""></params>
   </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params clobber_ok="" shutdown_delay="3.0" reset_recovery="5.0"
+            drv="cros_ec_softrec_power" />
+  </control>
 </root>
