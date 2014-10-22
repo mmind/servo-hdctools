@@ -3,6 +3,9 @@
   <include>
     <name>common.xml</name>
   </include>
+  <include>
+    <name>servo_krill_overlay.xml</name>
+  </include>
   <map>
     <name>color_timing</name>
     <doc>Integration time of color sensor</doc>
@@ -448,17 +451,17 @@
   <control>
     <name>plankton_rom_1_params</name>
     <doc>Get or set EEPROM paramters on plankton 1</doc>
-    <params cmd="get" subtype="rom_params" interface="4" drv="m24c02"
+    <params cmd="get" subtype="rom_params" interface="2" drv="m24c02"
             slv="0x50"></params>
-    <params cmd="set" subtype="rom_params" interface="4" drv="m24c02"
+    <params cmd="set" subtype="rom_params" interface="2" drv="m24c02"
             slv="0x50" input_type="str"></params>
   </control>
   <control>
     <name>plankton_rom_1_data</name>
     <doc>Get or set EEPROM data on plankton 1</doc>
-    <params cmd="get" subtype="data" interface="4" drv="m24c02"
+    <params cmd="get" subtype="data" interface="2" drv="m24c02"
             slv="0x50"></params>
-    <params cmd="set" subtype="data" interface="4" drv="m24c02"
+    <params cmd="set" subtype="data" interface="2" drv="m24c02"
             slv="0x50" input_type="str"></params>
   </control>
   <!-- ADC -->
