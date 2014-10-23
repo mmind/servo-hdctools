@@ -6,6 +6,7 @@
 # dictionary of alias names for various designs.
 DUT_ALIASES = {'daisy_spring': 'spring',
                'rush_ryu': 'ryu',
+               'auron_paine': 'paine',
                'auron_yuna': 'yuna'}
 
 def get_board_name(board):
