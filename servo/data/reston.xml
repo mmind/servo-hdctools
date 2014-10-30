@@ -38,13 +38,13 @@
   <control>
     <name>boot_mode</name>
     <doc>EC monitor mode gpio</doc>
-    <params interface="1" drv="gpio" offset="0" map="yesno">
+    <params interface="1" drv="gpio" offset="0" map="yesno" init="no">
     </params>
   </control>
   <control>
     <name>cold_reset</name>
     <doc>STM32 reset line</doc>
-    <params interface="1" drv="gpio" offset="1" map="onoff_i" od="PU">
+    <params interface="1" drv="gpio" offset="1" map="onoff_i" od="PU" init="off">
     </params>
   </control>
 </root>
