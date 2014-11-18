@@ -5,6 +5,9 @@
   <include>
     <name>ec_common.xml</name>
   </include>
+  <include>
+    <name>chromebox.xml</name>
+  </include>
   <!-- ******** Controls ******** -->
   <control>
     <name>ec_uart_capture</name>
