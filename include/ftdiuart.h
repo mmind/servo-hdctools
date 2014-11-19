@@ -20,8 +20,6 @@ extern "C" {
 
 #define FUART_NAME_SIZE 128
 #define FUART_BUF_SIZE 128
-// usecs to sleep between polling for yielding
-#define FUART_USECS_SLEEP 1000
 
 // bit positions various signals in interface
 #define TX_POS  0x01

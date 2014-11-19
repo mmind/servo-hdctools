@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     prn_fatal("fuart_open\n");
   }
   prn_info("ftdi uart connected to %s\n", fuartc.name);
-  if ((rv = fuart_run(&fuartc, FUART_USECS_SLEEP))) {
+  if ((rv = fuart_run(&fuartc, 5000L))) {
     prn_fatal("fuart_run");
   }
   while (1) {

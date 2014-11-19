@@ -20,7 +20,7 @@ import uart
 # TODO(tbroch) need some way to xref these to values in ftdiuart.h
 FUART_NAME_SIZE = 128
 FUART_BUF_SIZE = 128
-FUART_USEC_SLEEP = 1000
+FUART_USECS_SLEEP = 5000
 
 class FuartError(Exception):
   """Class for exceptions of Fuart."""
@@ -168,7 +168,7 @@ class Fuart(uart.Uart):
     if self._is_closed:
       self.open()
 
-    err = self._lib.fuart_run(ctypes.byref(self._fuartc), FUART_USEC_SLEEP)
+    err = self._lib.fuart_run(ctypes.byref(self._fuartc), FUART_USECS_SLEEP)
     if err:
       raise FuartError('Failure with fuart_run', err)
 
