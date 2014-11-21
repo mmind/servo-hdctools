@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<root>
+  <!-- BEGIN: Cosmos Flex ******************************************* -->
+  <control>
+    <name>jtag_buf_on_flex_en</name>
+    <doc>Enables JTAG buffer on servo flex.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx" subtype="gpio"
+    slv="0x26" offset="3" map="onoff_i" clobber_ok=""></params>
+  </control>
+  <control>
+    <name>spi2_buf_on_flex_en</name>
+    <doc>Enables SPI2 buffers on servo flex.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx" subtype="gpio"
+    slv="0x26" offset="6" map="onoff_i" clobber_ok=""></params>
+  </control>
+  <!--   END: Cosmos Flex ******************************************* -->
+</root>
