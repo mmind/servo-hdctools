@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<root>
+  <control>
+    <name>krill_rom_params</name>
+    <doc>Get or set EEPROM paramters on Krill</doc>
+    <params cmd="get" subtype="rom_params" interface="4" drv="m24c02"
+            slv="0x52"></params>
+    <params cmd="set" subtype="rom_params" interface="4" drv="m24c02"
+            slv="0x52" input_type="str"></params>
+  </control>
+  <control>
+    <name>krill_rom_data</name>
+    <doc>Get or set EEPROM data on Krill</doc>
+    <params cmd="get" subtype="data" interface="4" drv="m24c02"
+            slv="0x52"></params>
+    <params cmd="set" subtype="data" interface="4" drv="m24c02"
+            slv="0x52" input_type="str"></params>
+  </control>
+  <!-- ********** INAs *********** -->
+  <!-- INA1 -->
+  <control>
+    <name>krill_pp5000_mv</name>
+    <doc>Voltage of whale_pp5000 rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x40" mux="rem"
+    rsense="0.01" type="get" subtype="millivolts" nom="5.0">
+    </params>
+  </control>
+  <!-- INA2 -->
+  <control>
+    <name>krill_pp3300_dsw_gated_mv</name>
+    <doc>Voltage of whale_pp3300_dsw_gated rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x44" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA3 -->
+  <control>
+    <name>krill_pp3300_ssd_mv</name>
+    <doc>Voltage of whale_pp3300_ssd rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x48" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA4 -->
+  <control>
+    <name>krill_pp3300_lte_mv</name>
+    <doc>Voltage of whale_pp3300_lte rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4C" mux="rem"
+    rsense="0.01" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA5 -->
+  <control>
+    <name>krill_pp1050_modphy_mv</name>
+    <doc>Voltage of whale_pp1050_modphy rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x41" mux="rem"
+    rsense="0.02" type="get" subtype="millivolts" nom="1.05">
+    </params>
+  </control>
+  <!-- INA6 -->
+  <control>
+    <name>krill_pp1800_codec_mv</name>
+    <doc>Voltage of whale_pp1800_codec rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x45" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="1.8">
+    </params>
+  </control>
+  <!-- INA7 -->
+  <control>
+    <name>krill_pp3300_pch_sus_mv</name>
+    <doc>Voltage of whale_pp3300_pch_sus rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x49" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA8 -->
+  <control>
+    <name>krill_pp3300_pch_mv</name>
+    <doc>Voltage of whale_pp3300_pch rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4D" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA9 -->
+  <control>
+    <name>krill_pp3300_ec_mv</name>
+    <doc>Voltage of whale_pp3300_ec rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x42" mux="rem"
+    rsense="0.1" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA10 -->
+  <control>
+    <name>krill_pp1050_vccst_mv</name>
+    <doc>Voltage of whale_pp1050_vccst rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x46" mux="rem"
+    rsense="0.05" type="get" subtype="millivolts" nom="1.05">
+    </params>
+  </control>
+  <!-- INA11 -->
+  <control>
+    <name>krill_pp1050_pch_mv</name>
+    <doc>Voltage of whale_pp1050_pch rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4A" mux="rem"
+    rsense="0.02" type="get" subtype="millivolts" nom="1.05">
+    </params>
+  </control>
+  <!-- INA12 -->
+  <control>
+    <name>krill_pp1200_cpu_mv</name>
+    <doc>Voltage of whale_pp1200_cpu rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4E" mux="rem"
+    rsense="0.03" type="get" subtype="millivolts" nom="1.2">
+    </params>
+  </control>
+  <!-- INA13 -->
+  <control>
+    <name>krill_pp3300_wlan_mv</name>
+    <doc>Voltage of whale_pp3300_wlan rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x43" mux="rem"
+    rsense="0.05" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA14 -->
+  <control>
+    <name>krill_pp3300_lcd_mv</name>
+    <doc>Voltage of whale_pp3300_lcd rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x47" mux="rem"
+    rsense="0.02" type="get" subtype="millivolts" nom="3.3">
+    </params>
+  </control>
+  <!-- INA15 -->
+  <control>
+    <name>krill_pp1050_pch_sus_mv</name>
+    <doc>Voltage of whale_pp1050_pch_sus rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4B" mux="rem"
+    rsense="0.05" type="get" subtype="millivolts" nom="1.05">
+    </params>
+  </control>
+  <!-- INA16 -->
+  <control>
+    <name>krill_pp1200_ddr_mv</name>
+    <doc>Voltage of whale_pp1200_ddr rail in millivolts on
+    i2c_mux:rem</doc>
+    <params interface="2" drv="ina219" slv="0x4F" mux="rem"
+    rsense="0.02" type="get" subtype="millivolts" nom="1.2">
+    </params>
+  </control>
+</root>

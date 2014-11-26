@@ -4,7 +4,7 @@
     <name>common.xml</name>
   </include>
   <include>
-    <name>servo_krill_overlay.xml</name>
+    <name>whale_samus_krill.xml</name>
   </include>
   <map>
     <name>color_timing</name>
@@ -28,10 +28,6 @@
     <params clear="clear" home="home" bklon="bklon" bkloff="bkloff"></params>
   </map>
   <!-- ********** INAs *********** -->
-  <!-- INAs on Larvae board -->
-  <include>
-    <name>whale_samus_larvae.xml</name>
-  </include>
   <!-- INAs on DUT -->
   <include>
     <name>whale_samus_dut.xml</name>
