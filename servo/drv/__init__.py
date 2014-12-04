@@ -38,6 +38,7 @@ import pca95xx
 import plankton
 import pty_driver
 import sleep
+import storm_power
 import stumpy_power
 import tca6416
 import tcs3414
