@@ -26,12 +26,12 @@ $(THIS_BUILD_DIR)/%.xml: $(HDCTOOLS_SOURCE_DIR)/%.xml
 
 $(INA219): %.xml:%.py
 	$(MESSAGE) "Building $@"
-	python -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
+	python2 -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
 		$(basename $(<F)) ina219
 
 $(INA231): %.xml:%.py
 	$(MESSAGE) "Building $@"
-	python -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
+	python2 -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
 		$(basename $(<F)) ina231
 
 install:			# NOP
