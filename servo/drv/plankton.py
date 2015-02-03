@@ -8,6 +8,7 @@ Provides the following functionis:
   usbc_mux
   usbc_polarity
 """
+import collections
 import logging
 
 import pty_driver
@@ -45,6 +46,25 @@ class plankton(pty_driver.ptyDriver):
   USBC_POLARITY_0 = 0
   USBC_POLARITY_1 = 1
   USBC_POLARITY_ACTION = ["pol0", "pol1"]
+
+  INA_SENSE = "ina 0"
+  INA_SENSE_DICT = collections.OrderedDict([
+      ("configuration", r"Configuration: ([0-9a-f]+)"),
+      ("shunt_voltage_mv", r"Shunt voltage: [0-9a-f]+ => (-?\d+) uV"),
+      ("voltage_mv", r"Bus voltage  : [0-9a-f]+ => (-?\d+) mV"),
+      ("power_mw", r"Power        : [0-9a-f]+ => (-?\d+) mW"),
+      ("current_ma", r"Current      : [0-9a-f]+ => (-?\d+) mA"),
+      ("calibration", r"Calibration  : ([0-9a-f]+)"),
+      ("mask_enable", r"Mask/Enable  : ([0-9a-f]+)"),
+      ("alert_limit", r"Alert limit  : ([0-9a-f]+)")])
+
+  PD_STATE = "pd 0 state"
+  PD_STATE_DICT = collections.OrderedDict([
+      ("enable", r"Port C0, (\S+) - "),
+      ("role", r"Role: (\S+) "),
+      ("polarity", r"Polarity: (\S+) "),
+      ("flags", r"Flags: (\S+), "),
+      ("state", r"State: (\S+)")])
 
   def __init__(self, interface, params):
     """Constructor.
@@ -93,3 +113,40 @@ class plankton(pty_driver.ptyDriver):
     if self._state[self.STATE_ID_POLARITY] is None:
       raise planktonError("usbc_polarity not initialized")
     return self._state[self.STATE_ID_POLARITY]
+
+  def _get_ina(self):
+    matches = self._issue_cmd_get_results(
+        self.INA_SENSE, self.INA_SENSE_DICT.values())
+    return dict(zip(self.INA_SENSE_DICT.keys(),
+                    zip(*matches)[1]))
+
+  def _Get_vbus_current(self):
+    return self._get_ina()["current_ma"]
+
+  def _Get_vbus_voltage(self):
+    return self._get_ina()["voltage_mv"]
+
+  def _Get_vbus_power(self):
+    return self._get_ina()["power_mw"]
+
+  def _get_pd_state(self):
+    matches = self._issue_cmd_get_results(
+        self.PD_STATE, self.PD_STATE_DICT.values())
+
+    return dict(zip(self.PD_STATE_DICT.keys(),
+                    zip(*matches)[1]))
+
+  def _Get_pd_enable(self):
+    return 1 if self._get_pd_state()["enable"] == "Ena" else 0
+
+  def _Get_pd_role(self):
+    return self._get_pd_state()["role"]
+
+  def _Get_pd_polarity(self):
+    return self._get_pd_state()["polarity"]
+
+  def _Get_pd_flags(self):
+    return self._get_pd_state()["flags"]
+
+  def _Get_pd_state(self):
+    return self._get_pd_state()["state"]

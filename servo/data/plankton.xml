@@ -126,4 +126,54 @@
     <params interface="2" drv="plankton" subtype="usbc_polarity" map="polarity"
     init="cc1"></params>
   </control>
+  <!-- INA current sensing -->
+  <control>
+    <name>vbus_voltage</name>
+    <doc>USB-C VBUS voltage in mV</doc>
+    <params interface="2" drv="plankton" subtype="vbus_voltage">
+    </params>
+  </control>
+  <control>
+    <name>vbus_current</name>
+    <doc>USB-C VBUS current in mA</doc>
+    <params interface="2" drv="plankton" subtype="vbus_current">
+    </params>
+  </control>
+  <control>
+    <name>vbus_power</name>
+    <doc>USB-C VBUS power in mW</doc>
+    <params interface="2" drv="plankton" subtype="vbus_power">
+    </params>
+  </control>
+  <!-- PD state -->
+  <control>
+    <name>pd_enable</name>
+    <doc>Plankton PD enable</doc>
+    <params interface="2" drv="plankton" subtype="pd_enable">
+    </params>
+  </control>
+  <control>
+    <name>pd_role</name>
+    <doc>Plankton PD role</doc>
+    <params interface="2" drv="plankton" subtype="pd_role">
+    </params>
+  </control>
+  <control>
+    <name>pd_polarity</name>
+    <doc>Plankton PD polarity</doc>
+    <params interface="2" drv="plankton" subtype="pd_polarity">
+    </params>
+  </control>
+  <control>
+    <name>pd_flags</name>
+    <doc>Plankton PD flags</doc>
+    <params interface="2" drv="plankton" subtype="pd_flags">
+    </params>
+  </control>
+  <control>
+    <name>pd_state</name>
+    <doc>Plankton PD state string</doc>
+    <params interface="2" drv="plankton" subtype="pd_state">
+    </params>
+  </control>
 </root>
