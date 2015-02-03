@@ -176,4 +176,71 @@
     <params interface="2" drv="plankton" subtype="pd_state">
     </params>
   </control>
+  <!-- IO expander -->
+  <control>
+    <name>io_expander_input</name>
+    <doc>IO expander reg 0: input</doc>
+    <params interface="2" drv="plankton" subtype="io_expander_input">
+    </params>
+  </control>
+  <control>
+    <name>io_expander_output</name>
+    <doc>IO expander reg 1: output</doc>
+    <params interface="2" drv="plankton" subtype="io_expander_output">
+    </params>
+  </control>
+  <control>
+    <name>io_expander_mask</name>
+    <doc>IO expander reg 3: input mask</doc>
+    <params interface="2" drv="plankton" subtype="io_expander_mask">
+    </params>
+  </control>
+  <control>
+    <name>usb_dn_pwren</name>
+    <doc>Plankton USB hub power</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="0"
+    map="onoff"></params>
+  </control>
+  <control>
+    <name>redriver_rst</name>
+    <doc>Plankton DP redriver reset</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="1"
+    map="onoff"></params>
+  </control>
+  <control>
+    <name>expander_access</name>
+    <doc>Plankton IO expander access</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="2">
+    </params>
+  </control>
+  <control>
+    <name>usb3microb_det</name>
+    <doc>CN5 USB3 micro-B power</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="3">
+    </params>
+  </control>
+  <control>
+    <name>usb2_mux_sw</name>
+    <doc>USB2 switch</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="4">
+    </params>
+  </control>
+  <control>
+    <name>debug_usb_sel</name>
+    <doc>Debugging FTDI USB switch</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="5">
+    </params>
+  </control>
+  <control>
+    <name>typec_to_hub_sw</name>
+    <doc>USB-C to hub switch</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="6">
+    </params>
+  </control>
+  <control>
+    <name>usbhub_rst</name>
+    <doc>Plankton USB hub reset</doc>
+    <params interface="2" drv="plankton" subtype="expander_gpio" offset="7"
+    map="onoff_i"></params>
+  </control>
 </root>

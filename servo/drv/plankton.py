@@ -30,6 +30,10 @@ class plankton(pty_driver.ptyDriver):
   call _Get_usbc_role.
   """
 
+  IO_EXPANDER_BUS = 1
+  IO_EXPANDER_ADDR = 0x40
+  IO_EXPANDER_WIDTH = 8
+
   STATE_ID_ROLE = 0
   STATE_ID_MUX = 1
   STATE_ID_POLARITY = 2
@@ -151,3 +155,93 @@ class plankton(pty_driver.ptyDriver):
 
   def _Get_pd_state(self):
     return self._get_pd_state()["state"]
+
+  def _i2c_write(self, bus, addr, offset, value):
+    self._issue_cmd("i2cxfer w %d 0x%x 0x%x 0x%x" % (bus, addr, offset, value))
+
+  def _i2c_read(self, bus, addr, offset):
+    match = self._issue_cmd_get_results(
+        "i2cxfer r %d 0x%x 0x%x" % (bus, addr, offset),
+        [r"\S+ \[(\d+)\]"])[0]
+
+    if not match:
+      raise planktonError("Failed to read from I2C")
+
+    return int(match[1])
+
+  def _get_io_expander_input(self):
+    return self._i2c_read(self.IO_EXPANDER_BUS, self.IO_EXPANDER_ADDR, 0)
+
+  def _get_io_expander_output(self):
+    return self._i2c_read(self.IO_EXPANDER_BUS, self.IO_EXPANDER_ADDR, 1)
+
+  def _set_io_expander_output(self, value):
+    return self._i2c_write(self.IO_EXPANDER_BUS, self.IO_EXPANDER_ADDR, 1,
+                           value)
+
+  def _get_io_expander_mask(self):
+    return self._i2c_read(self.IO_EXPANDER_BUS, self.IO_EXPANDER_ADDR, 3)
+
+  def _set_io_expander_mask(self, value):
+    return self._i2c_write(self.IO_EXPANDER_BUS, self.IO_EXPANDER_ADDR, 3,
+                           value)
+
+  def _Get_io_expander_input(self):
+    return self._get_io_expander_input()
+
+  def _Get_io_expander_output(self):
+    return self._get_io_expander_output()
+
+  def _Get_io_expander_mask(self):
+    return self._get_io_expander_mask()
+
+  def _get_gpio_offset(self):
+    """Gets offset from parameters.
+
+    Returns:
+      GPIO offset, in range(IO_EXPANDER_WIDTH).
+
+    Raises:
+      planktonError: when offset not in params dict, or out of range.
+    """
+    try:
+      offset = int(self._params['offset'])
+    except (KeyError, ValueError) as e:
+      raise planktonError(e)
+
+    if offset not in range(self.IO_EXPANDER_WIDTH):
+      raise planktonError("GPIO offset out of range")
+
+    return offset
+
+  def _Get_expander_gpio(self):
+    """Gets value for Plankton IO expander driver.
+
+    Returns:
+      integer value from GPIO. 0 or 1.
+    """
+    return (self._get_io_expander_input() >> self._get_gpio_offset()) & 1
+
+  def _Set_expander_gpio(self, bit):
+    """Sets value for Plankton IO expander driver.
+
+    Args:
+      bit: new GPIO level. Any non-zero will be treated as singular '1'.
+    """
+    offset = self._get_gpio_offset()
+    bit = 1 if int(bit) else 0
+    self._logger.debug("Set gpio[%d]: %d" % (offset, bit))
+    if bit == (self._get_io_expander_input() >> offset) & 1:
+      return
+
+    # Set or clear output value
+    output_value = self._get_io_expander_output()
+    new_value = output_value & ~(1 << offset) | (bit << offset)
+    if new_value != output_value:
+      self._set_io_expander_output(new_value)
+
+    # Switch to output mode
+    input_mask = self._get_io_expander_mask()
+    new_mask = input_mask & ~(1 << offset)
+    if new_mask != input_mask:
+      self._set_io_expander_mask(new_mask)
