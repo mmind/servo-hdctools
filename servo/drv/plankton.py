@@ -37,7 +37,8 @@ class plankton(pty_driver.ptyDriver):
   USBC_ROLE_SINK = 0
   USBC_ROLE_5V_SRC = 1
   USBC_ROLE_12V_SRC = 2
-  USBC_ROLE_ACTION = ["dev", "5v", "12v"]
+  USBC_ROLE_20V_SRC = 3
+  USBC_ROLE_ACTION = ["dev", "5v", "12v", "20v"]
 
   USBC_MUX_USB = 0
   USBC_MUX_DP = 1

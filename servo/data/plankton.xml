@@ -96,7 +96,7 @@
   <map>
     <name>pdrole</name>
     <doc>map for USB-PD port role</doc>
-    <params sink="0" src5v="1" src12v="2"></params>
+    <params sink="0" src5v="1" src12v="2" src20v="3"></params>
   </map>
   <map>
     <name>usbcmux</name>
