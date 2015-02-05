@@ -1,0 +1,81 @@
+<root>
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+  <!-- ******** Controls ******** -->
+  <!-- Override from definition in servo_v2_r0.xml for prog of MCU -->
+  <control>
+    <name>dev_mode</name>
+    <alias>usbpd_boot_mode</alias>
+    <params clobber_ok="" od="PP"></params>
+  </control>
+  <!-- TODO(tbroch) Implement dev mode via EC uart. -->
+  <control>
+    <name>pch_disable</name>
+    <alias>usbpd_reset</alias>
+    <params clobber_ok=""></params>
+  </control>
+  <!-- UART 4, which is re-purposed atop the JTAG interface -->
+  <!-- Need to enable jtag vref to get jtag_buf_en buffers on -->
+  <control>
+    <name>jtag_vref_sel0</name>
+    <doc>usbpd_uart_vref_sel0</doc>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>jtag_vref_sel1</name>
+    <doc>usbpd_uart_vref_sel1</doc>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>uart4_pty</name>
+    <alias>usbpd_uart_pty</alias>
+    <doc>Legacy (v1) uart console. Typically connected to CPU's
+    uart console for devices which supported it.</doc>
+    <params cmd="get" subtype="pty" interface="1" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart4_baudrate</name>
+    <alias>usbpd_uart_baudrate</alias>
+    <doc>Baudrate for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="1"></params>
+  </control>
+  <control>
+    <name>uart4_parity</name>
+    <alias>usbpd_uart_parity</alias>
+    <doc>Parity for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="1" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart4_sbits</name>
+    <alias>usbpd_uart_sbits</alias>
+    <doc>Number of stop bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="1" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart4_bits</name>
+    <alias>usbpd_uart_bits</alias>
+    <doc>Number of data bits for CPU's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="1" map="uart_bits"></params>
+  </control>
+  <!-- Overrides for jtag buffers on servo V2 & flex above -->
+  <control>
+    <name>uart4_en</name>
+    <alias>usbpd_uart_en</alias>
+    <doc>Enabled JTAG buffer on servo ... re-purposed to uart4.</doc>
+    <params interface="2" drv="tca6416" slv="0x24" port="1"
+    offset="0" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>uart4_on_flex_en</name>
+    <alias>usbpd_uart_on_flex_en</alias>
+    <doc>Enables JTAG buffer on servo flex ... repurposed to uart4.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx" subtype="gpio"
+    slv="0x26" offset="3" map="onoff_i" init="on" clobber_ok=""></params>
+  </control>
+</root>
