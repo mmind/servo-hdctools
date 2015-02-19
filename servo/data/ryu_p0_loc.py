@@ -29,5 +29,9 @@ inas = [(0x40, 'pp3000_always', 3.8, 1, 'loc0', True),
         (0x45, 'pp1200', 3.8, 0.1, 'loc0', True),
         (0x46, 'pp3300_wifi', 3.3, 0.1, 'loc0', True),
         (0x47, 'pp3300_sensorhub', 3.3, 0.1, 'loc0', True),
-        (0x48, 'ppvar_sys_pmic', 3.8, 0.01, 'loc0', True),
-        (0x49, 'ppvbat', 3.8, 0.02, 'loc0', True)]
+        (0x48, 'ppvar_sys_pmic', 3.8, 0.005, 'loc0', True),
+        (0x49, 'ppvbat', 3.8, 0.02, 'loc0', True),
+        (0x4A, 'cpu_in', 3.8, 0.01, "loc0", True),
+        (0x4B, 'gpu_in', 3.8, 0.01, "loc0", True),
+        (0x4C, 'soc_in', 3.8, 0.1, "loc0", True),
+        (0x4D, 'pp1800_in', 3.8, 0.1, "loc0", True)]
