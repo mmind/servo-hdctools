@@ -133,8 +133,8 @@ class Servod(object):
     elif board == 'stout':
       return keyboard_handlers.StoutHandler(servo)
     elif board in ('cranky', 'guado', 'jecht', 'mccloud', 'monroe',
-                   'nyan_kitty', 'panther', 'rikku', 'tidus', 'tricky',
-                   'zako'):
+                   'ninja', 'nyan_kitty', 'panther', 'rikku', 'sumo',
+                   'tidus', 'tricky', 'zako'):
       if self._usbkm232 is None:
         logging.warn("No device path specified for usbkm232 handler. Returning "
                      "the DefaultHandler, which is likely the wrong keyboard "
