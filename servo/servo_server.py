@@ -597,6 +597,10 @@ class Servod(object):
       HwDriverError: Error occurred while using drv
     """
     self._logger.debug("name(%s)" % (name))
+    if name == 'serialname':
+      if self._serialname:
+        return self._serialname
+      return 'unknown'
     (param, drv) = self._get_param_drv(name)
     try:
       val = drv.get()

@@ -50,4 +50,9 @@
     <doc>Forces a delay in seconds, according to the parameter</doc>
     <params cmd="set" interface="servo" drv="sleep" input_type="float"/>
   </control>
+  <control>
+    <name>serialname</name>
+    <doc>serial number of the connected servo</doc>
+    <params not_applicable="0"></params>
+  </control>
 </root>
