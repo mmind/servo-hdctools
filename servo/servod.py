@@ -217,7 +217,8 @@ def find_servod_match(logger, options, all_servos, servodrc):
     return None
 
   for servo in all_servos:
-    if usb_get_iserial(servo) != options.serialname:
+    servo_sn = usb_get_iserial(servo)
+    if servo_sn != options.serialname:
       continue
 
     # Match found, some sanity checks/updates before using it
@@ -226,17 +227,17 @@ def find_servod_match(logger, options, all_servos, servodrc):
     if rc_port:
       if not options.port:
         options.port = rc_port
-      else:
+      elif options.port != rc_port:
         logger.warning('Ignoring rc configured port %s for servo %s',
-                       rc_port, name)
+                       rc_port, servo_sn)
 
     rc_board = config['board']
     if rc_board:
       if not options.board:
         options.board = rc_board
-      else:
+      elif options.board != rc_board:
         logger.warning('Ignoring rc configured board name %s for servo %s',
-                       rc_board, name)
+                       rc_board, servo_sn)
     return matching_servo
 
   raise ServodError("No matching servo found")
