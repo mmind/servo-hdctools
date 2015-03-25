@@ -37,6 +37,7 @@ import pca9546
 import pca95xx
 import plankton
 import pty_driver
+import samus_power
 import sleep
 import storm_power
 import stumpy_power
