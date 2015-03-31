@@ -1,0 +1,464 @@
+<root>
+  <!-- ********** Maps ********** -->
+  <include>
+    <name>common.xml</name>
+  </include>
+  <include>
+    <name>whale_ryu_krill.xml</name>
+  </include>
+  <map>
+    <name>color_timing</name>
+    <doc>Integration time of color sensor</doc>
+    <params timing_12ms="12" timing_100ms="100" timing_400ms="400"></params>
+  </map>
+  <map>
+    <name>color_gain</name>
+    <doc>Analog gain of color sensor</doc>
+    <params gain_1x="1" gain_4x="4" gain_16x="16" gain_64x="64">
+    </params>
+  </map>
+  <map>
+    <name>lcm_row</name>
+    <doc>LCM cursor ranges from 0 to 3</doc>
+    <params r0="0" r1="1" r2="2" r3="3"></params>
+  </map>
+  <map>
+    <name>lcm_cmd</name>
+    <doc>LCM command list</doc>
+    <params clear="clear" home="home" bklon="bklon" bkloff="bkloff"></params>
+  </map>
+  <!-- ********** I2C related controls *********** -->
+  <!-- BB_I2C slv 0x39 : TCS3414 -->
+  <control>
+    <name>whale_color1_HSV</name>
+    <doc>HSV coordinates of color sensor 1</doc>
+    <params cmd="get" subtype="HSV" interface="2" drv="tcs3414" slv="0x39">
+    </params>
+  </control>
+  <control>
+    <name>whale_color1_timing</name>
+    <doc>Integration time of color sensor 1</doc>
+    <params cmd="set" subtype="timing" interface="2" drv="tcs3414" slv="0x39"
+            map="color_timing" init="timing_12ms"></params>
+  </control>
+  <control>
+    <name>whale_color1_gain</name>
+    <doc>ADC gain of color sensor 1</doc>
+    <params cmd="set" subtype="gain" interface="2" drv="tcs3414" slv="0x39"
+            map="color_gain" init="gain_1x"></params>
+  </control>
+  <!-- BB_I2C slv 0x74 : ioexpander port 0 -->
+  <control>
+    <name>whale_usbhub_rst</name>
+    <doc>Reset USB Hub on Larvae. Need to assert and deassert.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="0" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_data</name>
+    <doc>Connect to SER pin of first keyboard shift register.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_latch</name>
+    <doc>Connect to RCLK pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_clk</name>
+    <doc>Connect to SRCLK pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_en</name>
+    <doc>Connect to OE pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="4" width="1" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>whale_kb_shfg_rst</name>
+    <doc>Connect to SRCLR pin of keyboard shift registers.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="5" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>whale_xpander_rst</name>
+    <doc>Reset IO expanders. This will reset the IO expanders itself. Need to
+    restart servod after asserting this. Setting this control will always fail
+    because the IO expander 0x74 will reset itself.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="6" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>whale_input_rst</name>
+    <doc>Reset SR latches of input buttons. Need to assert and deassert.</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="0"
+            offset="7" width="1" map="onoff_i" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x74 : ioexpander port 1 -->
+  <control>
+    <name>whale_elctro_magnet</name>
+    <doc>Enable electro magnet (to emulate lid switch)</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="0" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_audio_plug_det</name>
+    <doc>Enable audio plug detection for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_battery_on</name>
+    <doc>Enable battery for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_dc_in</name>
+    <doc>Enable DC for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_write_protect</name>
+    <doc>Enable write protect for DUT</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="4" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_output_reserve1</name>
+    <doc>Output reserve 1</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="5" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_output_reserve2</name>
+    <doc>Output reserve 2</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="6" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_output_reserve3</name>
+    <doc>Output reserve 3</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
+            offset="7" width="1" map="onoff" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x75 : ioexpander port 0 -->
+  <control>
+    <name>whale_fixture_ctrl1</name>
+    <doc>Fixture control 1</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="0" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl2</name>
+    <doc>Fixture control 2</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="1" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl3</name>
+    <doc>Fixture control 3</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="2" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl4</name>
+    <doc>Fixture control 4</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="3" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl5</name>
+    <doc>Fixture control 5</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="4" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fixture_ctrl6</name>
+    <doc>Fixture control 6</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="5" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_pass_led</name>
+    <doc>Enable Pass LED</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="6" width="1" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>whale_fail_led</name>
+    <doc>Enable Fail LED</doc>
+    <params cmd="set" interface="2" drv="tca6416" slv="0x75" port="0"
+            offset="7" width="1" map="onoff" init="off"></params>
+  </control>
+  <!-- BB_I2C slv 0x75 : ioexpander port 1 -->
+  <control>
+    <name>plankton_fb1</name>
+    <doc>Plankton feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb2</name>
+    <doc>Plankton feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb3</name>
+    <doc>Plankton feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb4</name>
+    <doc>Plankton feedback 4</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb5</name>
+    <doc>Plankton feedback 5</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb6</name>
+    <doc>Plankton feedback 6</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb7</name>
+    <doc>Plankton feedback 7</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="6" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>plankton_fb8</name>
+    <doc>Plankton feedback 8</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x75" port="1"
+            offset="7" width="1" map="onoff_i"></params>
+  </control>
+  <!-- BB_I2C slv 0x76 : ioexpander port 0 -->
+  <control>
+    <name>whale_debug_mode_en</name>
+    <doc>Debug mode is enabled</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="0" width="1" map="onoff"></params>
+  </control>
+  <!-- Do not expose KRILL_NXP_INT, XPANDER3_INT and XPANDER4_INT -->
+  <control>
+    <name>whale_a_fb1</name>
+    <doc>Latched state of Whale reserved feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="4" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_a_fb2</name>
+    <doc>Latched state of Whale reserved feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="5" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_a_fb3</name>
+    <doc>Latched state of Whale reserved feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="0"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <!-- KB_SHFG_FB is deprecated  -->
+  <!-- BB_I2C slv 0x76 : ioexpander port 1 -->
+  <control>
+    <name>whale_ec_flash_btn</name>
+    <doc>Latched state of EC flashing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="0" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_fw_flash_btn</name>
+    <doc>Latched state of firmware flashing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="1" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_image_flash_btn</name>
+    <doc>Latched state of button to flash default image</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="2" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_bug_filing_btn</name>
+    <doc>Latched state of bug filing button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="3" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_usbimg_flash_btn</name>
+    <doc>Latched state of button to flash image from external USB disk</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="4" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn1</name>
+    <doc>Latched state of reserve button 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="5" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn2</name>
+    <doc>Latched state of reserve button 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_reserve_btn3</name>
+    <doc>Latched state of reserve button 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x76" port="1"
+            offset="7" width="1" map="onoff"></params>
+  </control>
+  <!-- BB_I2C slv 0x77 : ioexpander port 0 -->
+  <control>
+    <name>fixture_fb1</name>
+    <doc>Fixture feedback 1</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb2</name>
+    <doc>Fixture feedback 2</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb3</name>
+    <doc>Fixture feedback 3</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb4</name>
+    <doc>Fixture feedback 4</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb5</name>
+    <doc>Fixture feedback 5</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb6</name>
+    <doc>Fixture feedback 6</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb7</name>
+    <doc>Fixture feedback 7</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="6" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb8</name>
+    <doc>Fixture feedback 8</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="0"
+            offset="7" width="1" map="onoff_i"></params>
+  </control>
+  <!-- BB_I2C slv 0x77 : ioexpander port 1 -->
+  <control>
+    <name>fixture_fb9</name>
+    <doc>Fixture feedback 9</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="0" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb10</name>
+    <doc>Fixture feedback 10</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="1" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb11</name>
+    <doc>Fixture feedback 11</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="2" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb12</name>
+    <doc>Fixture feedback 12</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="3" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb13</name>
+    <doc>Fixture feedback 13</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="4" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>fixture_fb14</name>
+    <doc>Fixture feedback 14</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="5" width="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>whale_fixture_start_btn</name>
+    <doc>Latched state of fixture start button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="6" width="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>whale_fixture_stop_btn</name>
+    <doc>Latched state of fixture stop button</doc>
+    <params cmd="get" interface="2" drv="tca6416" slv="0x77" port="1"
+            offset="7" width="1" map="onoff"></params>
+  </control>
+  <!-- LCM2004 -->
+  <control>
+    <name>whale_lcm_row</name>
+    <doc>Position LCM cursor</doc>
+    <params cmd="set" subtype="lcm_row" interface="2" drv="lcm2004" slv="0x27"
+            map="lcm_row"></params>
+  </control>
+  <control>
+    <name>whale_lcm_text</name>
+    <doc>Print text to LCM</doc>
+    <params cmd="set" subtype="lcm_text" interface="2" drv="lcm2004" slv="0x27"
+            input_type="str"></params>
+  </control>
+  <control>
+    <name>whale_lcm_cmd</name>
+    <doc>Send command to LCM</doc>
+    <params cmd="set" subtype="lcm_cmd" interface="2" drv="lcm2004" slv="0x27"
+            input_type="str" map="lcm_cmd"></params>
+  </control>
+  <!-- BB_I2C-2 slv 0x50 - 0X57 : EEPROM M24C02 -->
+  <control>
+    <name>plankton_rom_1_params</name>
+    <doc>Get or set EEPROM paramters on plankton 1</doc>
+    <params cmd="get" subtype="rom_params" interface="2" drv="m24c02"
+            slv="0x50"></params>
+    <params cmd="set" subtype="rom_params" interface="2" drv="m24c02"
+            slv="0x50" input_type="str"></params>
+  </control>
+  <control>
+    <name>plankton_rom_1_data</name>
+    <doc>Get or set EEPROM data on plankton 1</doc>
+    <params cmd="get" subtype="data" interface="2" drv="m24c02"
+            slv="0x50"></params>
+    <params cmd="set" subtype="data" interface="2" drv="m24c02"
+            slv="0x50" input_type="str"></params>
+  </control>
+  <!-- ADC -->
+  <control>
+    <name>whale_adc</name>
+    <doc>Read ADC inputs</doc>
+    <params cmd="get" interface="5" drv="larvae_adc"></params>
+  </control>
+</root>
