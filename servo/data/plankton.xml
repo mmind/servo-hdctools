@@ -8,7 +8,7 @@
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
     <params subtype="uart_capture" interface="2" drv="uart"
-            map="onoff"></params>
+    map="onoff"></params>
   </control>
   <control>
     <name>ec_uart_cmd</name>
@@ -32,8 +32,10 @@
   </control>
   <control>
     <name>ec_uart_stream</name>
-    <doc>Ec uart stream collected while ec_uart_capture is set to 'on'</doc>
-    <params cmd="get" subtype="uart_stream" interface="2" drv="uart"></params>
+    <doc>Ec uart stream collected while ec_uart_capture is set to
+    'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="2"
+    drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_timeout</name>
@@ -44,7 +46,8 @@
   </control>
   <control>
     <name>ec_uart_pty</name>
-    <doc>Pseudo-terminal (pty) thats connected to uart console</doc>
+    <doc>Pseudo-terminal (pty) thats connected to uart
+    console</doc>
     <params cmd="get" interface="2" subtype="pty" drv="uart">
     </params>
   </control>
@@ -76,21 +79,21 @@
   <control>
     <name>prog_en</name>
     <doc>Enable boot_mode and cold_reset GPIOs</doc>
-    <params interface="1" drv="gpio" offset="0" map="yesno_i" init="no">
-    </params>
+    <params interface="1" drv="gpio" offset="0" map="yesno_i"
+    init="no"></params>
   </control>
   <!-- CBUS1 is no connect -->
   <control>
     <name>boot_mode</name>
     <doc>EC monitor mode gpio</doc>
-    <params interface="1" drv="gpio" offset="2" map="yesno" init="no">
-    </params>
+    <params interface="1" drv="gpio" offset="2" map="yesno"
+    init="no"></params>
   </control>
   <control>
     <name>cold_reset</name>
     <doc>STM32 reset line</doc>
-    <params interface="1" drv="gpio" offset="3" map="onoff" init="off">
-    </params>
+    <params interface="1" drv="gpio" offset="3" map="onoff"
+    init="off"></params>
   </control>
   <!-- USB-C control -->
   <map>
@@ -111,20 +114,20 @@
   <control>
     <name>usbc_role</name>
     <doc>USB-PD port role</doc>
-    <params interface="2" drv="plankton" subtype="usbc_role" map="pdrole"
-    init="src5v"></params>
+    <params interface="2" drv="plankton" subtype="usbc_role"
+    map="pdrole" init="src5v"></params>
   </control>
   <control>
     <name>usbc_mux</name>
     <doc>USB-C port mux</doc>
-    <params interface="2" drv="plankton" subtype="usbc_mux" map="usbcmux"
-    init="usb"></params>
+    <params interface="2" drv="plankton" subtype="usbc_mux"
+    map="usbcmux" init="usb"></params>
   </control>
   <control>
     <name>usbc_polarity</name>
     <doc>USB-C polarity</doc>
-    <params interface="2" drv="plankton" subtype="usbc_polarity" map="polarity"
-    init="cc1"></params>
+    <params interface="2" drv="plankton" subtype="usbc_polarity"
+    map="polarity" init="cc1"></params>
   </control>
   <!-- INA current sensing -->
   <control>
@@ -180,67 +183,67 @@
   <control>
     <name>io_expander_input</name>
     <doc>IO expander reg 0: input</doc>
-    <params interface="2" drv="plankton" subtype="io_expander_input">
-    </params>
+    <params interface="2" drv="plankton"
+    subtype="io_expander_input"></params>
   </control>
   <control>
     <name>io_expander_output</name>
     <doc>IO expander reg 1: output</doc>
-    <params interface="2" drv="plankton" subtype="io_expander_output">
-    </params>
+    <params interface="2" drv="plankton"
+    subtype="io_expander_output"></params>
   </control>
   <control>
     <name>io_expander_mask</name>
     <doc>IO expander reg 3: input mask</doc>
-    <params interface="2" drv="plankton" subtype="io_expander_mask">
-    </params>
+    <params interface="2" drv="plankton"
+    subtype="io_expander_mask"></params>
   </control>
   <control>
     <name>usb_dn_pwren</name>
     <doc>Plankton USB hub power</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="0"
-    map="onoff"></params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="0" map="onoff"></params>
   </control>
   <control>
     <name>redriver_rst</name>
     <doc>Plankton DP redriver reset</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="1"
-    map="onoff"></params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="1" map="onoff"></params>
   </control>
   <control>
     <name>expander_access</name>
     <doc>Plankton IO expander access</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="2">
-    </params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="2"></params>
   </control>
   <control>
     <name>usb3microb_det</name>
     <doc>CN5 USB3 micro-B power</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="3">
-    </params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="3"></params>
   </control>
   <control>
     <name>usb2_mux_sw</name>
     <doc>USB2 switch</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="4">
-    </params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="4"></params>
   </control>
   <control>
     <name>debug_usb_sel</name>
     <doc>Debugging FTDI USB switch</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="5">
-    </params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="5"></params>
   </control>
   <control>
     <name>typec_to_hub_sw</name>
     <doc>USB-C to hub switch</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="6">
-    </params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="6"></params>
   </control>
   <control>
     <name>usbhub_rst</name>
     <doc>Plankton USB hub reset</doc>
-    <params interface="2" drv="plankton" subtype="expander_gpio" offset="7"
-    map="onoff_i"></params>
+    <params interface="2" drv="plankton" subtype="expander_gpio"
+    offset="7" map="onoff_i"></params>
   </control>
 </root>
