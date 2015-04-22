@@ -5,8 +5,6 @@
 """Polld Server."""
 
 import logging
-import os
-import SimpleXMLRPCServer
 
 import poll_common
 from poll_gpio import PollGpio, PollGpioError
@@ -15,6 +13,7 @@ from poll_gpio import PollGpio, PollGpioError
 class PolldError(Exception):
   """Exception class for polld."""
   pass
+
 
 class Polld(object):
   """Main class for polld daemon."""
@@ -27,10 +26,38 @@ class Polld(object):
     """Long-polls a GPIO port.
 
     Args:
-      gpio_port: GPIO port
+      port: GPIO port
       edge: value in GPIO_EDGE_LIST[]
     """
     try:
-      PollGpio.get_instance(port, edge).poll()
+      PollGpio.get_instance(port, edge).poll(edge)
+    except PollGpioError as e:
+      raise PolldError('poll_gpio fail: %s' % e)
+
+  def read_gpio(self, port):
+    """Reads current value of a GPIO port.
+
+    Args:
+      port: GPIO port
+
+    Returns:
+      (int) 1 for GPIO high, 0 for low.
+    """
+    try:
+      return PollGpio.get_instance(port).read()
+    except PollGpioError as e:
+      raise PolldError('poll_gpio fail: %s' % e)
+
+  def write_gpio(self, port, value):
+    """Writes value to a GPIO port.
+
+    Be aware that GPIO direction will be set to output mode.
+
+    Args:
+      port: GPIO port
+      value: GPIO value, regard as 1(GPIO high) for any non-zero value.
+    """
+    try:
+      PollGpio.get_instance(port).write(1 if value else 0)
     except PollGpioError as e:
       raise PolldError('poll_gpio fail: %s' % e)

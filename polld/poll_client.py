@@ -51,6 +51,42 @@ class PollClient(object):
       raise PollClientError('Problem to poll GPIO %s %s %s' %
                             (str(gpio_port), edge, e))
 
+  def read_gpio(self, gpio_port):
+    """Reads current value of a GPIO port.
+
+    Args:
+      gpio_port: GPIO port
+
+    Returns:
+      (int) 1 for GPIO high, 0 for low.
+
+    Raises:
+      PollClientError: If error occurs when reading the GPIO port.
+    """
+    try:
+      return self._server.read_gpio(gpio_port)
+    except Exception as e:
+      raise PollClientError('Problem to read GPIO %s %s' %
+                            (str(gpio_port), e))
+
+  def write_gpio(self, gpio_port, gpio_value):
+    """Writes value to a GPIO port.
+
+    Be aware that GPIO direction will be set to output mode.
+
+    Args:
+      gpio_port: GPIO port
+      gpio_value: GPIO value, regard as 1(GPIO high) for any non-zero value.
+
+    Raises:
+      PollClientError: If error occurs when reading the GPIO port.
+    """
+    try:
+      self._server.write_gpio(gpio_port, gpio_value)
+    except Exception as e:
+      raise PollClientError('Problem to write GPIO %s = %d %s' %
+                            (str(gpio_port), gpio_value, e))
+
 
 def parse_args():
   """Parses commandline arguments.
@@ -60,7 +96,9 @@ def parse_args():
   """
   usage = (
     'usage: %prog [options] <io_1:port_1> <io_2:port_2> ...\n'
-    '\t- io_<n> is either gpio_falling, gpio_rising, or gpio_both.\n'
+    '\t- io_<n>: (for edge polling) gpio_falling, gpio_rising, or gpio_both.\n'
+    '\t-         (for read) gpio_read.\n'
+    '\t-         (for write) gpio_set0 or gpio_set1.\n'
     '\t- port_<n> is the GPIO port.\n'
     )
 
@@ -72,6 +110,10 @@ def parse_args():
     '\nExamples:\n'
     '   > %prog gpio_falling:7\n'
     '\tLong polls GPIO port 7 when edge falling is triggered.\n'
+    '   > %prog gpio_read:7\n'
+    '\tReads GPIO port 7 current value.\n'
+    '   > %prog gpio_set1:7\n'
+    '\tSets GPIO port 7 to high1 (sets GPIO direction to output as well).\n'
     )
 
   parser = optparse.OptionParser(usage=usage)
@@ -102,12 +144,19 @@ def iterate(io_ports, options, pclient):
   for _ in xrange(options.repeat):
     for io_port in io_ports:
       io, port = io_port.split(':')
-      if io not in poll_common.GPIO_EDGE_LIST:
+      if io not in poll_common.GPIO_ACTION_LIST:
         raise PollClientError('invalid I/O %s' % io)
       if not port.isdigit():
         raise PollClientError('invalid port %s' % port)
-      pclient.poll_gpio(int(port), io)
-      logger.info('poll_gpio %s succeeds', io_port)
+      if io in poll_common.GPIO_EDGE_LIST:  # edge long-polling
+        pclient.poll_gpio(int(port), io)
+        logger.info('poll_gpio %s succeeds', io_port)
+      elif io == poll_common.GPIO_READ:  # read value
+        value = pclient.read_gpio(int(port))
+        logger.info('read_gpio %s = %d', port, value)
+      else:  # set value
+        pclient.write_gpio(int(port), 1 if io == poll_common.GPIO_SET1 else 0)
+        logger.info('write_gpio %s succeeds', io_port)
 
 
 def real_main():
