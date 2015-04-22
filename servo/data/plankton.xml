@@ -121,13 +121,13 @@
     <name>usbc_mux</name>
     <doc>USB-C port mux</doc>
     <params interface="2" drv="plankton" subtype="usbc_mux"
-    map="usbcmux" init="usb"></params>
+    map="usbcmux"></params>
   </control>
   <control>
     <name>usbc_polarity</name>
     <doc>USB-C polarity</doc>
     <params interface="2" drv="plankton" subtype="usbc_polarity"
-    map="polarity" init="cc1"></params>
+    map="polarity"></params>
   </control>
   <!-- INA current sensing -->
   <control>
