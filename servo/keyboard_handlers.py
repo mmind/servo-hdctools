@@ -141,11 +141,6 @@ class _BaseHandler(object):
         NotImplementedError()
 
 
-    def custom_recovery_mode(self):
-        """Custom key combination to enter recovery mode."""
-        NotImplementedError()
-
-
 class DefaultHandler(_BaseHandler):
     """Default keyboard handler for DUT with internal keyboards.
     """
@@ -288,14 +283,6 @@ class DefaultHandler(_BaseHandler):
         Maps to a key that doesn't physically exist.
         """
         self._press_and_release_keys('unused', press_secs)
-
-
-    def custom_recovery_mode(self):
-        """Custom key combination to enter recovery mode."""
-        self._press_keys('rec_mode')
-        self.power_normal_press()
-        time.sleep(self.SERVO_KEY_PRESS_DELAY)
-        self._servo.set('kbd_en', 'off')
 
 
 class StoutHandler(DefaultHandler):
