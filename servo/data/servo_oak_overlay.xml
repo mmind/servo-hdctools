@@ -5,6 +5,9 @@
   <include>
     <name>arm_ec_common.xml</name>
   </include>
+  <include>
+    <name>usbpd.xml</name>
+  </include>
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>

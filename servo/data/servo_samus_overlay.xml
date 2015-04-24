@@ -14,16 +14,4 @@
     <params drv="samus_power" clobber_ok="" reset_recovery="0.6"
     shutdown_delay="11.0" />
   </control>
-  <!-- Override from definition in servo_v2_r0.xml -->
-  <control>
-    <name>dev_mode</name>
-    <alias>usbpd_boot_mode</alias>
-    <params clobber_ok="" od="PP"></params>
-  </control>
-  <!-- TODO(tbroch) Implement dev mode via EC uart. -->
-  <control>
-    <name>pch_disable</name>
-    <alias>usbpd_reset</alias>
-    <params clobber_ok=""></params>
-  </control>
 </root>
