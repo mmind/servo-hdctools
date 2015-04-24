@@ -170,18 +170,12 @@ class DefaultHandler(_BaseHandler):
         Note, key presses will remain on indefinitely. See
             _press_and_release_keys for release procedure.
         """
-        (m1_a1_n, m1_a0_n, m2_a1_n, m2_a0_n) = (
-                self.KEY_MATRIX['none'])
         (m1_a1, m1_a0, m2_a1, m2_a0) = self.KEY_MATRIX[key]
-        self._servo.set_get_all(['kbd_m2_a0:%s' % m2_a0_n,
-                          'kbd_m2_a1:%s' % m2_a1_n,
-                          'kbd_m1_a0:%s' % m1_a0_n,
-                          'kbd_m1_a1:%s' % m1_a1_n,
-                          'kbd_en:on',
-                          'kbd_m2_a0:%s' % m2_a0,
-                          'kbd_m2_a1:%s' % m2_a1,
-                          'kbd_m1_a0:%s' % m1_a0,
-                          'kbd_m1_a1:%s' % m1_a1])
+        self._servo.set_get_all(['kbd_m2_a0:%s' % m2_a0,
+                                 'kbd_m2_a1:%s' % m2_a1,
+                                 'kbd_m1_a0:%s' % m1_a0,
+                                 'kbd_m1_a1:%s' % m1_a1,
+                                 'kbd_en:on'])
 
 
     def power_key(self, secs=''):
