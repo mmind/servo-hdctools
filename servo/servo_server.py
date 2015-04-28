@@ -133,16 +133,19 @@ class Servod(object):
     elif board == 'stout':
       return keyboard_handlers.StoutHandler(servo)
     elif board in ('cranky', 'guado', 'jecht', 'mccloud', 'monroe',
-                   'ninja', 'nyan_kitty', 'panther', 'rikku', 'sumo',
-                   'tidus', 'tricky', 'zako'):
+                   'ninja', 'nyan_kitty', 'panther', 'rikku', 'stumpy',
+                   'sumo', 'tidus', 'tricky', 'zako'):
       if self._usbkm232 is None:
         logging.warn("No device path specified for usbkm232 handler. Returning "
-                     "the DefaultHandler, which is likely the wrong keyboard "
-                     "handler for the board type specified.")
-        return keyboard_handlers.DefaultHandler(servo)
+                     "the MatrixKeyboardHandler, which is likely the wrong "
+                     "keyboard handler for the board type specified.")
+        return keyboard_handlers.MatrixKeyboardHandler(servo)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
-      return keyboard_handlers.DefaultHandler(servo)
+      # The following boards don't use Chrome EC.
+      if board in ('alex', 'butterfly', 'lumpy', 'zgb'):
+        return keyboard_handlers.MatrixKeyboardHandler(servo)
+      return keyboard_handlers.ChromeECHandler(servo)
 
   def __del__(self):
     """Servod deconstructor."""

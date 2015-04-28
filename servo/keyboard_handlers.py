@@ -55,17 +55,23 @@ class _BaseHandler(object):
 
     def power_long_press(self):
         """Simulate a long power button press."""
-        NotImplementedError()
+        # After a long power press, the EC may ignore the next power
+        # button press (at least on Alex).  To guarantee that this
+        # won't happen, we need to allow the EC one second to
+        # collect itself.
+        # TODO(waihong): Make this delay as one of board specific configs.
+        self.power_key(self.LONG_DELAY)
+        time.sleep(1.0)
 
 
     def power_normal_press(self):
         """Simulate a normal power button press."""
-        NotImplementedError()
+        self.power_key()
 
 
     def power_short_press(self):
         """Simulate a short power button press."""
-        NotImplementedError()
+        self.power_key(self.SHORT_DELAY)
 
 
     def power_key(self, secs=''):
@@ -74,21 +80,24 @@ class _BaseHandler(object):
         Args:
           secs: Time in seconds to simulate the keypress.
         """
-        NotImplementedError()
+        if secs is '':
+            secs = self.NORMAL_TRANSITION_DELAY
 
-
-    def _press_keys(self, key):
-        """Simulate button presses.
-
-        Note, key presses will remain on indefinitely. See
-            _press_and_release_keys for release procedure.
-        """
-        NotImplementedError()
-
-
-    def _press_and_release_keys(self, key, press_secs=''):
-        """Simulate button presses and release."""
-        NotImplementedError()
+        logging.info("Pressing power button for %.4f secs", secs)
+        self._servo.set_get_all(['pwr_button:press',
+                          'sleep:%.4f' % secs,
+                          'pwr_button:release'])
+        # TODO(tbroch) Different systems have different release times on the
+        # power button that this loop addresses.  Longer term we may want to
+        # make this delay platform specific.
+        retry = 1
+        while True:
+            value = self._servo.get('pwr_button')
+            if value == 'release' or retry > self.RELEASE_RETRY_MAX:
+                break
+            logging.info('Waiting for pwr_button to release, retry %d.', retry)
+            retry += 1
+            time.sleep(self.SHORT_DELAY)
 
 
     def ctrl_d(self, press_secs=''):
@@ -141,8 +150,10 @@ class _BaseHandler(object):
         NotImplementedError()
 
 
-class DefaultHandler(_BaseHandler):
-    """Default keyboard handler for DUT with internal keyboards.
+class MatrixKeyboardHandler(_BaseHandler):
+    """Matrix keyboard handler for DUT with internal keyboards.
+
+    It works on mostly all devices, with or without Chrome EC.
     """
     KEY_MATRIX = {
             'ctrl_refresh':  ['0', '0', '0', '1'],
@@ -161,7 +172,7 @@ class DefaultHandler(_BaseHandler):
         @param servo: A Servo object representing
                            the host running servod.
         """
-        super(DefaultHandler, self).__init__(servo)
+        super(MatrixKeyboardHandler, self).__init__(servo)
 
 
     def _press_keys(self, key):
@@ -178,32 +189,6 @@ class DefaultHandler(_BaseHandler):
                                  'kbd_en:on'])
 
 
-    def power_key(self, secs=''):
-        """Simulate a power button press.
-
-        Args:
-          secs: Time in seconds to simulate the keypress.
-        """
-        if secs is '':
-            secs = self.NORMAL_TRANSITION_DELAY
-
-        logging.info("Pressing power button for %.4f secs" % secs)
-        self._servo.set_get_all(['pwr_button:press',
-                          'sleep:%.4f' % secs,
-                          'pwr_button:release'])
-        # TODO(tbroch) Different systems have different release times on the
-        # power button that this loop addresses.  Longer term we may want to
-        # make this delay platform specific.
-        retry = 1
-        while True:
-            value = self._servo.get('pwr_button')
-            if value == 'release' or retry > self.RELEASE_RETRY_MAX:
-                break
-            logging.info('Waiting for pwr_button to release, retry %d.', retry)
-            retry += 1
-            time.sleep(self.SHORT_DELAY)
-
-
     def _press_and_release_keys(self, key, press_secs=''):
         """Simulate button presses and release."""
         if press_secs is '':
@@ -211,25 +196,6 @@ class DefaultHandler(_BaseHandler):
         self._press_keys(key)
         time.sleep(press_secs)
         self._servo.set('kbd_en', 'off')
-
-    def power_normal_press(self):
-        """Simulate a normal power button press."""
-        self.power_key()
-
-
-    def power_long_press(self):
-        """Simulate a long power button press."""
-        # After a long power press, the EC may ignore the next power
-        # button press (at least on Alex).  To guarantee that this
-        # won't happen, we need to allow the EC one second to
-        # collect itself.
-        self.power_key(self.LONG_DELAY)
-        time.sleep(1.0)
-
-
-    def power_short_press(self):
-        """Simulate a short power button press."""
-        self.power_key(self.SHORT_DELAY)
 
 
     def ctrl_d(self, press_secs=''):
@@ -279,8 +245,8 @@ class DefaultHandler(_BaseHandler):
         self._press_and_release_keys('unused', press_secs)
 
 
-class StoutHandler(DefaultHandler):
-    """Default keyboard handler for DUT with internal keyboards.
+class StoutHandler(MatrixKeyboardHandler):
+    """Stout keyboard handler for DUT with internal keyboards.
 
     """
 
@@ -305,8 +271,8 @@ class StoutHandler(DefaultHandler):
         super(StoutHandler, self).__init__(servo)
 
 
-class ParrotHandler(DefaultHandler):
-    """Default keyboard handler for DUT with internal keyboards.
+class ParrotHandler(MatrixKeyboardHandler):
+    """Parrot keyboard handler for DUT with internal keyboards.
 
     """
 
@@ -329,6 +295,172 @@ class ParrotHandler(DefaultHandler):
         """
         super(ParrotHandler, self).__init__(servo)
 
+
+class ChromeECHandler(_BaseHandler):
+    """Chrome EC keyboard handler for DUT with Chrome EC.
+    """
+
+    # en-US key matrix (from "kb membrane pin matrix.pdf")
+    KEY_MATRIX = {
+            # key: (row, col)
+            '`': (3, 1),
+            '1': (6, 1),
+            '2': (6, 4),
+            '3': (6, 2),
+            '4': (6, 3),
+            '5': (3, 3),
+            '6': (3, 6),
+            '7': (6, 6),
+            '8': (6, 5),
+            '9': (6, 9),
+            '0': (6, 8),
+            '-': (3, 8),
+            '=': (0, 8),
+            'q': (7, 1),
+            'w': (7, 4),
+            'e': (7, 2),
+            'r': (7, 3),
+            't': (2, 3),
+            'y': (2, 6),
+            'u': (7, 6),
+            'i': (7, 5),
+            'o': (7, 9),
+            'p': (7, 8),
+            '[': (2, 8),
+            ']': (2, 5),
+            '\\': (3, 11),
+            'a': (4, 1),
+            's': (4, 4),
+            'd': (4, 2),
+            'f': (4, 3),
+            'g': (1, 3),
+            'h': (1, 6),
+            'j': (4, 6),
+            'k': (4, 5),
+            'l': (4, 9),
+            ';': (4, 8),
+            '\'': (1, 8),
+            'z': (5, 1),
+            'x': (5, 4),
+            'c': (5, 2),
+            'v': (5, 3),
+            'b': (0, 3),
+            'n': (0, 6),
+            'm': (5, 6),
+            ',': (5, 5),
+            '.': (5, 9),
+            '/': (5, 8),
+            ' ': (5, 11),
+            '<right>': (6, 12),
+            '<alt_r>': (0, 10),
+            '<down>': (6, 11),
+            '<tab>': (2, 1),
+            '<f10>': (0, 4),
+            '<shift_r>': (7, 7),
+            '<ctrl_r>': (4, 0),
+            '<esc>': (1, 1),
+            '<backspace>': (1, 11),
+            '<f2>': (3, 2),
+            '<alt_l>': (6, 10),
+            '<ctrl_l>': (2, 0),
+            '<f1>': (0, 2),
+            '<search>': (0, 1),
+            '<f3>': (2, 2),
+            '<f4>': (1, 2),
+            '<f5>': (3, 4),
+            '<f6>': (2, 4),
+            '<f7>': (1, 4),
+            '<f8>': (2, 9),
+            '<f9>': (1, 9),
+            '<up>': (7, 11),
+            '<shift_l>': (5, 7),
+            '<enter>': (4, 11),
+            '<left>': (7, 12)}
+
+
+    def __init__(self, servo):
+        """Sets up the servo communication infrastructure.
+
+        @param servo: A Servo object representing
+                           the host running servod.
+        """
+        super(ChromeECHandler, self).__init__(servo)
+
+
+    def _send_command(self, command):
+        """Send command through UART.
+
+        This function opens UART pty when called, and then command is sent
+        through UART.
+
+        @param command: The command to send.
+        """
+        self._servo.set('ec_uart_regexp', 'None')
+        self._servo.set('ec_uart_cmd', command)
+
+
+    def _press_and_release_keys(self, keys, press_secs=''):
+        """Simulate a key combination press and release.
+
+        The key combination (multiple keys) are all pressed and then
+        all released.
+
+        @param keys: A list of key names, which are the keys of KEY_MATRIX.
+        """
+        if press_secs is '':
+            press_secs = self.SERVO_KEY_PRESS_DELAY
+        for key in keys:
+            # Send EC command: kbpress col row pressed
+            self._send_command('kbpress %d %d 1' %
+                    (self.KEY_MATRIX[key][1], self.KEY_MATRIX[key][0]))
+        time.sleep(press_secs)
+        for key in keys:
+            # Send EC command: kbpress col row pressed
+            self._send_command('kbpress %d %d 0' %
+                    (self.KEY_MATRIX[key][1], self.KEY_MATRIX[key][0]))
+
+
+    def ctrl_d(self, press_secs=''):
+        """Simulate Ctrl-d simultaneous button presses."""
+        self._press_and_release_keys(['<ctrl_l>', 'd'], press_secs)
+
+
+    def ctrl_u(self, press_secs=''):
+        """Simulate Ctrl-u simultaneous button presses."""
+        self._press_and_release_keys(['<ctrl_l>', 'u'], press_secs)
+
+
+    def ctrl_enter(self, press_secs=''):
+        """Simulate Ctrl-enter simultaneous button presses."""
+        self._press_and_release_keys(['<enter>'], press_secs)
+
+
+    def d_key(self, press_secs=''):
+        """Simulate Enter key button press."""
+        self._press_and_release_keys(['d'], press_secs)
+
+
+    def ctrl_key(self, press_secs=''):
+        """Simulate Enter key button press."""
+        self._press_and_release_keys(['<ctrl_l>'], press_secs)
+
+
+    def enter_key(self, press_secs=''):
+        """Simulate Enter key button press."""
+        self._press_and_release_keys(['<enter>'], press_secs)
+
+
+    def refresh_key(self, press_secs=''):
+        """Simulate Refresh key (F3) button press."""
+        self._press_and_release_keys(['<f3>'], press_secs)
+
+
+    def ctrl_refresh_key(self, press_secs=''):
+        """Simulate Ctrl and Refresh (F3) simultaneous press.
+
+        This key combination is an alternative of Space key.
+        """
+        self._press_and_release_keys(['<ctrl_l>', '<f3>'], press_secs)
 
 
 class USBkm232Handler(_BaseHandler):
@@ -578,56 +710,6 @@ class USBkm232Handler(_BaseHandler):
             rlist.append(self._release(write_ch))
         self._write(rlist)
 
-
-    # The power key functions are a copy from DefaultHandler.
-    # We need to determine if this is the long term
-    # code and move to BaseHandler so that its not
-    # duplicate.
-    def power_key(self, secs=''):
-        """Simulate a power button press.
-
-        Args:
-          secs: Time in seconds to simulate the keypress.
-        """
-        if secs is '':
-            secs = self.NORMAL_TRANSITION_DELAY
-
-        logging.info("Pressing power button for %.4f secs" % secs)
-        self._servo.set_get_all(['pwr_button:press',
-                          'sleep:%.4f' % secs,
-                          'pwr_button:release'])
-        # TODO(tbroch) Different systems have different release times on the
-        # power button that this loop addresses.  Longer term we may want to
-        # make this delay platform specific.
-        retry = 1
-        while True:
-            value = self._servo.get('pwr_button')
-            if value == 'release' or retry > self.RELEASE_RETRY_MAX:
-                break
-            logging.info('Waiting for pwr_button to release, retry %d.', retry)
-            retry += 1
-            time.sleep(self.SHORT_DELAY)
-
-
-    def power_normal_press(self):
-        """Simulate a normal power button press."""
-        self.power_key()
-
-
-    def power_long_press(self):
-        """Simulate a long power button press."""
-        # After a long power press, the EC may ignore the next power
-        # button press (at least on Alex).  To guarantee that this
-        # won't happen, we need to allow the EC one second to
-        # collect itself.
-        self.power_key(self.LONG_DELAY)
-        time.sleep(1.0)
-
-
-    def power_short_press(self):
-        """Simulate a short power button press."""
-        self.power_key(self.SHORT_DELAY)
-    # End power key functions.
 
     def ctrl_d(self, press_secs=''):
         """Press and release ctrl-d sequence."""
