@@ -46,6 +46,10 @@ class parrotPower(power_state.PowerStateDriver):
     super(parrotPower, self)._cold_reset()
     self._interface.set('pwr_button', 'release')
 
+  def _warm_reset(self):
+    # Parrot warm reset is broken. Use a cold reset instead.
+    self._cold_reset()
+
   def _power_off(self):
     self._cold_reset()
     time.sleep(self._PWR_BUTTON_READY_TIME)
