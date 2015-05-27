@@ -7,7 +7,7 @@
   <control>
     <name>dev_mode</name>
     <alias>usbpd_boot_mode</alias>
-    <params clobber_ok="" od="PP"></params>
+    <params clobber_ok="" od="PU" map="onoff_i"></params>
   </control>
   <!-- TODO(tbroch) Implement dev mode via EC uart. -->
   <control>
