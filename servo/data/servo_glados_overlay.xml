@@ -20,12 +20,12 @@
   <control>
     <name>jtag_vref_sel0</name>
     <doc>usbpd_uart_vref_sel0</doc>
-    <params clobber_ok="" init="pp3300"></params>
+    <params clobber_ok="" init="off"></params>
   </control>
   <control>
     <name>jtag_vref_sel1</name>
     <doc>usbpd_uart_vref_sel1</doc>
-    <params clobber_ok="" init="pp3300"></params>
+    <params clobber_ok="" init="off"></params>
   </control>
   <control>
     <name>uart4_pty</name>
