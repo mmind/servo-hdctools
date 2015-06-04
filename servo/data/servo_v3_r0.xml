@@ -12,6 +12,12 @@
     <params off="0" pp1800="4" pp2500="2" pp3300="1"></params>
   </map>
   <map>
+    <name>onoff_vref_sel</name>
+    <doc>Determine VREF between on(pp3300) and off.
+    Default is off</doc>
+    <params off="0" pp1800="4" pp2500="2" pp3300="1" on="1"></params>
+  </map>
+  <map>
     <name>duthub</name>
     <doc>Determine whether DUT sees USB hub or Servo via USB port
     (TYPE MICRO-B/J6)</doc>

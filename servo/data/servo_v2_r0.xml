@@ -29,6 +29,12 @@
     Default is off</doc>
     <params pp3300="0" pp2500="1" pp1800="2" off="3"></params>
   </map>
+  <map>
+    <name>onoff_vref_sel</name>
+    <doc>Determine VREF between on, pp3300, pp2500, pp1800 and off.
+    Default is off</doc>
+    <params on="0" pp3300="0" pp2500="1" pp1800="2" off="3"></params>
+  </map>
   <!-- *********** FT4232H U29 Interface 1 ********** -->
   <!-- JTAG -->
   <!-- *********** FT4232H U29 Interface 2 ********** -->

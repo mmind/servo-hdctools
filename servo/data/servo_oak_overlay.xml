@@ -8,6 +8,12 @@
   <include>
     <name>usbpd.xml</name>
   </include>
+  <!-- EC and PD boot0 shares dev_mode control pin -->
+  <control>
+    <name>dev_mode</name>
+    <alias>ec_boot_mode</alias>
+    <params clobber_ok="" od="PP"></params>
+  </control>
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>

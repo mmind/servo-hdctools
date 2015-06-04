@@ -1,0 +1,11 @@
+<root>
+  <include>
+    <name>arm_ec_common.xml</name>
+  </include>
+  <!-- STM32 EC boot0 control -->
+  <control>
+    <name>spi1_vref</name>
+    <alias>ec_boot_mode</alias>
+    <params clobber_ok="" map="onoff_vref_sel"></params>
+  </control>
+</root>
