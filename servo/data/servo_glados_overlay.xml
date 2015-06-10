@@ -63,6 +63,49 @@
     <params drv="uart" subtype="props" line_prop="bits"
     interface="1" map="uart_bits"></params>
   </control>
+  <!-- USB PD UART Automation Controls -->
+  <control>
+    <name>usbpd_uart_cmd</name>
+    <doc>Set to send command to USBPD UART. Get to obtain the
+    matched results with the regular expression of
+    usbpd_uart_regexp.</doc>
+    <params subtype="uart_cmd" interface="1" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>usbpd_uart_multicmd</name>
+    <doc>Set to send multiple commands to USB PD UART.</doc>
+    <params subtype="uart_multicmd" interface="1" drv="uart"
+    input_type="str" cmd="set"></params>
+  </control>
+  <control>
+    <name>usbpd_uart_regexp</name>
+    <doc>List of regular expressions to match the response of
+    usbpd_uart_cmd.</doc>
+    <params subtype="uart_regexp" interface="1" drv="uart"
+    input_type="str"></params>
+  </control>
+  <control>
+    <name>usbpd_uart_timeout</name>
+    <doc>Timeout value for a response after issuing a command on
+    usbpd_uart_cmd.</doc>
+    <params subtype="uart_timeout" interface="1" drv="uart"
+    input_type="float"></params>
+  </control>
+  <control>
+    <name>usbpd_uart_capture</name>
+    <doc>Enables capture of USB PD console via
+    usbpd_uart_stream</doc>
+    <params subtype="uart_capture" interface="1" drv="uart"
+    map="onoff"></params>
+  </control>
+  <control>
+    <name>usbpd_uart_stream</name>
+    <doc>USB PD console stream captured while usbpd_uart_capture is
+    set to 'on'</doc>
+    <params cmd="get" subtype="uart_stream" interface="1"
+    drv="uart"></params>
+  </control>
   <!-- Overrides for jtag buffers on servo V2 & flex above -->
   <control>
     <name>uart4_en</name>
