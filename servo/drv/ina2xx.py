@@ -156,6 +156,9 @@ class ina2xx(hw_driver.HwDriver):
 
     return reg
 
+  def _has_reg(self, reg):
+    return reg in self.REG_IDX
+
   def _read_reg(self, name):
     """Read architected register and return value."""
     return self._i2c_obj._read_reg(self._get_reg_idx(name))
@@ -205,9 +208,12 @@ class ina2xx(hw_driver.HwDriver):
     Dividing the calibration by two would provide 1600mA range @ 25uA/lsb.
 
     Raises:
-      Ina2xxError: If calibration failed
+      Ina2xxError: If calibration failed or doesn't have register.
     """
     self._logger.debug("")
+    if not self._has_reg('cal'):
+      raise Ina2xxError('ADC does NOT have calibration register')
+
     # TODO(tbroch): should look at re-calibrating to increase precision if
     # there's plenty of headroom in result
 
@@ -252,8 +258,8 @@ class ina2xx(hw_driver.HwDriver):
                          millivolts)
     return millivolts
 
-  def _Get_milliamps(self):
-    """Retrieve current measurement for ADC in milliamps.
+  def _get_milliamps_reg(self):
+    """Retrieve current measurement for ADC in milliamps from current register.
 
     Note may trigger calibration which will increase latency.  This calibration
     occurs when math overflow is detected from the OVF bit in the BUSV
@@ -264,7 +270,7 @@ class ina2xx(hw_driver.HwDriver):
       float of current in milliamps
 
     Raises:
-      Ina2xxError: when unable to (re)calibrate
+      AssertionError: when current is saturated.
     """
     self._logger.debug("")
     milliamps_per_lsb = self._milliamps_per_lsb()
@@ -275,13 +281,70 @@ class ina2xx(hw_driver.HwDriver):
     raw_cur = int(numpy.int16(raw_cur))
     return raw_cur * milliamps_per_lsb
 
-  def _Get_milliwatts(self):
-    """Retrieve power measurement for INA219 in milliwatts.
+  def _get_milliamps_calc(self):
+    """Retrieve current measurement for ADC in milliamps by calculation.
+
+    Calculation is I = Vshunt / Rsense
+
+    Returns:
+      float of current in milliamps
+
+    Raises:
+      Ina2xxError: if shunt voltage overflowed.
+    """
+    logging.debug('')
+    vshunt_reg = self._read_reg('shv')
+    logging.debug('shv = 0x%x', vshunt_reg)
+
+    # its negative ... two's complement
+    if vshunt_reg & 0x8000:
+      vshunt_reg = ~vshunt_reg & self.SHV_MASK
+      vshunt_reg += 1 << self.SHV_OFFSET
+      vshunt_reg *= -1
+      logging.debug('shv = 0x%04x after negate', vshunt_reg)
+
+    if abs(vshunt_reg) >= self.SHV_MASK:
+      raise Ina2xxError('vshunt overflow 0x%04x', vshunt_reg)
+
+    vshunt_reg = vshunt_reg >> self.SHV_OFFSET
+    vshunt_mv = vshunt_reg * self.SHV_UV_PER_LSB / 1000.
+
+    logging.debug('vshunt_mv = %2.2f', vshunt_mv)
+    return vshunt_mv / self._rsense
+
+  def _Get_milliamps(self):
+    """Retrieve current measurement for ADC in milliamps.
+
+    At moment there are two methods for determining current:
+      1. Reading ADCs current reg and scaling by ma/lsb
+      2. Reading shunt voltage reg and calculating via Ohm's law
+         I = Vshunt/Rsense
+
+    Below is list of devices and which method they can support.
+      Method 1: INA219, INA231
+      Method 2: INA219, INA231, INA3221
+
+    The method will retrieve current in milliamps choosing best available
+    method.
+
+    Returns:
+      float of current in milliamps
+    """
+    if self._has_reg('cur'):
+      return self._get_milliamps_reg()
+    else:
+      return self._get_milliamps_calc()
+
+  def _get_milliwatts_reg(self):
+    """Retrieve power measurement for ADC in milliamps from power register.
 
     Note may trigger calibration which will increase latency
 
     Returns:
       float of power in milliwatts
+
+    Raises:
+      AssertionError: when power is saturated.
     """
     self._logger.debug("")
     # call first to force compulsory calibration
@@ -296,6 +359,29 @@ class ina2xx(hw_driver.HwDriver):
       self._logger.error("power saturated %x\n" % raw_pwr)
     raw_pwr = int(numpy.int16(raw_pwr))
     return raw_pwr * milliwatts_per_lsb
+
+  def _get_milliwatts_calc(self):
+    """Retrieve power measurement for ADC in milliamps from calculation.
+
+    Returns:
+      float of power in milliwatts
+    """
+    volts = self._Get_millivolts() / 1000.
+    milliamps = self._get_milliamps_calc()
+    return volts * milliamps
+
+  def _Get_milliwatts(self):
+    """Retrieve power measurement for INA ADCs in milliwatts.
+
+    See _Get_milliamps for details on multiple methods.
+
+    Returns:
+      float of power in milliwatts
+    """
+    if self._has_reg('pwr'):
+      return self._get_milliwatts_reg()
+    else:
+      return self._get_milliwatts_calc()
 
   def _Get_readreg(self):
     """Read raw register value from INA219.

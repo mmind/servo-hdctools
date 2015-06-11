@@ -29,6 +29,10 @@ class ina231(ina2xx.ina2xx):
   BUSV_MV_OFFSET = 0
   BUSV_MAX = 28000
 
+  SHV_UV_PER_LSB = 2.50
+  SHV_OFFSET = 0
+  SHV_MASK = 0x7fff
+
   CUR_LSB_COEFFICIENT = 5.12
   PWR_LSB_COEFFICIENT = 25
 

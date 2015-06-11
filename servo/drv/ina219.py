@@ -28,6 +28,10 @@ class ina219(ina2xx.ina2xx):
   # bus voltage can measure up to 32V
   BUSV_MAX = 32000
 
+  SHV_UV_PER_LSB = 10.0
+  SHV_OFFSET = 0
+  SHV_MASK = 0x7fff
+
   # coefficient for determining current per lsb.  See datasheet for details
   CUR_LSB_COEFFICIENT = 40.96
 

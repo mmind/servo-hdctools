@@ -21,6 +21,10 @@ class ina3221(ina2xx.ina2xx):
   BUSV_MV_OFFSET = 3
   BUSV_MAX = 26000
 
+  SHV_UV_PER_LSB = 40.0
+  SHV_OFFSET = 3
+  SHV_MASK = 0x7ff8
+
   def _read_cnvr_ovf(self):
     """Read mask/enable register and return needed values.
 
