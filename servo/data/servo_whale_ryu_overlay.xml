@@ -100,7 +100,7 @@
   </control>
   <!-- BB_I2C slv 0x74 : ioexpander port 1 -->
   <control>
-    <name>whale_elctro_magnet</name>
+    <name>whale_electro_magnet</name>
     <doc>Enable electro magnet (to emulate lid switch)</doc>
     <params cmd="set" interface="2" drv="tca6416" slv="0x74" port="1"
             offset="0" width="1" map="onoff" init="off"></params>
