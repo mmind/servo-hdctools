@@ -20,6 +20,7 @@ class ina231(ina2xx.ina2xx):
   different.
   """
   MAX_CALIB = 0xffff
+  MAX_REG_INDEX = 0x7 # REG_ALRT
 
   MSKEN_CNVR = 0x8
   MSKEN_OVF = 0x4

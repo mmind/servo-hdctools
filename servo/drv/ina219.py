@@ -13,6 +13,7 @@ class ina219(ina2xx.ina2xx):
 
   # 800mA range, ~12.5uA/lsb for a 50mOhm rsense.  Note lsb is SBZ
   MAX_CALIB = 0xfffe
+  MAX_REG_INDEX = 0x5 # REG_CALIB
 
   # millivolts per lsb of bus voltage register
   BUSV_MV_PER_LSB = 4

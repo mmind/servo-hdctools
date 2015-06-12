@@ -144,11 +144,7 @@ class ina2xx(hw_driver.HwDriver):
 
     Raises: Ina2xxError if index out of range.
     """
-    max_reg = self.REG_CALIB
-    if self._params['drv'] == 'ina231':
-      max_reg = self.REG_ALRT
-
-    if reg > max_reg or reg < self.REG_CFG:
+    if reg > self.MAX_REG_INDEX or reg < self.REG_CFG:
       raise Ina2xxError("register index %d, out of range" % reg)
 
   def _read_reg(self, reg):
