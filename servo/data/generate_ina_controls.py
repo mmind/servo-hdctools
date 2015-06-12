@@ -25,6 +25,7 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
     string (large) of xml for the system config of these ADCs to eventually be
     parsed by servod daemon ( servo/system_config.py )
   """
+  # Must match REG_IDX.keys() in servo/drv/ina2xx.py
   regs = ['cfg', 'shv', 'busv', 'pwr', 'cur', 'cal']
   if drvname == 'ina231':
     regs.extend(['msken', 'alrt'])
@@ -59,27 +60,27 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
                                    'interface':interface, 'slv':slv,
                                    'mux':mux, 'sense':sense, 'nom':nom}
 
-    for i, reg in enumerate(regs):
+    for reg in regs:
       rsp += (
         '<control><name>%(name)s_%(reg)s_reg</name>\n'
         '<doc>Raw register value of %(reg)s on i2c_mux:%(mux)s</doc>'
         '<params cmd="get" interface="%(interface)d"'
         ' drv="%(drvname)s" slv="%(slv)s"'
-        ' subtype="readreg" reg="%(i)s" mux="%(mux)s"'
+        ' subtype="readreg" reg="%(reg)s" mux="%(mux)s"'
         ' fmt="hex">\n</params>') % {'name':name, 'drvname':drvname,
                                      'interface':interface, 'slv':slv,
                                      'mux':mux, 'sense':sense,
-                                     'reg':reg, 'i':i}
+                                     'reg':reg}
       if reg == "cfg":
         rsp += (
           '<params cmd="set" interface="%(interface)d"'
           ' drv="%(drvname)s" slv="%(slv)s"'
-          ' subtype="writereg" reg="%(i)s" mux="%(mux)s"'
+          ' subtype="writereg" reg="%(reg)s" mux="%(mux)s"'
           ' fmt="hex">\n</params></control>') % {'drvname':drvname,
                                                  'interface':interface,
                                                  'slv':slv, 'mux':mux,
                                                  'sense':sense,
-                                                 'reg':reg, 'i':i}
+                                                 'reg':reg}
       else:
         rsp += ('</control>')
   return rsp

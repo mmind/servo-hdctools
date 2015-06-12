@@ -40,7 +40,7 @@ class ina231(ina2xx.ina2xx):
         is_cnvr: boolean True if conversion ready else False
         is_ovf: boolean True if math overflow occurred else False
     """
-    msken_reg = self._read_reg(self.REG_MSKEN)
+    msken_reg = self._read_reg('msken')
     is_cnvr = (self.MSKEN_CNVR & msken_reg) != 0
     is_ovf = (self.MSKEN_OVF & msken_reg) != 0
     return (is_cnvr, is_ovf)

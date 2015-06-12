@@ -55,7 +55,7 @@ class ina219(ina2xx.ina2xx):
         is_cnvr: boolean True if conversion ready else False
         is_ovf: boolean True if math overflow occurred else False
     """
-    busv_reg = self._read_reg(self.REG_BUSV)
+    busv_reg = self._read_reg('busv')
     is_cnvr = (self.BUSV_CNVR & busv_reg) != 0
     is_ovf = (self.BUSV_OVF & busv_reg) != 0
     return (is_cnvr, is_ovf)
