@@ -16,9 +16,10 @@ INA219		= wario.xml waluigi.xml servo_loc.xml link_dvt.xml link.xml    \
 		  strago_proto.xml veyron_danger_p1.xml ryu_p0_loc.xml oak.xml \
 		  veyron_brain_p1.xml ryu_p5_loc.xml
 INA231		= samus.xml whale_samus_dut.xml
+INA3221		= glados_p1_inas.xml
 
 # TODO(tbroch) should probably be added to setup.py if possible
-all:	$(INA231) $(INA219) $(XML_DST)
+all:	$(INA3221) $(INA231) $(INA219) $(XML_DST)
 
 $(THIS_BUILD_DIR)/%.xml: $(HDCTOOLS_SOURCE_DIR)/%.xml
 	$(MESSAGE) "Copying $(notdir $@)"
@@ -33,5 +34,10 @@ $(INA231): %.xml:%.py
 	$(MESSAGE) "Building $@"
 	python2 -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
 		$(basename $(<F)) ina231
+
+$(INA3221): %.xml:%.py
+	$(MESSAGE) "Building $@"
+	python2 -B "$(HDCTOOLS_SOURCE_DIR)/generate_ina_controls.py" \
+		$(basename $(<F)) ina3221
 
 install:			# NOP

@@ -33,7 +33,7 @@ class ina2xx(hw_driver.HwDriver):
   # register.  As it stands we capture samples continuously w/ 12-bit samples
   # averaged across 532usecs
   # TODO(tbroch) For debug, provide shuntv readings
-
+  MAX_CHANNEL = 0
   REG_IDX = dict(cfg=0, shv=1, busv=2, pwr=3, cur=4, cal=5, msken=6, alrt=7)
 
   # maximum number of re-reads of bus voltage to do before raising
@@ -134,9 +134,22 @@ class ina2xx(hw_driver.HwDriver):
       name: string of register index name.
 
     Raises:
-      Ina2xxError: if index is out of range.
+      Ina2xxError: if index or channel is out of range.
+      NotImplementedError: if channel is set incorrectly.
     """
+    channel = 0
+    if 'channel' in self._params:
+      try:
+        channel = int(self._params['channel'])
+      except ValueError, e:
+        raise Ina2xxError(e)
+
+    if channel > self.MAX_CHANNEL or channel < 0:
+      raise Ina2xxError("register channel %d, out of range" % channel)
+
     reg = self.REG_IDX[name]
+    if name in ['busv', 'shv']:
+      reg += channel * 2
 
     if reg > self.MAX_REG_INDEX or reg < self.REG_IDX['cfg']:
       raise Ina2xxError("register index %d, out of range" % reg)

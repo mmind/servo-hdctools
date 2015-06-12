@@ -21,6 +21,7 @@ import i2c_reg
 import ina2xx
 import ina219
 import ina231
+import ina3221
 import kitty_power
 import larvae_adc
 import lcm2004

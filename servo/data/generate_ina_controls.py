@@ -12,7 +12,10 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
 
   Args:
     adcs: array of adc elements.  Each array element is a tuple consisting of:
-        slv: int representing the i2c slave address
+        slv: int representing the i2c slave address plus optional channel if ADC
+             (INA3221 only) has multiple channels.  For example,
+               "0x40"   : address 0x40 ... no channel
+               "0x40:1" : address 0x40, channel 1
         name: string name of the power rail
         sense: float of sense resitor size in ohms
         nom: float of nominal voltage of power rail.
@@ -27,19 +30,27 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
   """
   # Must match REG_IDX.keys() in servo/drv/ina2xx.py
   regs = ['cfg', 'shv', 'busv', 'pwr', 'cur', 'cal']
+
   if drvname == 'ina231':
     regs.extend(['msken', 'alrt'])
+  elif drvname == 'ina3221':
+    regs = ['cfg', 'shv', 'busv', 'msken']
 
   rsp = ""
   for (slv, name, nom, sense, mux, is_calib) in adcs:
+    chan = ''
+    if drvname == 'ina3221':
+      (slv, chan_id) = slv.split(':')
+      chan = 'channel="%s"' % chan_id
+
     rsp += (
       '<control><name>%(name)s_mv</name>\n'
       '<doc>Voltage of %(name)s rail in millivolts on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s"'
+      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s" %(chan)s'
       ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="millivolts"'
       ' nom="%(nom)s">\n</params></control>\n'
       ) % {'name':name, 'drvname':drvname, 'interface':interface, 'slv':slv,
-           'mux':mux, 'sense':sense, 'nom':nom}
+           'mux':mux, 'sense':sense, 'nom':nom, 'chan':chan}
 
     # in some instances we may not know sense resistor size ( re-work ) or other
     # custom factors may not allow for calibration and those reliable readings
@@ -49,38 +60,39 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
       rsp += (
       '<control><name>%(name)s_ma</name>\n'
       '<doc>Current of %(name)s rail in milliamps on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s"'
+      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s" %(chan)s'
       'rsense="%(sense)s" type="get" subtype="milliamps">\n'
       '</params></control>\n'
       '<control><name>%(name)s_mw</name>\n'
       '<doc>Power of %(name)s rail in milliwatts on i2c_mux:%(mux)s</doc>\n'
-      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s"'
+      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s" %(chan)s'
       ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="milliwatts">\n'
       '</params></control>\n')  % {'name':name, 'drvname':drvname,
                                    'interface':interface, 'slv':slv,
-                                   'mux':mux, 'sense':sense, 'nom':nom}
+                                   'mux':mux, 'sense':sense, 'nom':nom, 'chan':chan}
 
     for reg in regs:
       rsp += (
         '<control><name>%(name)s_%(reg)s_reg</name>\n'
         '<doc>Raw register value of %(reg)s on i2c_mux:%(mux)s</doc>'
         '<params cmd="get" interface="%(interface)d"'
-        ' drv="%(drvname)s" slv="%(slv)s"'
+        ' drv="%(drvname)s" slv="%(slv)s" %(chan)s'
         ' subtype="readreg" reg="%(reg)s" mux="%(mux)s"'
         ' fmt="hex">\n</params>') % {'name':name, 'drvname':drvname,
                                      'interface':interface, 'slv':slv,
                                      'mux':mux, 'sense':sense,
-                                     'reg':reg}
+                                     'reg':reg, 'chan':chan}
       if reg == "cfg":
         rsp += (
           '<params cmd="set" interface="%(interface)d"'
-          ' drv="%(drvname)s" slv="%(slv)s"'
+          ' drv="%(drvname)s" slv="%(slv)s" %(chan)s'
           ' subtype="writereg" reg="%(reg)s" mux="%(mux)s"'
           ' fmt="hex">\n</params></control>') % {'drvname':drvname,
                                                  'interface':interface,
                                                  'slv':slv, 'mux':mux,
                                                  'sense':sense,
-                                                 'reg':reg}
+                                                 'reg':reg,
+                                                 'chan':chan}
       else:
         rsp += ('</control>')
   return rsp
