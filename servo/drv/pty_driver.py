@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 import ast
+import errno
 import fdpexpect
 import os
 import pexpect
@@ -44,11 +45,18 @@ class ptyDriver(hw_driver.HwDriver):
 
   def _flush(self):
     """Flush device output to prevent previous messages interfering."""
-    self._child.sendline("")
+    if self._child.sendline("") != 1:
+      raise ptyError("Failed to send newline.")
     while True:
       try:
         self._child.expect(".", timeout=0.01)
       except (pexpect.TIMEOUT, pexpect.EOF):
+        break
+      except OSError, e:
+        # EAGAIN indicates no data available, maybe we didn't wait long enough
+        if e.errno != errno.EAGAIN:
+          raise
+        self._logger.debug("pty read returned EAGAIN")
         break
 
   def _send(self, cmds):
