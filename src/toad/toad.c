@@ -458,12 +458,12 @@ int setEcAp(struct ftdi_context *ftdi, int ec) {
         ec = ((mode & BIT_AP_MODE_EC_MODE_L_MASK) != 0);
     }
     // See if the mode even needs to be toggled.
-    if (!(mode & BIT_AP_MODE_EC_MODE_L_MASK) != ec) {
+    if (!!(mode & BIT_AP_MODE_EC_MODE_L_MASK) == ec) {
         // Press the button and wait for the mode to switch.
         ret = setCbus(ftdi, SET_CBUS_KEEP, SET_CBUS_KEEP, 1);
         if (ret) return ret;
         // Wait for mode to change.
-        while (!(mode & BIT_AP_MODE_EC_MODE_L_MASK) != ec) {
+        while (!!(mode & BIT_AP_MODE_EC_MODE_L_MASK) == ec) {
             FTORDIE(ftdi_read_pins(ftdi, &mode));
         }
         // Release the button.  All done!
