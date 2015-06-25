@@ -102,3 +102,7 @@ INTERFACE_BOARDS['oak'][0x18d1][0x5002][5] = 'ftdi_uart'
 INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['strago'][0x18d1][0x5002][0] = 'ftdi_uart'
+# kunimitsu re-purposes JTAG to be UART
+INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002][0] = 'ftdi_uart'

@@ -1,0 +1,10 @@
+<root>
+  <include>
+    <name>servo_glados_overlay.xml</name>
+  </include>
+  <control>
+    <name>dev_mode</name>
+    <alias>usbpd_boot_mode</alias>
+    <params clobber_ok="" od="PP" map="onoff"></params>
+  </control>
+</root>
