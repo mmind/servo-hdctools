@@ -210,4 +210,11 @@
     <params cmd="set" interface="2" drv="pca9537" slv="0x22" port="0"
             offset="7" width="1" map="onoff_i" init="off"></params>
   </control>
+  <!-- BB_I2C slv 0x2f : digital potentiometer AD5248 -->
+  <control>
+    <name>krill_sleeve_out</name>
+    <doc>Krill potentiometer sleeve out resistance control</doc>
+    <params cmd="set" interface="2" drv="ad5248" slv="0x2f" port="0"
+            subtype="r10k"></params>
+  </control>
 </root>
