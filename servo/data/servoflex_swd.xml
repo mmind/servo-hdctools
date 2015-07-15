@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<root>
+  <control>
+    <name>ec_boot_mode</name>
+    <doc>EC boot mode GPIO</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx"
+    subtype="gpio" slv="0x26" offset="1" map="onoff"></params>
+  </control>
+  <control>
+    <name>swd_reset</name>
+    <doc>swd reset. Note shorted to SWDIO as well.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx"
+    subtype="gpio" slv="0x26" offset="2" od="PU" map="onoff_i"
+    init="off"></params>
+  </control>
+  <control>
+    <name>jtag_buf_on_flex_en</name>
+    <doc>Enables JTAG buffer on flex.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx"
+    subtype="gpio" slv="0x26" offset="3" od="PU" map="onoff_i"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>uart1_on_flex_en</name>
+    <alias>ec_uart_on_flex_en</alias>
+    <doc>Enables uart1 buffers on flex.</doc>
+    <params interface="2" servo_v3_interface="4" drv="pca95xx"
+    subtype="gpio" slv="0x26" offset="7" od="PU" map="onoff_i">
+    </params>
+  </control>
+</root>
