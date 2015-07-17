@@ -28,4 +28,10 @@
     subtype="gpio" slv="0x26" offset="7" od="PU" map="onoff_i">
     </params>
   </control>
+  <control>
+    <name>warm_reset</name>
+    <alias>cold_reset</alias>
+    <doc>SWD flex connects EC reset to warm reset control.</doc>
+    <params clobber_ok=""></params>
+  </control>
 </root>
