@@ -7,7 +7,7 @@
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
     <params subtype="uart_capture" interface="7" drv="uart"
-            map="onoff"></params>
+    map="onoff"></params>
   </control>
   <control>
     <name>ec_uart_cmd</name>
@@ -96,11 +96,17 @@
     <name>rec_mode</name>
     <doc>Google recovery mode</doc>
     <params subtype="rec_mode" interface="7" drv="arm_ec" map="onoff"
-            init="off" clobber_ok=""></params>
+    init="off" clobber_ok=""></params>
   </control>
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
     <params clobber_ok="" cmd="set" drv="cros_ec_softrec_power"/>
+  </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="ec_chip" interface="servo"
+    drv="cros_ec_chip" ec_chip="stm32"/>
   </control>
 </root>

@@ -117,7 +117,7 @@
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
     <params subtype="uart_capture" interface="7" drv="uart"
-            map="onoff"></params>
+    map="onoff"></params>
   </control>
   <control>
     <name>ec_uart_stream</name>
@@ -128,5 +128,11 @@
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
     <params clobber_ok="" cmd="set" drv="cros_ec_hardrec_power"/>
+  </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="ec_chip" interface="servo"
+    drv="cros_ec_chip" ec_chip="lm4"/>
   </control>
 </root>

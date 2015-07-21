@@ -4,6 +4,12 @@
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
     <params cmd="set" interface="servo" drv="cros_ec_power" input_type="str"
-      reset_hold="0.1" reset_recovery="0.0" shutdown_ec_command="apshutdown"/>
+    reset_hold="0.1" reset_recovery="0.0" shutdown_ec_command="apshutdown"/>
+  </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="ec_chip" interface="servo"
+    drv="cros_ec_chip" ec_chip="unknown"/>
   </control>
 </root>
