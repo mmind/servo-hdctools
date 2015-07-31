@@ -17,6 +17,8 @@ class PowerStateDriver(hw_driver.HwDriver):
       currently powered off.
     * 'rec' - Equivalent to 'on', except that the DUT boots in
       recovery mode.
+    * 'fastboot' - Equivalent to 'on', except that the DUT boots in
+      fastboot mode.
     * 'reset' - Equivalent to 'off' followed by 'on'.
       Additionally, the EC will be reset as by the 'cold_reset'
       signal.
@@ -30,6 +32,7 @@ class PowerStateDriver(hw_driver.HwDriver):
   _STATE_OFF = 'off'
   _STATE_ON = 'on'
   _STATE_REC_MODE = 'rec'
+  _STATE_FASTBOOT = 'fastboot'
   _STATE_RESET_CYCLE = 'reset'
 
   REC_ON = 'on'
@@ -126,11 +129,13 @@ class PowerStateDriver(hw_driver.HwDriver):
       self._power_on(self.REC_OFF)
     elif statename == self._STATE_REC_MODE:
       self._power_on(self.REC_ON)
+    elif statename == self._STATE_FASTBOOT:
+      self._power_on_fastboot()
     elif statename == self._STATE_RESET_CYCLE:
       self._reset_cycle()
     else:
       raise ValueError("Invalid power_state setting: '%s'. Try one of "
-                       "'%s', '%s', '%s', or '%s'." % (statename,
+                       "'%s', '%s', '%s', '%s', or '%s'." % (statename,
                            self._STATE_ON, self._STATE_OFF,
-                           self._STATE_REC_MODE,
+                           self._STATE_REC_MODE, self._STATE_FASTBOOT,
                            self._STATE_RESET_CYCLE))
