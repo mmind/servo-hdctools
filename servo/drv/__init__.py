@@ -44,6 +44,7 @@ import samus_power
 import sleep
 import storm_power
 import stumpy_power
+import veyron_mickey_power
 import tca6416
 import tcs3414
 import uart

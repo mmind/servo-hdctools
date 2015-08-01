@@ -134,7 +134,7 @@ class Servod(object):
       return keyboard_handlers.StoutHandler(servo)
     elif board in ('buddy', 'cranky', 'guado', 'jecht', 'mccloud', 'monroe',
                    'ninja', 'nyan_kitty', 'panther', 'rikku', 'stumpy',
-                   'sumo', 'tidus', 'tricky', 'zako'):
+                   'sumo', 'tidus', 'tricky', 'veyron_mickey', 'zako'):
       if self._usbkm232 is None:
         logging.warn("No device path specified for usbkm232 handler. Returning "
                      "the MatrixKeyboardHandler, which is likely the wrong "
