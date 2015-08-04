@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>servo_cosmos_overlay.xml</name>
+  </include>
+  <control>
+    <name>kbd_en</name>
+    <doc>Keyboard gpio's needed for ec_boot_mode</doc>
+    <params clobber_ok="" init="on"></params>
+  </control>
+  <control>
+    <name>kbd_m2_a1</name>
+    <params clobber_ok="" init="off"></params>
+  </control>
+  <control>
+    <name>kbd_m2_a0</name>
+    <alias>ec_boot_mode</alias>
+    <doc>EC boot mode GPIO</doc>
+    <params clobber_ok="" map="onoff_i" init="off"></params>
+  </control>
+</root>
