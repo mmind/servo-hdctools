@@ -18,4 +18,37 @@
     <doc>EC boot mode GPIO</doc>
     <params clobber_ok="" map="onoff_i" init="off"></params>
   </control>
+  <!-- lucid uses cpu uart as ec.  Below will map ec_* names to cpu uart as
+       well. -->
+  <control>
+    <name>uart2_en</name>
+    <alias>ec_uart_en</alias>
+    <params clobber_ok="" interface="2" drv="tca6416" slv="0x24"
+    port="0" offset="6" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>uart2_pty</name>
+    <alias>ec_uart_pty</alias>
+    <params clobber_ok="" interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_baudrate</name>
+    <alias>ec_uart_baudrate</alias>
+    <params clobber_ok="" interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_parity</name>
+    <alias>ec_uart_parity</alias>
+    <params clobber_ok="" interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_sbits</name>
+    <alias>ec_uart_sbits</alias>
+    <params clobber_ok="" interface="8"></params>
+  </control>
+  <control>
+    <name>uart2_bits</name>
+    <alias>ec_uart_bits</alias>
+    <params clobber_ok="" interface="8"></params>
+  </control>
 </root>
