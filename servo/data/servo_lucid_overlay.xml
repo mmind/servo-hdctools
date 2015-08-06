@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <root>
   <include>
-    <name>servo_cosmos_overlay.xml</name>
+    <name>servoflex_cosmos.xml</name>
   </include>
   <control>
     <name>kbd_en</name>
