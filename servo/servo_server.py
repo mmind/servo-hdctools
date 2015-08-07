@@ -132,7 +132,7 @@ class Servod(object):
       return keyboard_handlers.ParrotHandler(servo)
     elif board == 'stout':
       return keyboard_handlers.StoutHandler(servo)
-    elif board in ('cranky', 'guado', 'jecht', 'mccloud', 'monroe',
+    elif board in ('buddy', 'cranky', 'guado', 'jecht', 'mccloud', 'monroe',
                    'ninja', 'nyan_kitty', 'panther', 'rikku', 'stumpy',
                    'sumo', 'tidus', 'tricky', 'zako'):
       if self._usbkm232 is None:
