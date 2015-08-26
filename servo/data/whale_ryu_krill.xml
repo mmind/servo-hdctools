@@ -37,8 +37,8 @@
   </control>
   <!-- INA3 -->
   <control>
-    <name>krill_pp5000_mv</name>
-    <doc>Voltage of whale_pp5000 rail in millivolts on
+    <name>krill_usbc_vbus_mv</name>
+    <doc>Voltage of whale_usbc_vbus rail in millivolts on
     i2c_mux:rem</doc>
     <params interface="2" drv="ina219" slv="0x48" mux="rem"
     rsense="0.1" type="get" subtype="millivolts" nom="5.0">
