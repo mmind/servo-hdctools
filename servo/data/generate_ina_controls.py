@@ -82,7 +82,7 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
                                      'interface':interface, 'slv':slv,
                                      'mux':mux, 'sense':sense,
                                      'reg':reg, 'chan':chan}
-      if reg == "cfg":
+      if reg in ["cfg", "cal"]:
         rsp += (
           '<params cmd="set" interface="%(interface)d"'
           ' drv="%(drvname)s" slv="%(slv)s" %(chan)s'

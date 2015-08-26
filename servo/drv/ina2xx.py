@@ -414,6 +414,8 @@ class ina2xx(hw_driver.HwDriver):
     reg = self._params['reg']
 
     self._write_reg(reg, value)
+    if reg is 'cal':
+      self._calib_reg = value
 
   def _wake(self):
     """Wake up the INA219 adc from sleep."""
