@@ -2,8 +2,17 @@
   <include>
     <name>servoflex_v2_r0_p50.xml</name>
   </include>
+  <include>
+    <name>x86_ec_common.xml</name>
+  </include>
   <!-- ******** Controls ******** -->
   <!-- Override from definition in servo_v2_r0.xml for prog of MCU -->
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params drv="cros_ec_softrec_power" clobber_ok="" reset_recovery="0.6"
+    shutdown_delay="11.0" />
+  </control>
   <control>
     <name>dev_mode</name>
     <alias>usbpd_boot_mode</alias>
