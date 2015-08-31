@@ -688,7 +688,10 @@ class Servod(object):
     """
     for control_name, value in self._syscfg.hwinit:
       try:
-        self.set(control_name, value)
+        # Workaround for bug chrome-os-partner:42349. Without this check, the
+        # gpio will briefly pulse low if we set it from high to high.
+        if self.get(control_name) != value:
+            self.set(control_name, value)
       except Exception as e:
         self._logger.error("Problem initializing %s -> %s :: %s",
                            control_name, value, str(e))
