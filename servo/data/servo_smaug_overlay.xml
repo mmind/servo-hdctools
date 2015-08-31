@@ -25,4 +25,16 @@
     <params clobber_ok="" shutdown_delay="3.0" reset_recovery="5.0"
             drv="cros_ec_softrec_power" />
   </control>
+  <control>
+    <name>volume_up</name>
+    <doc>emulated volume press on ec</doc>
+    <params subtype="volume_up" interface="7" drv="ec" map="yesno"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>volume_down</name>
+    <doc>Press volume down press on ec</doc>
+    <params subtype="volume_down" interface="7" drv="ec" map="yesno"
+    clobber_ok=""></params>
+  </control>
 </root>

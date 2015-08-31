@@ -205,6 +205,34 @@ class ec(pty_driver.ptyDriver):
     else:
       self._issue_cmd("lidopen")
 
+  def _Get_volume_up(self):
+    """Getter of Volup"""
+    result = self._issue_cmd_get_results("btnpress volup",
+                                         ["Button volup pressed = (\d+)"])[0]
+    return int(result[1])
+
+  def _Set_volume_up(self, value):
+    """Setter of Volup
+
+    Args:
+      value: 1=button pressed, 0=button released
+    """
+    self._issue_cmd("btnpress volup %d" % int(value))
+
+  def _Get_volume_down(self):
+    """Getter of Voldown"""
+    result = self._issue_cmd_get_results("btnpress voldown",
+                                         ["Button voldown pressed = (\d+)"])[0]
+    return int(result[1])
+
+  def _Set_volume_down(self, value):
+    """Setter of Voldown
+
+    Args:
+      value: 1=button pressed, 0=button released
+    """
+    self._issue_cmd("btnpress voldown %d" % int(value))
+
   def _Get_cpu_temp(self):
     """Getter of cpu_temp.
 
