@@ -50,7 +50,6 @@ HOSTOS_CWARN	=				\
 	-Wstrict-prototypes			\
 	-Wswitch				\
 	-Wswitch-default			\
-	-Wswitch-enum				\
 	-Wtrigraphs				\
 	-Wundef					\
 	-Wuninitialized				\

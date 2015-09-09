@@ -74,7 +74,6 @@ HOSTOS_CWARN	=				\
 	-Wstrict-overflow=5			\
 	-Wswitch				\
 	-Wswitch-default			\
-	-Wswitch-enum				\
 	-Wtrigraphs				\
 	-Wtype-limits				\
 	-Wundef					\
