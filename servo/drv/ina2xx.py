@@ -281,18 +281,15 @@ class ina2xx(hw_driver.HwDriver):
     raw_cur = int(numpy.int16(raw_cur))
     return raw_cur * milliamps_per_lsb
 
-  def _get_milliamps_calc(self):
-    """Retrieve current measurement for ADC in milliamps by calculation.
-
-    Calculation is I = Vshunt / Rsense
+  def _get_shunt_millivolts(self):
+    """Retrieve shunt voltage measurement for ADC.
 
     Returns:
-      float of current in milliamps
+      float of shunt voltage in millivolts.
 
     Raises:
       Ina2xxError: if shunt voltage overflowed.
     """
-    logging.debug('')
     vshunt_reg = self._read_reg('shv')
     logging.debug('shv = 0x%x', vshunt_reg)
 
@@ -307,8 +304,27 @@ class ina2xx(hw_driver.HwDriver):
       raise Ina2xxError('vshunt overflow 0x%04x', vshunt_reg)
 
     vshunt_reg = vshunt_reg >> self.SHV_OFFSET
-    vshunt_mv = vshunt_reg * self.SHV_UV_PER_LSB / 1000.
+    return vshunt_reg * self.SHV_UV_PER_LSB / 1000.
 
+  def _Get_shuntmv(self):
+    """Retrieve shunt voltage measurement for ADC in millivolts.
+
+    Returns:
+      float of shunt voltage in millivolts.
+    """
+    return self._get_shunt_millivolts()
+
+  def _get_milliamps_calc(self):
+    """Retrieve current measurement for ADC in milliamps by calculation.
+
+    Calculation is I = Vshunt / Rsense
+
+    Returns:
+      float of current in milliamps
+    """
+    logging.debug('')
+
+    vshunt_mv = self._get_shunt_millivolts()
     logging.debug('vshunt_mv = %2.2f', vshunt_mv)
     return vshunt_mv / self._rsense
 

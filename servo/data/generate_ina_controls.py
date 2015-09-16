@@ -45,9 +45,14 @@ def dump_adcs(adcs, drvname='ina219', interface=2):
 
     rsp += (
       '<control><name>%(name)s_mv</name>\n'
-      '<doc>Voltage of %(name)s rail in millivolts on i2c_mux:%(mux)s</doc>\n'
+      '<doc>Bus Voltage of %(name)s rail in millivolts on i2c_mux:%(mux)s</doc>\n'
       '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s" %(chan)s'
       ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="millivolts"'
+      ' nom="%(nom)s">\n</params></control>\n'
+      '<control><name>%(name)s_shuntmv</name>\n'
+      '<doc>Shunt Voltage of %(name)s rail in millivolts on i2c_mux:%(mux)s</doc>\n'
+      '<params interface="%(interface)d" drv="%(drvname)s" slv="%(slv)s" %(chan)s'
+      ' mux="%(mux)s" rsense="%(sense)s" type="get" subtype="shuntmv"'
       ' nom="%(nom)s">\n</params></control>\n'
       ) % {'name':name, 'drvname':drvname, 'interface':interface, 'slv':slv,
            'mux':mux, 'sense':sense, 'nom':nom, 'chan':chan}
