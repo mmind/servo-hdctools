@@ -1,0 +1,7 @@
+<root>
+  <map>
+    <name>calibrate</name>
+    <doc>calibration map</doc>
+    <params recalibrate="0"></params>
+  </map>
+</root>
