@@ -7,6 +7,7 @@ import errno
 import logging
 import optparse
 import os
+import pkg_resources
 import SimpleXMLRPCServer
 import socket
 import sys
@@ -19,8 +20,7 @@ import servo_server
 import system_config
 
 
-# TODO(tbroch) determine version string methodology.
-VERSION = "0.0.1"
+VERSION = pkg_resources.require('servo')[0].version
 
 MAX_ISERIAL_STR = 128
 

@@ -7,6 +7,7 @@
 import collections
 import logging
 import optparse
+import pkg_resources
 import sys
 import time
 
@@ -20,8 +21,7 @@ import client
 class ControlError(Exception):
   pass
 
-# TODO(tbroch) determine version string methodology.
-VERSION = "0.0.1"
+VERSION = pkg_resources.require('servo')[0].version
 
 # used to aid sorting of dict keys
 KEY_PREFIX = '__'

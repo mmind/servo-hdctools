@@ -9,9 +9,11 @@
 import os
 from setuptools import setup
 
+execfile('version.py')
+
 setup(
   name = "servo",
-  version = "0.0.1",
+  version = __version__,
   package_dir = {'' : 'build'},
   py_modules=['servo.servod', 'servo.dut_control'],
   packages=['servo', 'servo.data', 'servo.drv'],
@@ -32,7 +34,7 @@ setup(
 
 setup(
   name = "usbkm232",
-  version = "0.0.1",
+  version = __version__,
   package_dir = {'' : 'build'},
   py_modules=['usbkm232.ctrld', 'usbkm232.ctrlu', 'usbkm232.enter',
               'usbkm232.space', 'usbkm232.tab'],
