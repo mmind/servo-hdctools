@@ -82,14 +82,6 @@ INTERFACE_BOARDS = collections.defaultdict(
 INTERFACE_BOARDS['samus'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'
-# Ryu re-purposes EC SPI to be Sensor Hub UART
-INTERFACE_BOARDS['ryu'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['ryu'][0x18d1][0x5002][5] = 'ftdi_uart'
-# smaug re-purposes EC SPI to be Sensor Hub UART
-INTERFACE_BOARDS['smaug'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['smaug'][0x18d1][0x5002][5] = 'ftdi_uart'
 # Glados re-purposes JTAG to be UART
 INTERFACE_BOARDS['glados'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])

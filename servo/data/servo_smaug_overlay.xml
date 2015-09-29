@@ -5,20 +5,7 @@
   <include>
     <name>stm32_ec_common.xml</name>
   </include>
-  <include>
-    <name>sensorhub.xml</name>
-  </include>
   <!-- Override from definition in servo_v2_r0.xml -->
-  <control>
-    <name>dev_mode</name>
-    <alias>sh_boot_mode</alias>
-    <params clobber_ok="" od="PP"></params>
-  </control>
-  <control>
-    <name>pch_disable</name>
-    <alias>sh_reset</alias>
-    <params clobber_ok=""></params>
-  </control>
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
