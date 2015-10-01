@@ -85,6 +85,34 @@
     <params cmd="get" subtype="pty" interface="4" drv="uart">
     </params>
   </control>
+  <control>
+    <name>atmega_baudrate</name>
+    <alias>legacy_uart_baudrate</alias>
+    <doc>Baudrate for Atmega's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="4"></params>
+  </control>
+  <control>
+    <name>atmega_parity</name>
+    <alias>legacy_uart_parity</alias>
+    <doc>Parity for Atmega's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="4" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>atmega_sbits</name>
+    <alias>legacy_uart_sbits</alias>
+    <doc>Number of stop bits for Atmega's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="4" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>atmega_bits</name>
+    <alias>legacy_uart_bits</alias>
+    <doc>Number of data bits for Atmega's uart console</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="4" map="uart_bits"></params>
+  </control>
   <!-- ********** I2c related controls ********** -->
   <control>
     <name>i2c_mux</name>
