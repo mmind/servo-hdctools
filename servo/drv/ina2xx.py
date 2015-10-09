@@ -217,26 +217,25 @@ class ina2xx(hw_driver.HwDriver):
     # TODO(tbroch): should look at re-calibrating to increase precision if
     # there's plenty of headroom in result
 
-    # for first calibrate after instance object created
-    if self._calib_reg is None:
-      self._write_reg('cal', self.MAX_CALIB)
-      self._calib_reg = self.MAX_CALIB
-      is_ovf = self._get_next_ovf()
-    else:
-      is_ovf = self._read_ovf()
-
     # TODO(tbroch): remove read of calibration below once instantiation of INA
     # controls resolves that there is only one device for many controls.
     # Currently it is possible to overflow and adjust calibration say for the
     # milliwatts but be  unaware of the change for the milliamps calculations as
     # each control has a separate instance of ina219 object and therefore a
     # private copy of the calibration register.
-    self._calib_reg = self._read_reg('cal')
+    calib_reg = self._calib_reg = self._read_reg('cal')
+
+    if self._calib_reg in [None, 0]:
+      self._write_reg('cal', self.MAX_CALIB)
+      self._calib_reg = self.MAX_CALIB
+      is_ovf = self._get_next_ovf()
+    else:
+      is_ovf = self._read_ovf()
 
     while is_ovf:
-      calib_reg = (self._calib_reg >> 1) & self.MAX_CALIB
-      if calib_reg == 0:
+      if calib_reg == self.MIN_CALIB:
         raise Ina2xxError("Failed to calibrate for lowest precision")
+      calib_reg = (self._calib_reg >> 1) & self.MAX_CALIB
       self._logger.debug("writing calibrate to 0x%04x" % (calib_reg))
       self._write_reg('cal', calib_reg)
       self._calib_reg = calib_reg
