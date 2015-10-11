@@ -23,7 +23,7 @@
 #  ec_3v3
 #  ac_power
 
-inas = [(0x40, 'total', 6, 0.01, 'rem', True),
+inas = [(0x40, 'battery', 6, 0.01, 'rem', True),
         (0x41, '5v_out', 5, 0.01, 'rem', True),
         (0x42, '3v3_out', 3.3, 0.01, 'rem', True),
         (0x43, 'dvfs1', 5, 0.01, 'rem', True),
@@ -38,4 +38,4 @@ inas = [(0x40, 'total', 6, 0.01, 'rem', True),
         (0x4C, 'sram7', 5, 0.1, 'rem', True),
         (0x4D, 'wifi_3v3', 3.3, 0.1, 'rem', True),
         (0x4E, 'ec_3v3', 3.3, 0.1, 'rem', True),
-        (0x4F, 'ac_power', 3.3, 0.1, 'rem', True)]
+        (0x4F, 'ac_power', 3.3, 0.01, 'rem', True)]
