@@ -451,21 +451,21 @@
   </control>
   <control>
     <name>bb_kbd_m2_c1_r1</name>
-    <doc>bb_kbd_m2_c2_r1</doc>
-    <params interface="1" drv="gpio" chip="2" offset="22" map="onoff"
+    <doc>bb_kbd_m2_c1_r1</doc>
+    <params interface="1" drv="gpio" chip="2" offset="10" map="onoff"
     init="off">
     </params>
   </control>
   <control>
     <name>bb_kbd_m2_c1_r2</name>
-    <doc>bb_kbd_m2_c2_r2</doc>
+    <doc>bb_kbd_m2_c1_r2</doc>
     <params interface="1" drv="gpio" chip="0" offset="22" map="onoff"
     init="off">
     </params>
   </control>
   <control>
     <name>bb_kbd_m2_c1_r3</name>
-    <doc>bb_kbd_m2_c2_r3</doc>
+    <doc>bb_kbd_m2_c1_r3</doc>
     <params interface="1" drv="gpio" chip="2" offset="8" map="onoff"
     init="off">
     </params>
