@@ -82,10 +82,6 @@ INTERFACE_BOARDS = collections.defaultdict(
 INTERFACE_BOARDS['samus'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'
-# Glados re-purposes JTAG to be UART
-INTERFACE_BOARDS['glados'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['glados'][0x18d1][0x5002][0] = 'ftdi_uart'
 # oak re-purposes EC SPI to be USB PD UART
 INTERFACE_BOARDS['oak'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
@@ -94,7 +90,17 @@ INTERFACE_BOARDS['oak'][0x18d1][0x5002][5] = 'ftdi_uart'
 INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['strago'][0x18d1][0x5002][0] = 'ftdi_uart'
-# kunimitsu re-purposes JTAG to be UART
+
+# Skylake boards re-purpose JTAG to be UART
+INTERFACE_BOARDS['chell'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['chell'][0x18d1][0x5002][0] = 'ftdi_uart'
+INTERFACE_BOARDS['glados'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['glados'][0x18d1][0x5002][0] = 'ftdi_uart'
 INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002][0] = 'ftdi_uart'
+INTERFACE_BOARDS['lars'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['lars'][0x18d1][0x5002][0] = 'ftdi_uart'
