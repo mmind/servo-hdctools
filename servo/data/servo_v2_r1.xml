@@ -21,6 +21,12 @@
   </map>
   <!-- ********** Controls ********** -->
   <control>
+    <name>uart3_vref</name>
+    <doc>uart3_vref</doc>
+    <params interface="2" drv="tca6416" slv="0x22" port="0"
+    offset="1" width="2" map="vref_sel" init="off"></params>
+  </control>
+  <control>
     <name>jtag_vref_sel0</name>
     <doc>jtag_vref_sel0</doc>
     <params interface="2" drv="tca6416" slv="0x24" port="0"
