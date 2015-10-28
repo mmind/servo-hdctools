@@ -8,6 +8,7 @@ import logging
 import optparse
 import os
 import pkg_resources
+import select
 import SimpleXMLRPCServer
 import socket
 import sys
@@ -242,6 +243,49 @@ def find_servod_match(logger, options, all_servos, servodrc):
 
   raise ServodError("No matching servo found")
 
+
+def choose_servo(logger, all_servos):
+  """
+  Let user choose a servo from available list of unique devices.
+
+  Args:
+    logger: a logging instance used by this servod driver
+    all_servos: a list of servod objects corresponding to discovered servo
+                devices
+
+  Returns:
+    servo object for the matching (or single) device, otherwise None
+  """
+  logger.info("")
+  for i, servo in enumerate(all_servos):
+    logger.info("Press '%d' for servo, vid: 0x%04x pid: 0x%04x sid: %s", i,
+                servo.idVendor, servo.idProduct, usb_get_iserial(servo))
+
+  (rlist, _, _) = select.select([sys.stdin], [], [], 10)
+  if not rlist:
+    logger.warn("Timed out waiting for your choice\n")
+    return None
+
+  rsp = rlist[0].readline().strip()
+  try:
+    rsp = int(rsp)
+  except ValueError:
+    logger.warn("%s not a valid choice ... ignoring", rsp)
+    return None
+
+  if rsp < 0 or rsp >= len(all_servos):
+    logger.warn("%s outside of choice range ... ignoring", rsp)
+    return None
+
+  logging.info("")
+  servo = all_servos[rsp]
+  logging.info("Chose %d ... starting servod on servo "
+               "vid: 0x%04x pid: 0x%04x sid: %s",
+               rsp, servo.idVendor, servo.idProduct, usb_get_iserial(servo))
+  logging.info("")
+  return servo
+
+
 def discover_servo(logger, options, servodrc):
   """Find a servo USB device to use
 
@@ -288,6 +332,11 @@ def discover_servo(logger, options, servodrc):
 
   if len(all_servos) == 1:
     return all_servos[0]
+
+  # Let user choose a servo
+  matching_servo = choose_servo(logger, all_servos)
+  if matching_servo:
+    return matching_servo
 
   logger.error("Use --vendor, --product or --serialname switches to "
                "identify servo uniquely, or create a servodrc file "
