@@ -162,7 +162,7 @@ def usb_find(vendor, product, serialname):
     for device in bus.devices:
       if (not vendor or device.idVendor == vendor) and \
             (not product or device.idProduct == product) and \
-            (not serialname or usb_get_iserial(device) == serialname):
+            (not serialname or usb_get_iserial(device).endswith(serialname)):
         matched_devices.append(device)
   return matched_devices
 
