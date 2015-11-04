@@ -29,6 +29,7 @@ class crosEcSoftrecPower(cros_ec_power.CrosECPower):
       # upcoming recovery mode request.
       self._cold_reset()
       # Restart the EC, but leave the system CPU off...
+      self._interface.set('ec_uart_regexp', 'None')
       self._interface.set('ec_uart_cmd', 'reboot ap-off')
       time.sleep(self._reset_recovery_time)
       # Now the EC keeps the AP off. Release warm reset before powering
