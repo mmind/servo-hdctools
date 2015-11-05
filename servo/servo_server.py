@@ -60,8 +60,8 @@ class Servod(object):
           servo_v2_r0, servo_v3
       usbkm232: String. Optional. Path to USB-KM232 device which allow for
                 sending keyboard commands to DUTs that do not have built in
-                keyboards. Used in FAFT tests.
-                e.g. /dev/ttyUSB0
+                keyboards. Used in FAFT tests.  Use 'atmega' for on board AVR MCU.
+                e.g. '/dev/ttyUSB0' or 'atmega'
 
     Raises:
       ServodError: if unable to locate init method for particular interface
@@ -81,9 +81,6 @@ class Servod(object):
     self._board = board
     self._version = version
     self._usbkm232 = usbkm232
-
-    self._keyboard = self._init_keyboard_handler(self, self._board)
-
     # Note, interface i is (i - 1) in list
     if not interfaces:
       try:
@@ -121,6 +118,10 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
+    # Init keyboard after all the intefaces are up.
+    self._keyboard = self._init_keyboard_handler(self, self._board)
+
+
   def _init_keyboard_handler(self, servo, board=''):
     """Initialize the correct keyboard handler for board.
 
@@ -141,6 +142,16 @@ class Servod(object):
                      "the MatrixKeyboardHandler, which is likely the wrong "
                      "keyboard handler for the board type specified.")
         return keyboard_handlers.MatrixKeyboardHandler(servo)
+      if self._usbkm232 == 'atmega':
+        # Use servo onboard keyboard emulator.
+        self._usbkm232 = self.get('atmega_pty')
+        self.set('atmega_baudrate', '9600')
+        self.set('atmega_bits', 'eight')
+        self.set('atmega_parity', 'none')
+        self.set('atmega_sbits', 'one')
+        self.set('usb_mux_sel4', 'on')
+        self.set('atmega_rst', 'off')
+      self._logger.info('USBKM232: %s', self._usbkm232)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
       # The following boards don't use Chrome EC.
