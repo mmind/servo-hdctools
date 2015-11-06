@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<root>
+  <map>
+    <name>kb_precanned</name>
+    <doc>map for press and release of keyboard buttons</doc>
+    <params d_key="0" ctrl_d="1" ctrl_u="2" ctrl_enter="3" enter_key="4" refresh_key="5" ctrl_refresh_key="6"></params>
+  </map>
+  <control>
+    <name>kb_press</name>
+    <alias>keyboard_input_press</alias>
+    <doc>Keyboard events to send to the DUT, either by servoflex or USB KB emulation</doc>
+    <params cmd="set" interface="servo" drv="kb" map="kb_precanned"></params>
+  </control>
+</root>

@@ -25,6 +25,7 @@ import ina2xx
 import ina219
 import ina231
 import ina3221
+import kb
 import kitty_power
 import larvae_adc
 import lcm2004

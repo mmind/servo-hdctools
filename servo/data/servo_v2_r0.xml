@@ -4,6 +4,9 @@
   <include>
     <name>common.xml</name>
   </include>
+  <include>
+    <name>keyboard.xml</name>
+  </include>
   <map>
     <name>i2c_mux</name>
     <doc>4 to 1 mux to steer ftdi i2c bus to different sets of
