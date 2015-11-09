@@ -614,7 +614,20 @@ class USBkm232Handler(_BaseHandler):
         self.serial.setInterCharTimeout(0.5)
         self.serial.setTimeout(0.5)
         self.serial.setWriteTimeout(0.5)
+        if serial_device == servo.get('atmega_pty'):
+          self._test_atmega()
 
+    def _test_atmega(self):
+       """Send and receive a dummy key from teh atmega to verify it is present.
+
+       Returns:
+         Raises exception if no correct response is received.
+       """
+       self.serial.write(chr(0))
+       rsp = self.serial.read(1)
+       if not rsp or (ord(rsp) != 0xff):
+         logging.error("Presence check response from atmega KB emu: rsp: %s" % rsp)
+         raise Exception("Atmega KB offline: failed to communicate.")
 
     def _press(self, press_ch):
         """Encode and return character to press using usbkm232.

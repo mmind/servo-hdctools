@@ -144,13 +144,16 @@ class Servod(object):
         return keyboard_handlers.MatrixKeyboardHandler(servo)
       if self._usbkm232 == 'atmega':
         # Use servo onboard keyboard emulator.
+        self.set('atmega_rst', 'on')
+        self.set('atmega_rst', 'off')
         self._usbkm232 = self.get('atmega_pty')
         self.set('atmega_baudrate', '9600')
         self.set('atmega_bits', 'eight')
         self.set('atmega_parity', 'none')
         self.set('atmega_sbits', 'one')
         self.set('usb_mux_sel4', 'on')
-        self.set('atmega_rst', 'off')
+        # Allow atmega bootup time.
+        time.sleep(1.0)
       self._logger.info('USBKM232: %s', self._usbkm232)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
