@@ -10,7 +10,7 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params drv="cros_ec_softrec_power" clobber_ok="" reset_recovery="0.6"
+    <params drv="cros_ec_pd_softrec_power" clobber_ok="" reset_recovery="0.6"
     shutdown_delay="11.0" />
   </control>
   <control>
