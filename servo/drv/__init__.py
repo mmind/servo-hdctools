@@ -13,6 +13,7 @@ import beltino_power
 import cros_ec_chip
 import cros_ec_hardrec_power
 import cros_ec_power
+import cros_ec_pd_softrec_power
 import cros_ec_softrec_power
 import daisy_ec
 import daisy_power
@@ -40,7 +41,6 @@ import pca9546
 import pca95xx
 import plankton
 import pty_driver
-import samus_power
 import sleep
 import storm_power
 import stumpy_power

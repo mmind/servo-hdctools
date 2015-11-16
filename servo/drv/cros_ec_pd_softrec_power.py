@@ -6,15 +6,15 @@ import time
 import cros_ec_softrec_power
 
 
-class samusPower(cros_ec_softrec_power.crosEcSoftrecPower):
+class crosEcPdSoftrecPower(cros_ec_softrec_power.crosEcSoftrecPower):
 
-  """Driver for power_state for Samus."""
+  """Driver for power_state for boards that have usbpd_reset."""
 
   def _cold_reset(self):
     """Apply cold reset to the DUT.
 
     This asserts, then de-asserts the 'cold_reset' signal and the
-    'usbpd_reset' signal. Samus varies from the generic implementation
+    'usbpd_reset' signal. This varies from the generic implementation
     in that the extra 'usbpd_reset' signal must be asserted to reset
     the PD MCU.
 
