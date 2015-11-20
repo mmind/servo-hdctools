@@ -478,7 +478,7 @@
   <!-- UART -->
   <control>
     <name>uart1_pty</name>
-    <alias>ec_uart_pty</alias>
+    <alias>raw_ec_uart_pty</alias>
     <doc>Psuedo-terminal (pty) thats connnected to EC's uart
     console</doc>
     <params cmd="get" subtype="pty" interface="7" drv="uart">
@@ -593,7 +593,7 @@
     <name>uart4_pty</name>
     <alias>atmega_pty</alias>
     <doc>USB Keyboard Emulator</doc>
-    <params cmd="get" subtype="pty" interface="9" drv="uart">
+    <params cmd="get" subtype="pty" interface="11" drv="uart">
     </params>
   </control>
   <control>
@@ -601,28 +601,28 @@
     <alias>atmega_baudrate</alias>
     <doc>Baudrate for atmega uart</doc>
     <params drv="uart" subtype="props" line_prop="baudrate"
-    interface="9"></params>
+    interface="11"></params>
   </control>
   <control>
     <name>uart4_parity</name>
     <alias>atmega_parity</alias>
     <doc>Parity for atmega uart</doc>
     <params drv="uart" subtype="props" line_prop="parity"
-    interface="9" map="uart_parity"></params>
+    interface="11" map="uart_parity"></params>
   </control>
   <control>
     <name>uart4_sbits</name>
     <alias>atmega_sbits</alias>
     <doc>Number of stop bits for atmega uart</doc>
     <params drv="uart" subtype="props" line_prop="sbits"
-    interface="9" map="uart_sbits"></params>
+    interface="11" map="uart_sbits"></params>
   </control>
   <control>
     <name>uart4_bits</name>
     <alias>atmega_bits</alias>
     <doc>Number of data bits for atmega uart</doc>
     <params drv="uart" subtype="props" line_prop="bits"
-    interface="9" map="uart_bits"></params>
+    interface="11" map="uart_bits"></params>
   </control>
 
 
@@ -658,5 +658,11 @@
     <name>cpu_uart_stream</name>
     <doc>Cpu uart stream collected while cpu_uart_capture is set to 'on'</doc>
     <params cmd="get" subtype="uart_stream" interface="8" drv="uart"></params>
+  </control>
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="10" drv="uart"></params>
   </control>
 </root>

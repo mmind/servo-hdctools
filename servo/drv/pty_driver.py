@@ -34,6 +34,7 @@ class ptyDriver(hw_driver.HwDriver):
 
   def _open(self):
     """Connect to serial device and create pexpect interface."""
+    self._logger.debug('opening %s', self._pty_path)
     self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
     self._child = fdpexpect.fdspawn(self._fd)
 

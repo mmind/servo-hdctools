@@ -12,7 +12,7 @@
   <control>
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
-    <params subtype="uart_capture" interface="7" drv="uart"
+    <params subtype="uart_capture" interface="10" drv="uart"
             map="onoff"></params>
   </control>
   <control>
@@ -21,13 +21,13 @@
       Set to send command to EC UART. Get to obtain the matched
       results with the regular expression of ec_uart_regexp.
     </doc>
-    <params subtype="uart_cmd" interface="7" drv="ec"
+    <params subtype="uart_cmd" interface="10" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_multicmd</name>
     <doc>Set to send multiple commands to EC UART.</doc>
-    <params subtype="uart_multicmd" interface="7" drv="ec"
+    <params subtype="uart_multicmd" interface="10" drv="ec"
     input_type="str" cmd="set"></params>
   </control>
   <control>
@@ -36,13 +36,13 @@
       List of regular expressions which matches the response of
       ec_uart_cmd.
     </doc>
-    <params subtype="uart_regexp" interface="7" drv="ec"
+    <params subtype="uart_regexp" interface="10" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_stream</name>
     <doc>Ec uart stream collected while ec_uart_capture is set to 'on'</doc>
-    <params cmd="get" subtype="uart_stream" interface="7" drv="uart"></params>
+    <params cmd="get" subtype="uart_stream" interface="10" drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_timeout</name>
@@ -50,7 +50,7 @@
       Timeout value for waiting EC UART response of issuing an
       EC command.
     </doc>
-    <params subtype="uart_timeout" interface="7" drv="ec"
+    <params subtype="uart_timeout" interface="10" drv="ec"
     input_type="float"></params>
   </control>
   <control>

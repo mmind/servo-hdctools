@@ -19,12 +19,22 @@ INTERFACE_DEFAULTS[0x18d1][0x5001] = ['ftdi_gpio', 'ftdi_i2c',
 # servo V2
 # Dummy interface 0 == JTAG via openocd
 # Dummy interface 4,5 == SPI via flashrom
-INTERFACE_DEFAULTS[0x18d1][0x5002] = \
+# ec3po_uart interface 8,9 == usbpd console, ec console.  Applicable to servo v3
+# as well.
+EC3PO_USBPD_INTERFACE_NUM = 8
+EC3PO_EC_INTERFACE_NUM = 9
+SERVO_V2_DEFAULTS = [(0x18d1, 0x5002)]
+for vid, pid in SERVO_V2_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
     ['dummy', 'ftdi_i2c', 'ftdi_uart', 'ftdi_uart', 'dummy',
-     'dummy', 'ftdi_uart', 'ftdi_uart']
+     'dummy', 'ftdi_uart', 'ftdi_uart',
+     {'name': 'ec3po_uart'},
+     {'name': 'ec3po_uart'}]
 
 # servo v3
-INTERFACE_DEFAULTS[0x18d1][0x5004] = \
+SERVO_V3_DEFAULTS = [(0x18d1, 0x5004)]
+for vid, pid in SERVO_V3_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
     ['bb_gpio',
      {'name': 'dev_i2c', 'bus_num': 1},
      {'name': 'bb_uart', 'uart_num': 5,
@@ -34,6 +44,8 @@ INTERFACE_DEFAULTS[0x18d1][0x5004] = \
      'dummy',
      {'name': 'bb_uart', 'uart_num': 1},
      {'name': 'bb_uart', 'uart_num': 2},
+     {'name': 'ec3po_uart'},
+     {'name': 'ec3po_uart'},
      {'name': 'bb_uart', 'uart_num': 4}]
 
 INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
@@ -41,35 +53,35 @@ INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
 # miniservo
 MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]
 for vid, pid in MINISERVO_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart', {'name': 'ec3po_uart'}]
 
 SERVO_ID_DEFAULTS.extend(MINISERVO_ID_DEFAULTS)
 
 # Toad
 TOAD_ID_DEFAULTS = [(0x403, 0x6015)]
 for vid, pid in TOAD_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart', {'name': 'ec3po_uart'}]
 
 SERVO_ID_DEFAULTS.extend(TOAD_ID_DEFAULTS)
 
 # Reston
 RESTON_ID_DEFAULTS = [(0x18d1, 0x5007)]
 for vid, pid in RESTON_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart', {'name': 'ec3po_uart'}]
 
 SERVO_ID_DEFAULTS.extend(RESTON_ID_DEFAULTS)
 
 # Fruitpie
 FRUITPIE_ID_DEFAULTS = [(0x18d1, 0x5009)]
 for vid, pid in FRUITPIE_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart', {'name': 'ec3po_uart'}]
 
 SERVO_ID_DEFAULTS.extend(FRUITPIE_ID_DEFAULTS)
 
 # Plankton
 PLANKTON_ID_DEFAULTS = [(0x18d1, 0x500c)]
 for vid, pid in PLANKTON_ID_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart']
+  INTERFACE_DEFAULTS[vid][pid] = ['ftdi_gpiouart', {'name': 'ec3po_uart'}]
 
 SERVO_ID_DEFAULTS.extend(PLANKTON_ID_DEFAULTS)
 

@@ -1,11 +1,18 @@
 <root>
   <!-- USB PD UART Controls -->
   <control>
-    <name>usbpd_uart_pty</name>
+    <name>raw_usbpd_uart_pty</name>
     <doc>Psuedo-terminal (pty) thats connnected to USB PD MCU's
     uart console</doc>
     <params cmd="get" subtype="pty" interface="6" drv="uart">
     </params>
+  </control>
+  <!-- EC-3PO console interpreter for USB PD -->
+  <control>
+    <name>ec3po_usbpd_uart_pty</name>
+    <alias>usbpd_uart_pty</alias>
+    <doc>USBPD UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="9" drv="uart"></params>
   </control>
   <control>
     <name>usbpd_uart_baudrate</name>
@@ -37,41 +44,41 @@
     <doc>Set to send command to USBPD UART. Get to obtain the
     matched results with the regular expression of
     usbpd_uart_regexp.</doc>
-    <params subtype="uart_cmd" interface="6" drv="uart"
+    <params subtype="uart_cmd" interface="9" drv="uart"
     input_type="str"></params>
   </control>
   <control>
     <name>usbpd_uart_multicmd</name>
     <doc>Set to send multiple commands to USB PD UART.</doc>
-    <params subtype="uart_multicmd" interface="6" drv="uart"
+    <params subtype="uart_multicmd" interface="9" drv="uart"
     input_type="str" cmd="set"></params>
   </control>
   <control>
     <name>usbpd_uart_regexp</name>
     <doc>List of regular expressions to match the response of
     usbpd_uart_cmd.</doc>
-    <params subtype="uart_regexp" interface="6" drv="uart"
+    <params subtype="uart_regexp" interface="9" drv="uart"
     input_type="str"></params>
   </control>
   <control>
     <name>usbpd_uart_timeout</name>
     <doc>Timeout value for a response after issuing a command on
     usbpd_uart_cmd.</doc>
-    <params subtype="uart_timeout" interface="6" drv="uart"
+    <params subtype="uart_timeout" interface="9" drv="uart"
     input_type="float"></params>
   </control>
   <control>
     <name>usbpd_uart_capture</name>
     <doc>Enables capture of USB PD console via
     usbpd_uart_stream</doc>
-    <params subtype="uart_capture" interface="6" drv="uart"
+    <params subtype="uart_capture" interface="9" drv="uart"
     map="onoff"></params>
   </control>
   <control>
     <name>usbpd_uart_stream</name>
     <doc>USB PD console stream captured while usbpd_uart_capture is
     set to 'on'</doc>
-    <params cmd="get" subtype="uart_stream" interface="6"
+    <params cmd="get" subtype="uart_stream" interface="9"
     drv="uart"></params>
   </control>
   <!-- USB PD UART Buffers & VREF Controls -->

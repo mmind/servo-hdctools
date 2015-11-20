@@ -5,10 +5,16 @@
   </include>
   <!-- STM32 UART -->
   <control>
-    <name>ec_uart_pty</name>
+    <name>raw_ec_uart_pty</name>
     <doc>Pseudo-terminal (pty) thats connected to uart console</doc>
     <params cmd="get" interface="2" subtype="pty" drv="uart">
     </params>
+  </control>
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" interface="3" subtype="pty" drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_baudrate</name>

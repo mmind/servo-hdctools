@@ -611,7 +611,7 @@
   <!-- UART -->
   <control>
     <name>uart1_pty</name>
-    <alias>ec_uart_pty</alias>
+    <alias>raw_ec_uart_pty</alias>
     <doc>Psuedo-terminal (pty) thats connnected to EC's uart
     console</doc>
     <params cmd="get" subtype="pty" interface="7" drv="uart">
@@ -714,5 +714,12 @@
     <name>cpu_uart_stream</name>
     <doc>Cpu uart stream collected while cpu_uart_capture is set to 'on'</doc>
     <params cmd="get" subtype="uart_stream" interface="8" drv="uart"></params>
+  </control>
+  <!-- EC-3PO console interpreter for main EC -->
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="10" drv="uart"></params>
   </control>
 </root>

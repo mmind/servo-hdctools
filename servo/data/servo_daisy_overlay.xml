@@ -5,7 +5,7 @@
   <!-- ******** Controls ******** -->
   <control>
     <name>lid_open</name>
-    <params subtype="lid_open" interface="7" drv="daisy_ec" map="yesno"
+    <params subtype="lid_open" interface="10" drv="daisy_ec" map="yesno"
             clobber_ok=""></params>
   </control>
   <control>

@@ -7,7 +7,7 @@
   <control>
     <name>rec_mode</name>
     <doc>Google recovery mode</doc>
-    <params subtype="rec_mode" interface="7" drv="parrot_ec"
+    <params subtype="rec_mode" interface="10" drv="parrot_ec"
     map="onoff" clobber_ok=""></params>
   </control>
   <!-- Old parrot mb design needs spi1_vref:pp3300 to be always on -->

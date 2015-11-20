@@ -7,46 +7,52 @@
   <control>
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
-    <params subtype="uart_capture" interface="2" drv="uart"
+    <params subtype="uart_capture" interface="3" drv="uart"
             map="onoff"></params>
   </control>
   <control>
     <name>ec_uart_cmd</name>
     <doc>Set to send command to EC UART. Get to obtain the matched
     results with the regular expression of ec_uart_regexp.</doc>
-    <params subtype="uart_cmd" interface="2" drv="ec"
+    <params subtype="uart_cmd" interface="3" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_multicmd</name>
     <doc>Set to send multiple commands to EC UART.</doc>
-    <params subtype="uart_multicmd" interface="2" drv="ec"
+    <params subtype="uart_multicmd" interface="3" drv="ec"
     input_type="str" cmd="set"></params>
   </control>
   <control>
     <name>ec_uart_regexp</name>
     <doc>List of regular expressions which matches the response of
     ec_uart_cmd.</doc>
-    <params subtype="uart_regexp" interface="2" drv="ec"
+    <params subtype="uart_regexp" interface="3" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_stream</name>
     <doc>Ec uart stream collected while ec_uart_capture is set to 'on'</doc>
-    <params cmd="get" subtype="uart_stream" interface="2" drv="uart"></params>
+    <params cmd="get" subtype="uart_stream" interface="3" drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_timeout</name>
     <doc>Timeout value for waiting EC UART response of issuing an
     EC command.</doc>
-    <params subtype="uart_timeout" interface="2" drv="ec"
+    <params subtype="uart_timeout" interface="3" drv="ec"
     input_type="float"></params>
   </control>
   <control>
-    <name>ec_uart_pty</name>
+    <name>raw_ec_uart_pty</name>
     <doc>Pseudo-terminal (pty) thats connected to uart console</doc>
     <params cmd="get" interface="2" subtype="pty" drv="uart">
     </params>
+  </control>
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="3" drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_baudrate</name>

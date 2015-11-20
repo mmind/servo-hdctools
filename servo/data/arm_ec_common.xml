@@ -6,96 +6,96 @@
   <control>
     <name>ec_uart_capture</name>
     <doc>ec_uart_capture</doc>
-    <params subtype="uart_capture" interface="7" drv="uart"
+    <params subtype="uart_capture" interface="10" drv="uart"
     map="onoff"></params>
   </control>
   <control>
     <name>ec_uart_cmd</name>
     <doc>Set to send command to EC UART. Get to obtain the matched
     results with the regular expression of ec_uart_regexp.</doc>
-    <params subtype="uart_cmd" interface="7" drv="ec"
+    <params subtype="uart_cmd" interface="10" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_multicmd</name>
     <doc>Set to send multiple commands to EC UART.</doc>
-    <params subtype="uart_multicmd" interface="7" drv="ec"
+    <params subtype="uart_multicmd" interface="10" drv="ec"
     input_type="str" cmd="set"></params>
   </control>
   <control>
     <name>ec_uart_regexp</name>
     <doc>List of regular expressions which matches the response of
     ec_uart_cmd.</doc>
-    <params subtype="uart_regexp" interface="7" drv="ec"
+    <params subtype="uart_regexp" interface="10" drv="ec"
     input_type="str"></params>
   </control>
   <control>
     <name>ec_uart_stream</name>
     <doc>Ec uart stream collected while ec_uart_capture is set to 'on'</doc>
-    <params cmd="get" subtype="uart_stream" interface="7" drv="uart"></params>
+    <params cmd="get" subtype="uart_stream" interface="10" drv="uart"></params>
   </control>
   <control>
     <name>ec_uart_timeout</name>
     <doc>Timeout value for waiting EC UART response of issuing an
     EC command.</doc>
-    <params subtype="uart_timeout" interface="7" drv="ec"
+    <params subtype="uart_timeout" interface="10" drv="ec"
     input_type="float"></params>
   </control>
   <control>
     <name>kbd_en</name>
     <doc>Enable servo to assert certain keypresses via kbd_m1 and
     kbd_m2</doc>
-    <params subtype="kbd_en" interface="7" drv="ec" map="onoff"
+    <params subtype="kbd_en" interface="10" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
   <control>
     <name>kbd_m1_a0</name>
     <doc>kbd_m1_a0</doc>
-    <params subtype="kbd_m1_a0" interface="7" drv="ec" map="onoff"
+    <params subtype="kbd_m1_a0" interface="10" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
   <control>
     <name>kbd_m1_a1</name>
     <doc>kbd_m1_a1</doc>
-    <params subtype="kbd_m1_a1" interface="7" drv="ec" map="onoff"
+    <params subtype="kbd_m1_a1" interface="10" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
   <control>
     <name>kbd_m2_a0</name>
     <doc>kbd_m2_a0</doc>
-    <params subtype="kbd_m2_a0" interface="7" drv="ec" map="onoff"
+    <params subtype="kbd_m2_a0" interface="10" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
   <control>
     <name>kbd_m2_a1</name>
     <doc>kbd_m2_a1</doc>
-    <params subtype="kbd_m2_a1" interface="7" drv="ec" map="onoff"
+    <params subtype="kbd_m2_a1" interface="10" drv="ec" map="onoff"
     clobber_ok=""></params>
   </control>
   <control>
     <name>ppvar_vbat_ma</name>
     <doc>milliamps being consumed (discharging/positive) or
     supplied (charging/negative) to the battery</doc>
-    <params cmd="get" subtype="milliamps" interface="7" drv="ec">
+    <params cmd="get" subtype="milliamps" interface="10" drv="ec">
     </params>
   </control>
   <control>
     <name>ppvar_vbat_mv</name>
     <doc>millivolts of the battery</doc>
-    <params cmd="get" subtype="millivolts" interface="7" drv="ec">
+    <params cmd="get" subtype="millivolts" interface="10" drv="ec">
     </params>
   </control>
   <control>
     <name>ppvar_vbat_mw</name>
     <doc>milliwatts being consumed (discharging) or supplied
     (charging) to the battery</doc>
-    <params cmd="get" subtype="milliwatts" interface="7" drv="ec">
+    <params cmd="get" subtype="milliwatts" interface="10" drv="ec">
     </params>
   </control>
   <control>
     <name>rec_mode</name>
     <doc>Google recovery mode</doc>
-    <params subtype="rec_mode" interface="7" drv="arm_ec" map="onoff"
+    <params subtype="rec_mode" interface="10" drv="arm_ec" map="onoff"
     init="off" clobber_ok=""></params>
   </control>
   <control>

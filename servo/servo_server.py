@@ -19,6 +19,7 @@ import bbadc
 import bbi2c
 import bbgpio
 import bbuart
+import ec3po_interface
 import ftdigpio
 import ftdii2c
 import ftdi_common
@@ -26,6 +27,7 @@ import ftdiuart
 import i2cbus
 import keyboard_handlers
 import servo_interfaces
+
 
 MAX_I2C_CLOCK_HZ = 100000
 
@@ -92,9 +94,11 @@ class Servod(object):
       is_ftdi_interface = False
       if type(interface) is dict:
         name = interface['name']
+        # Store interface index for those that care about it.
+        interface['index'] = i
       elif type(interface) is str:
-        # Its FTDI related interface
         name = interface
+        # It's a FTDI related interface.
         interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
         is_ftdi_interface = True
       else:
@@ -304,6 +308,60 @@ class Servod(object):
 
     self._logger.info("uart pty: %s" % fuart.get_pty())
     return fgpio, fuart
+
+  def _init_ec3po_uart(self, interface):
+    """Initialize EC-3PO console interpreter interface.
+
+    Args:
+      interface: A dictionary representing the interface.
+
+    Returns:
+      An EC3PO object representing the EC-3PO interface or None if there's no
+      interface for the USB PD UART.
+    """
+    vid = self._vendor
+    pid = self._product
+    # The current PID might be incremented if there are multiple FTDI.
+    # Therefore, try rewinding the PID back one if we don't find the base PID in
+    # the SERVO_ID_DEFAULTS
+    if (vid, pid) not in servo_interfaces.SERVO_ID_DEFAULTS:
+      self._logger.debug('VID:PID pair not found.  Rewinding PID back one...')
+      pid -= 1
+    self._logger.debug('vid:0x%04x, pid:0x%04x', vid, pid)
+
+    # Servo V2 / V3 should have the interface indicies in the same spot.
+    if ((vid, pid) in servo_interfaces.SERVO_V2_DEFAULTS or
+        (vid, pid) in servo_interfaces.SERVO_V3_DEFAULTS):
+      # Determine if it's a PD interface or just main EC console.
+      if interface['index'] == servo_interfaces.EC3PO_USBPD_INTERFACE_NUM:
+        try:
+          # Obtain the raw EC UART PTY and create the EC-3PO interface.
+          raw_ec_uart = self.get('raw_usbpd_uart_pty')
+        except NameError:
+          # This overlay doesn't have a USB PD MCU, so skip init.
+          self._logger.info('No PD MCU UART.')
+          return None
+        except AttributeError:
+          # This overlay has no get method for the interface so skip init.
+          self._logger.warn('No interface for PD MCU UART.')
+          return None
+
+      elif interface['index'] == servo_interfaces.EC3PO_EC_INTERFACE_NUM:
+        raw_ec_uart = self.get('raw_ec_uart_pty')
+
+    # Servo V3, miniservo, Toad, Reston, Fruitpie, or Plankton
+    elif ((vid, pid) in servo_interfaces.MINISERVO_ID_DEFAULTS or
+          (vid, pid) in servo_interfaces.TOAD_ID_DEFAULTS or
+          (vid, pid) in servo_interfaces.RESTON_ID_DEFAULTS or
+          (vid, pid) in servo_interfaces.FRUITPIE_ID_DEFAULTS or
+          (vid, pid) in servo_interfaces.PLANKTON_ID_DEFAULTS):
+      raw_ec_uart = self.get('raw_ec_uart_pty')
+
+    else:
+      raise ServodError(('Unexpected EC-3PO interface!'
+                         ' (0x%04x:0x%04x) %r') % (vid, pid, interface))
+
+    return ec3po_interface.EC3PO(raw_ec_uart)
 
   def _camel_case(self, string):
     output = ''
