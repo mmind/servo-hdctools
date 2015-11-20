@@ -17,7 +17,7 @@ INA219		= wario.xml waluigi.xml servo_loc.xml link_dvt.xml link.xml    \
 		  veyron_brain_p1.xml ryu_p5_loc.xml ryu_evt2_loc.xml \
                   ryu_dvt_loc.xml kunimitsu.xml
 INA231		= samus.xml whale_samus_dut.xml
-INA3221		= glados_p1_inas.xml glados_r2_inas.xml
+INA3221		= glados_p1_inas.xml glados_r2_inas.xml chell_r1_inas.xml
 
 # TODO(tbroch) should probably be added to setup.py if possible
 all:	$(INA3221) $(INA231) $(INA219) $(XML_DST)
