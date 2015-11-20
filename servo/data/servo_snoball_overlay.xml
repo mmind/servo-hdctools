@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>servoflex_swd.xml</name>
+  </include>
+  <control>
+    <name>ec_boot_mode</name>
+    <doc>ec_boot_mode GPIO is inverted on snoball</doc>
+    <params map="onoff_i" init="off" clobber_ok=""></params>
+  </control>
+  <control>
+    <name>jtag_vref_sel0</name>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>jtag_vref_sel1</name>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>spi1_vref</name>
+    <alias>ec_uart_vref</alias>
+    <params clobber_ok="" init="pp3300"></params>
+  </control>
+  <control>
+    <name>spi2_vref</name>
+    <doc>BEWARE ... can power EC but LDO may not be able to handle
+    all current demands.</doc>
+    <alias>ec_power</alias>
+    <params clobber_ok="" init="off"></params>
+  </control>
+</root>
