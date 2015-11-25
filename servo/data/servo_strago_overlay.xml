@@ -1,6 +1,6 @@
 <root>
   <include>
-    <name>servo_glados_overlay.xml</name>
+    <name>servoflex_v2_r0_p50.xml</name>
   </include>
   <include>
     <name>x86_ec_common.xml</name>
@@ -12,8 +12,9 @@
     shutdown_delay="11.0" />
   </control>
   <control>
-    <name>dev_mode</name>
-    <alias>usbpd_boot_mode</alias>
-    <params clobber_ok="" od="PP" map="onoff"></params>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="ec_chip" interface="servo"
+    drv="cros_ec_chip" ec_chip="mec1322"/>
   </control>
 </root>
