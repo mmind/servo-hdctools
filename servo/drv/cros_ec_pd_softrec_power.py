@@ -24,8 +24,8 @@ class crosEcPdSoftrecPower(cros_ec_softrec_power.crosEcSoftrecPower):
 
     time.sleep(self._reset_hold_time)
 
-    self._interface.set('cold_reset', 'off')
     self._interface.set('usbpd_reset', 'off')
+    self._interface.set('cold_reset', 'off')
     # After the reset, give the EC the time it needs to
     # re-initialize.
     time.sleep(self._reset_recovery_time)
