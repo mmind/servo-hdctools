@@ -130,4 +130,10 @@
     <params interface="2" servo_v3_interface="4" drv="pca95xx" subtype="gpio"
     slv="0x26" offset="3" map="onoff_i" init="on" clobber_ok=""></params>
   </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="ec_chip" interface="servo"
+    drv="cros_ec_chip" ec_chip="mec1322"/>
+  </control>
 </root>
