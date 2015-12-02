@@ -5,8 +5,8 @@
 import hw_driver
 
 
-class crosEcChip(hw_driver.HwDriver):
-  """Driver for getting EC chip name."""
+class crosChip(hw_driver.HwDriver):
+  """Driver for getting chip name of EC or PD."""
   def __init__(self, interface, params):
     """Constructor.
 
@@ -14,9 +14,9 @@ class crosEcChip(hw_driver.HwDriver):
       interface: driver interface object
       params: dictionary of params
     """
-    super(crosEcChip, self).__init__(interface, params)
-    self._ec_chip = self._params.get('ec_chip', 'unknown')
+    super(crosChip, self).__init__(interface, params)
+    self._chip = self._params.get('chip', 'unknown')
 
-  def _Get_ec_chip(self):
+  def _Get_chip(self):
     """Get the EC chip name."""
-    return self._ec_chip
+    return self._chip

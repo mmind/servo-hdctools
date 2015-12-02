@@ -10,7 +10,7 @@ import ad5248
 import alex_power
 import arm_ec
 import beltino_power
-import cros_ec_chip
+import cros_chip
 import cros_ec_hardrec_power
 import cros_ec_power
 import cros_ec_pd_softrec_power
