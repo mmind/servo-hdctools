@@ -14,4 +14,10 @@
     <params drv="cros_ec_pd_softrec_power" clobber_ok="" reset_recovery="0.6"
     shutdown_delay="11.0" />
   </control>
+  <control>
+    <name>usbpd_chip</name>
+    <doc>USB PD chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
+   drv="cros_chip" chip="stm32"/>
+  </control>
 </root>

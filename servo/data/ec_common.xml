@@ -9,7 +9,13 @@
   <control>
     <name>ec_chip</name>
     <doc>EC chip name (read-only)</doc>
-    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
-    drv="cros_chip" chip="unknown"/>
+    <params cmd="get" subtype="chip" interface="servo" drv="cros_chip"
+    chip="unknown"/>
+  </control>
+  <control>
+    <name>usbpd_chip</name>
+    <doc>USB PD chip name (read-only)</doc>
+    <params cmd="get" subtype="chip" interface="servo" drv="cros_chip"
+    chip="unknown"/>
   </control>
 </root>

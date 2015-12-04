@@ -17,4 +17,10 @@
     <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
     drv="cros_chip" chip="mec1322"/>
   </control>
+  <control>
+    <name>usbpd_chip</name>
+    <doc>USB PD chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
+    drv="cros_chip" chip="stm32"/>
+  </control>
 </root>
