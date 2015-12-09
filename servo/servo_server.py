@@ -118,9 +118,6 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
-    # Init keyboard after all the intefaces are up.
-    self._keyboard = self._init_keyboard_handler(self, self._board)
-
 
   def _init_keyboard_handler(self, servo, board=''):
     """Initialize the correct keyboard handler for board.
@@ -145,6 +142,7 @@ class Servod(object):
       if self._usbkm232 == 'atmega':
         # Use servo onboard keyboard emulator.
         self.set('atmega_rst', 'on')
+        self.set('at_hwb', 'off')
         self.set('atmega_rst', 'off')
         self._usbkm232 = self.get('atmega_pty')
         self.set('atmega_baudrate', '9600')
@@ -152,6 +150,7 @@ class Servod(object):
         self.set('atmega_parity', 'none')
         self.set('atmega_sbits', 'one')
         self.set('usb_mux_sel4', 'on')
+        self.set('usb_mux_oe4', 'on')
         # Allow atmega bootup time.
         time.sleep(1.0)
       self._logger.info('USBKM232: %s', self._usbkm232)
@@ -711,6 +710,9 @@ class Servod(object):
                            control_name, value, str(e))
       if verbose:
         self._logger.info('Initialized %s to %s', control_name, value)
+
+    # Init keyboard after all the intefaces are up.
+    self._keyboard = self._init_keyboard_handler(self, self._board)
     return True
 
   def echo(self, echo):

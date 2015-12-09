@@ -25,6 +25,7 @@ SBITS_MAP = {0 : '-cstopb',
 # Map of interfaces to tty.
 TTY_MAP = {1 : '/dev/ttyO1', # Uart1/ec_uart
            2 : '/dev/ttyO2', # Uart2/cpu_uart
+           4 : '/dev/ttyO4', # Uart4/atmega_uart
            5 : '/dev/ttyO5'} # Uart3/legacy_uart- Uart3 is connected to
                              # Beaglebone Uart5.
 

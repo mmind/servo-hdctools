@@ -33,7 +33,8 @@ INTERFACE_DEFAULTS[0x18d1][0x5004] = \
      'bb_adc',
      'dummy',
      {'name': 'bb_uart', 'uart_num': 1},
-     {'name': 'bb_uart', 'uart_num': 2}]
+     {'name': 'bb_uart', 'uart_num': 2},
+     {'name': 'bb_uart', 'uart_num': 4}]
 
 INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
 

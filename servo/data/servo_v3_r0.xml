@@ -5,6 +5,9 @@
   <include>
     <name>common.xml</name>
   </include>
+  <include>
+    <name>keyboard.xml</name>
+  </include>
   <map>
     <name>vref_sel_v3</name>
     <doc>Determine VREF between pp3300, pp2500, pp1800 and off.
@@ -389,7 +392,7 @@
     <name>at_hwb</name>
     <doc>at_hwb</doc>
     <params interface="1" drv="gpio" chip="0" offset="27" map="onoff_i"
-    init="on"></params>
+    init="off"></params>
   </control>
   <control>
     <name>at_buf_en</name>
@@ -585,6 +588,45 @@
     <params drv="uart" subtype="props" line_prop="bits"
     interface="8" map="uart_bits"></params>
   </control>
+
+  <control>
+    <name>uart4_pty</name>
+    <alias>atmega_pty</alias>
+    <doc>USB Keyboard Emulator</doc>
+    <params cmd="get" subtype="pty" interface="9" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart4_baudrate</name>
+    <alias>atmega_baudrate</alias>
+    <doc>Baudrate for atmega uart</doc>
+    <params drv="uart" subtype="props" line_prop="baudrate"
+    interface="9"></params>
+  </control>
+  <control>
+    <name>uart4_parity</name>
+    <alias>atmega_parity</alias>
+    <doc>Parity for atmega uart</doc>
+    <params drv="uart" subtype="props" line_prop="parity"
+    interface="9" map="uart_parity"></params>
+  </control>
+  <control>
+    <name>uart4_sbits</name>
+    <alias>atmega_sbits</alias>
+    <doc>Number of stop bits for atmega uart</doc>
+    <params drv="uart" subtype="props" line_prop="sbits"
+    interface="9" map="uart_sbits"></params>
+  </control>
+  <control>
+    <name>uart4_bits</name>
+    <alias>atmega_bits</alias>
+    <doc>Number of data bits for atmega uart</doc>
+    <params drv="uart" subtype="props" line_prop="bits"
+    interface="9" map="uart_bits"></params>
+  </control>
+
+
+
   <control>
     <name>cpu_uart_cmd</name>
     <doc>Set to send command to CPU UART. Get to obtain the matched
