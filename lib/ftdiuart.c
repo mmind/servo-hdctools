@@ -307,6 +307,18 @@ static int handle_commands(struct fuart_context *fuartc, char ch) {
   }
 }
 
+static int fd_is_writeable(int fd) {
+  fd_set wfds;
+  struct timeval tv;
+
+  FD_ZERO(&wfds);
+  FD_SET(fd, &wfds);
+  tv.tv_sec = 0;
+  tv.tv_usec = 5000;
+
+  return select(fd + 1, NULL, &wfds, NULL, &tv);
+}
+
 static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
 
   int rv = FUART_ERR_NONE;
@@ -336,9 +348,10 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
   // TODO(tbroch) is there a lower cost way to interrogate ftdi for data.  How
   // does the event/error_char factor into things?
   bytes = ftdi_read_data(fc, fuartc->buf, sizeof(fuartc->buf));
-  if (bytes > 0) {
+  if ((bytes > 0) && fd_is_writeable(fuartc->fd)) {
     int bytes_remaining = bytes;
     uint8_t *rd_buf = fuartc->buf;
+    int retries = 0;
 
  retry_write:
     while (bytes_remaining &&
@@ -346,7 +359,9 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
       rd_buf += bytes;
       bytes_remaining -= bytes;
     }
-    if ((bytes == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+    if ((bytes == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK)) &&
+        (retries < 10)) {
+      retries++;
       goto retry_write;
     }
 
