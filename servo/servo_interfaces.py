@@ -8,7 +8,8 @@ import collections
 INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
 SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x0403, 0x6014), (0x18d1, 0x5001),
-                     (0x18d1, 0x5002), (0x18d1, 0x5004)]
+                     (0x18d1, 0x5002), (0x18d1, 0x5004), (0x18d1, 0x501a),
+                     (0x18d1, 0x501b)]
 
 # servo v1 w/o FT4232h EEPROM programmed
 INTERFACE_DEFAULTS[0x0403][0x6011] = ['ftdi_gpio', 'ftdi_i2c',
@@ -49,6 +50,37 @@ for vid, pid in SERVO_V3_DEFAULTS:
      {'name': 'bb_uart', 'uart_num': 4}]
 
 INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
+
+
+# Servo micro
+SERVO_MICRO_DEFAULTS = [(0x18d1, 0x501a)]
+for vid, pid in SERVO_MICRO_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
+    ['stm32_gpio',                           # 1: 32x GPIO block
+     {'name': 'stm32_uart', 'interface': 0}, # 2: uart3/legacy
+     {'name': 'stm32_uart', 'interface': 3}, # 3: servo console
+     {'name': 'stm32_i2c', 'interface': 4},  # 4: i2c
+     {'name': 'stm32_uart', 'interface': 5}, # 5: uart2 / dut ap
+     {'name': 'stm32_uart', 'interface': 6}, # 6: uart1 / dut ec
+     {'name': 'ec3po_uart',                  # 7: servo console
+      'raw_pty': 'raw_servo_console_pty'},
+     {'name': 'ec3po_uart',                  # 8: dut ec console
+      'raw_pty': 'raw_ec_uart_pty'},
+     {'name': 'ec3po_uart',                  # 9: dut pd console
+      'raw_pty': 'raw_usbpd_uart_pty'},
+    ]
+
+# Servo v4
+SERVO_V4_DEFAULTS = [(0x18d1, 0x501b)]
+for vid, pid in SERVO_V4_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
+    ['stm32_gpio',                           # 1: 32x GPIO block
+     {'name': 'stm32_uart', 'interface': 0}, # 2: UART4
+     {'name': 'stm32_uart', 'interface': 3}, # 3: servo console
+     {'name': 'stm32_i2c', 'interface': 4},  # 4: i2c
+     {'name': 'ec3po_uart',                  # 5: servo console
+      'raw_pty': 'raw_servo_console_pty'},
+    ]
 
 # miniservo
 MINISERVO_ID_DEFAULTS = [(0x403, 0x6001), (0x18d1, 0x5000)]

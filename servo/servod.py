@@ -142,7 +142,11 @@ def usb_get_iserial(device):
     # Need to investigate further
     pass
   except Exception, e:
-    raise ServodError("failed to retrieve USB serialname")
+    # Servo micro and v4 currently do not support serial number.
+    if device.idVendor == 0x18d1 and device.idProduct in [0x501a, 0x501b]:
+      pass
+    else:
+      raise e
   return iserial
 
 def usb_find(vendor, product, serialname):

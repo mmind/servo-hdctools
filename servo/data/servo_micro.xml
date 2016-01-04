@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>common.xml</name>
+  </include>
+
+
+  <!-- GPIO on chip settings -->
+  <map>
+    <name>onoff_vref_sel</name>
+    <doc>Determine VREF between pp3300, pp1800 and off.
+    Default is off</doc>
+    <params off="0" pp3300="1" pp1800="2"></params>
+  </map>
+
+
+  <control>
+    <name>uart1_enable</name>
+    <doc>UART1_EN_L</doc>
+    <params interface="1" drv="gpio"
+    offset="0" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>servo_jtag_trst</name>
+    <doc>SERVO_JTAG_TRST_L</doc>
+    <params interface="1" drv="gpio"
+    offset="1" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>spi1_buf_en</name>
+    <doc>SPI1_BUF_EN_L</doc>
+    <params interface="1" drv="gpio"
+    offset="2" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>spi2_buf_en</name>
+    <doc>SPI2_BUF_EN_L</doc>
+    <params interface="1" drv="gpio"
+    offset="3" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>uart2_enable</name>
+    <doc>UART2_EN_L</doc>
+    <params interface="1" drv="gpio"
+    offset="4" map="onoff_i" init="on"></params>
+  </control>
+  <control>
+    <name>spi1_vref</name>
+    <doc>VREF applied to SPI1</doc>
+    <params interface="1" drv="gpio"
+    offset="5" width="2" map="onoff_vref_sel" init="off"></params>
+  </control>
+  <control>
+    <name>spi2_vref</name>
+    <alias>fw_wp_vref</alias>
+    <doc>VREF applied to SPI2 (coreboot)</doc>
+    <params interface="1" drv="gpio"
+    offset="7" width="2" map="onoff_vref_sel" init="off"></params>
+  </control>
+  <control>
+    <name>servo_jtag_trst_dir</name>
+    <doc>no idea what this is - SERVO_JTAG_TRST_DIR</doc>
+    <params interface="1" drv="gpio"
+    offset="9" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>servo_jtag_tdi_dir</name>
+    <doc>no idea what this is - SERVO_JTAG_TDI_DIR</doc>
+    <params interface="1" drv="gpio"
+    offset="10" map="onoff" init="off"></params>
+  </control>
+
+
+  <!-- GPIO on expander settings -->
+  <control>
+    <name>fw_wp_en</name>
+    <doc>Enables forwarding of write-protect gpio. Must assert this
+    and set fw_wp_vref prior to changing fw_wp.</doc>
+    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    offset="0" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>fw_wp</name>
+    <doc>Firmware write-protect GPIO</doc>
+    <!-- DUT_MFG_MODE read only -->
+    <params cmd="get" interface="4" drv="tca6416" slv="0x20"
+    port="0" offset="2" map="onoff_i"></params>
+    <!-- FTDI_MFG_MODE write only -->
+    <params cmd="set" interface="4" drv="tca6416" slv="0x20"
+    port="0" offset="1" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>tp1</name>
+    <doc>Test point 1</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="3" map="onoff" init="off"></params>
+  </control>
+  <control>
+    <name>spi_hold</name>
+    <doc>spi_hold</doc>
+    <params interface="4" drv="tca6416" slv="0x20" port="0"
+    offset="4" map="onoff_i"></params>
+  </control>
+  <control>
+    <name>cold_reset</name>
+    <doc>cold_reset</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="5" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>pwr_button</name>
+    <doc>Power button GPIO</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="6" map="press" init="release"></params>
+  </control>
+  <control>
+    <name>warm_reset</name>
+    <doc>warm_reset</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="0"
+    offset="7" map="onoff_i" init="off"></params>
+  </control>
+
+  <control>
+    <name>rec_mode</name>
+    <doc>Google recovery mode</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="0" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>hpd</name>
+    <doc>hpd</doc>
+    <params interface="4" drv="tca6416" slv="0x20" port="1"
+    offset="2" map="onoff"></params>
+  </control>
+  <control>
+    <name>fw_up</name>
+    <alias>t20_rec,proc_hot</alias>
+    <doc>Firmware update mode via USB</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="3" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>lid_open</name>
+    <doc>lid open GPIO</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="4" map="yesno" init="yes"></params>
+  </control>
+  <control>
+    <name>dev_mode</name>
+    <doc>dev_mode GPIO</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="5" map="onoff"></params>
+  </control>
+  <control>
+    <name>pch_disable</name>
+    <doc>DUT specific.</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="6" map="onoff_i" init="off"></params>
+  </control>
+  <control>
+    <name>tp2</name>
+    <doc>Test point 2</doc>
+    <params interface="4" drv="tca6416" slv="0x20" od="PU" port="1"
+    offset="7" map="onoff" init="off"></params>
+  </control>
+
+
+
+
+
+  <!-- UART and CONSOLE settings -->
+  <control>
+    <name>uart3_pty</name>
+    <alias>raw_usbpd_uart_pty</alias>
+    <doc>Legacy (v1) uart console. USART4: PA0/PA1 - Servo UART3</doc>
+    <params cmd="get" subtype="pty" interface="2" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart2_pty</name>
+    <alias>cpu_uart_pty</alias>
+    <doc>UART console. USART3: PB10/PB11 - Servo header UART2</doc>
+    <params cmd="get" subtype="pty" interface="5" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>uart1_pty</name>
+    <alias>raw_ec_uart_pty</alias>
+    <doc>UART console. USART2: PA2/PA3 - Servo header UART1</doc>
+    <params cmd="get" subtype="pty" interface="6" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>raw_servo_console_pty</name>
+    <doc>Servo's stm32 console.</doc>
+    <params cmd="get" subtype="pty" interface="3" drv="uart">
+    </params>
+  </control>
+
+  <!-- EC-3PO console interpreter linkup -->
+  <control>
+    <name>ec3po_servo_console</name>
+    <alias>servo_console_pty</alias>
+    <doc>Servo micro console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="7" drv="uart"></params>
+  </control>
+  <control>
+    <name>servo_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the servo console.</doc>
+    <params interface="7" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="8" drv="uart"></params>
+  </control>
+  <control>
+    <name>ec_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the EC UART.</doc>
+    <params interface="8" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+  <control>
+    <name>ec3po_usbpd_console</name>
+    <alias>usbpd_uart_pty</alias>
+    <doc>USB PD UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="9" drv="uart"></params>
+  </control>
+  <control>
+    <name>usbpd_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the usb pd UART.</doc>
+    <params interface="9" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+</root>

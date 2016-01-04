@@ -13,6 +13,7 @@ import os
 import pty
 import stat
 import termios
+import tty
 
 import ec3po
 import uart
@@ -61,10 +62,7 @@ class EC3PO(uart.Uart):
     # Open a new pseudo-terminal pair.
     (master_pty, user_pty) = pty.openpty()
 
-    # Disable local echo on the master PTY side.
-    pty_settings = termios.tcgetattr(master_pty)
-    pty_settings[3] = pty_settings[3] & ~termios.ECHO
-    termios.tcsetattr(master_pty, termios.TCSADRAIN, pty_settings)
+    tty.setraw(master_pty, termios.TCSADRAIN)
 
     # Set the permissions to 660.
     os.chmod(os.ttyname(user_pty), (stat.S_IRGRP | stat.S_IWGRP |

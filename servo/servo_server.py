@@ -27,6 +27,9 @@ import ftdiuart
 import i2cbus
 import keyboard_handlers
 import servo_interfaces
+import stm32gpio
+import stm32i2c
+import stm32uart
 
 
 MAX_I2C_CLOCK_HZ = 100000
@@ -205,6 +208,63 @@ class Servod(object):
 
     return fobj
 
+  def _init_stm32_uart(self, interface):
+    """Initialize stm32 uart interface and open for use
+
+    Note, the uart runs in a separate thread.  Users wishing to
+    interact with it will query control for the pty's pathname and connect
+    with their favorite console program.  For example:
+      cu -l /dev/pts/22
+
+    Args:
+      interface: dict of interface parameters.
+
+    Returns:
+      Instance object of interface
+
+    Raises:
+      ServodError: Raised on init failure.
+    """
+    self._logger.info("Suart: interface: %s" % interface)
+    sobj = stm32uart.Suart(self._vendor, self._product, interface['interface'])
+
+    try:
+      sobj.run()
+    except stm32uart.SuartError as e:
+      raise ServodError('Running uart interface. %s ( %d )' % (e.msg, e.value))
+
+    self._logger.info("%s" % sobj.get_pty())
+    return sobj
+
+  def _init_stm32_gpio(self, interface):
+    """Initialize stm32 gpio interface.
+    Args:
+      interface: interface number of stm32 device to use.
+
+    Returns:
+      Instance object of interface
+
+    Raises:
+      SgpioError: Raised on init failure.
+    """
+    self._logger.info("Sgpio: interface: %s" % interface)
+    return stm32gpio.Sgpio(self._vendor, self._product)
+
+  def _init_stm32_i2c(self, interface):
+    """Initialize stm32 USB to I2C bridge interface and open for use
+
+    Args:
+      interface: USB interface number of stm32 device to use
+
+    Returns:
+      Instance object of interface.
+
+    Raises:
+      Si2cError: Raised on init failure.
+    """
+    self._logger.info("Si2cBus: interface: %s" % interface)
+    return stm32i2c.Si2cBus(self._vendor, self._product, interface['interface'])
+
   def _init_bb_adc(self, interface):
     """Initalize beaglebone ADC interface."""
     return bbadc.BBadc()
@@ -328,8 +388,13 @@ class Servod(object):
       pid -= 1
     self._logger.debug('vid:0x%04x, pid:0x%04x', vid, pid)
 
+    if 'raw_pty' in interface:
+      # We have specified an explicit target for this ec3po.
+      raw_uart_name = interface['raw_pty']
+      raw_ec_uart = self.get(raw_uart_name)
+
     # Servo V2 / V3 should have the interface indicies in the same spot.
-    if ((vid, pid) in servo_interfaces.SERVO_V2_DEFAULTS or
+    elif ((vid, pid) in servo_interfaces.SERVO_V2_DEFAULTS or
         (vid, pid) in servo_interfaces.SERVO_V3_DEFAULTS):
       # Determine if it's a PD interface or just main EC console.
       if interface['index'] == servo_interfaces.EC3PO_USBPD_INTERFACE_NUM:
@@ -360,7 +425,6 @@ class Servod(object):
           (vid, pid) in servo_interfaces.FRUITPIE_ID_DEFAULTS or
           (vid, pid) in servo_interfaces.PLANKTON_ID_DEFAULTS):
       raw_ec_uart = self.get('raw_ec_uart_pty')
-
     else:
       raise ServodError(('Unexpected EC-3PO interface!'
                          ' (0x%04x:0x%04x) %r') % (vid, pid, interface))
