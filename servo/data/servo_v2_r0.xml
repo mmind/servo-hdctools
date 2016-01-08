@@ -722,4 +722,10 @@
     <doc>EC UART console provided via EC-3PO console interpreter.</doc>
     <params cmd="get" subtype="pty" interface="10" drv="uart"></params>
   </control>
+  <control>
+    <name>ec_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the EC UART.</doc>
+    <params interface="10" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
 </root>

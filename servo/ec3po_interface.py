@@ -55,6 +55,8 @@ class EC3PO(ftdiuart.Fuart):
     # Start the interpreter.
     itpr_process.start()
     self.itpr_process = itpr_process
+    # The interpreter starts up in the connected state.
+    self._interp_connected = "on"
 
     # Open a new pseudo-terminal pair.
     (master_pty, user_pty) = pty.openpty()
@@ -84,8 +86,29 @@ class EC3PO(ftdiuart.Fuart):
     self._logger.info('%s', os.ttyname(user_pty))
     self._logger.debug('Console: %s', self._console)
     self._pty = os.ttyname(user_pty)
+    self._cmd_pipe_int = cmd_pipe_interactive
 
   def get_pty(self):
     """Gets the path of the served PTY."""
     self._logger.debug('get_pty')
     return self._pty
+
+  def set_interp_connect(self, state):
+    """Set the interpreter's connection state to the UART.
+
+    Args:
+      state: An integer (0 or 1) indicating whether to connect to the UART or
+        not.
+    """
+    self._logger.debug('EC3PO Interpreter connection request: \'%r\'', state)
+    if state == 1:
+      self._cmd_pipe_int.send("reconnect")
+      self._interp_connected = "on"
+    else:
+      self._cmd_pipe_int.send("disconnect")
+      self._interp_connected = "off"
+    return
+
+  def get_interp_connect(self):
+    """Get the state of the interpreter connection to the UART."""
+    return self._interp_connected

@@ -58,6 +58,12 @@
     <params cmd="get" subtype="pty" interface="3" drv="uart"></params>
   </control>
   <control>
+    <name>ec_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the EC UART.</doc>
+    <params interface="3" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+  <control>
     <name>ec_uart_baudrate</name>
     <doc>Baudrate for CPU's uart console</doc>
     <params drv="uart" subtype="props" line_prop="baudrate"
