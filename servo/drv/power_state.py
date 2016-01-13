@@ -11,7 +11,8 @@ class PowerStateDriver(hw_driver.HwDriver):
 
   This driver handles a single control with these settings:
     * 'off' - This must power the DUT off, regardless of its
-      current state.
+      current state.  Note:  On some boards, the only way to turn
+      the DUT back on is with the 'on' setting, below.
     * 'on' - This powers the DUT on in normal (not recovery) mode.
       The behavior of this setting is undefined if the DUT is not
       currently powered off.
@@ -86,6 +87,9 @@ class PowerStateDriver(hw_driver.HwDriver):
     regardless of its previous state, provided that there is working
     EC and boot firmware.  There is no requirement for working OS
     software.
+
+    Note:  After calling this method on some boards, the DUT can
+    only be powered back on using the `power_on()` method.
 
     """
     raise NotImplementedError()
