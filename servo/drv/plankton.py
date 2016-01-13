@@ -12,6 +12,7 @@ import collections
 import logging
 
 import pty_driver
+import re
 
 USBC_STATE = [None, None, None]
 
@@ -64,12 +65,6 @@ class plankton(pty_driver.ptyDriver):
       ("alert_limit", r"Alert limit  : ([0-9a-f]+)")])
 
   PD_STATE = "pd 0 state"
-  PD_STATE_DICT = collections.OrderedDict([
-      ("enable", r"Port C0, (\S+) - "),
-      ("role", r"Role: (\S+) "),
-      ("polarity", r"Polarity: (\S+) "),
-      ("flags", r"Flags: (\S+), "),
-      ("state", r"State: (\S+)")])
 
   def __init__(self, interface, params):
     """Constructor.
@@ -135,11 +130,22 @@ class plankton(pty_driver.ptyDriver):
     return self._get_ina()["power_mw"]
 
   def _get_pd_state(self):
-    matches = self._issue_cmd_get_results(
-        self.PD_STATE, self.PD_STATE_DICT.values())
+    m = self._issue_cmd_get_results(self.PD_STATE, ['(Port.*) - (Role:.*)\r'])
+    # Parse the response to get each value
+    enable = re.search('CC\d,\s+([\w]+)', m[0][0])
+    role = re.search('Role:\s+([\w]+-[\w]+)', m[0][0])
+    state = re.search('State:\s+([\w]+_[\w]+)', m[0][0])
+    flags = re.search('Flags:\s+([\w]+)', m[0][0])
+    polarity = re.search('(CC\d)', m[0][0])
+    # Fill the dict fields
+    state_result = {}
+    state_result["enable"] = enable.group(1)
+    state_result["polarity"] = polarity.group(1)
+    state_result["role"] = role.group(1)
+    state_result["state"] = state.group(1)
+    state_result["flags"] = flags.group(1)
 
-    return dict(zip(self.PD_STATE_DICT.keys(),
-                    zip(*matches)[1]))
+    return state_result
 
   def _Get_pd_enable(self):
     return 1 if self._get_pd_state()["enable"] == "Ena" else 0
