@@ -14,6 +14,7 @@ import socket
 import sys
 import usb
 
+import drv.loglevel
 import ftdi_common
 import multiservo
 import servo_interfaces
@@ -408,12 +409,12 @@ def get_auto_configs(logger, board_version):
 
 def main_function():
   (options, args) = _parse_args()
-  loglevel = logging.INFO
-  format="%(asctime)s - %(name)s - %(levelname)s"
   if options.debug:
-    loglevel = logging.DEBUG
-    format += " - %(filename)s:%(lineno)d:%(funcName)s"
-  format += " - %(message)s"
+    level = 'debug'
+  else:
+    level = drv.loglevel.DEFAULT_LOGLEVEL
+
+  loglevel, format = drv.loglevel.LOGLEVEL_MAP[level]
   logging.basicConfig(level=loglevel, format=format)
 
   logger = logging.getLogger(os.path.basename(sys.argv[0]))

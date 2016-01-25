@@ -55,4 +55,9 @@
     <doc>serial number of the connected servo</doc>
     <params not_applicable="0"></params>
   </control>
+  <control>
+    <name>loglevel</name>
+    <doc>The current log level of the root logger.</doc>
+    <params drv="loglevel" interface="servo" input_type="str" />
+  </control>
 </root>
