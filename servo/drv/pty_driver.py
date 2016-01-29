@@ -6,6 +6,7 @@ import ast
 import errno
 import os
 import pexpect
+from pexpect import fdpexpect
 
 import hw_driver
 
@@ -34,7 +35,7 @@ class ptyDriver(hw_driver.HwDriver):
   def _open(self):
     """Connect to serial device and create pexpect interface."""
     self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
-    self._child = pexpect.fdpexpect.fdspawn(self._fd)
+    self._child = fdpexpect.fdspawn(self._fd)
 
   def _close(self):
     """Close serial device connection."""
