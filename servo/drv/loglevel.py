@@ -6,6 +6,7 @@
 
 import logging
 
+import servo.ec3po_interface
 import hw_driver
 
 DEFAULT_FMT_STRING = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -48,11 +49,18 @@ class loglevel(hw_driver.HwDriver):
 
     try:
       level, fmt_string = LOGLEVEL_MAP[new_level]
+      # Set servod's logging level.
       root_logger.setLevel(level)
 
       # Set the appropriate format string for each logging handler.
       for handler in root_logger.handlers:
         handler.formatter = logging.Formatter(fmt=fmt_string)
+
+      # Set EC-3PO's logging level.
+      for interface in self._interface._interface_list:
+        if type(interface) is servo.ec3po_interface.EC3PO:
+          interface._console.oobm_queue.put('loglevel ' + str(level))
+
     except KeyError:
       raise hw_driver.HwDriverError('Unknown logging level. '
                                     '(known: critical, error, warning,'
