@@ -21,6 +21,11 @@
   <!-- lucid uses cpu uart as ec.  Below will map ec_* names to cpu uart as
        well. -->
   <control>
+    <name>ec3po_ec_console</name>
+    <alias>cpu_uart_pty</alias>
+    <params clobber_ok="" interface="10"></params>
+  </control>
+  <control>
     <name>uart2_en</name>
     <alias>ec_uart_en</alias>
     <params clobber_ok="" interface="2" drv="tca6416" slv="0x24"
@@ -28,7 +33,7 @@
   </control>
   <control>
     <name>uart2_pty</name>
-    <alias>ec_uart_pty</alias>
+    <alias>raw_ec_uart_pty</alias>
     <params clobber_ok="" interface="8"></params>
   </control>
   <control>
