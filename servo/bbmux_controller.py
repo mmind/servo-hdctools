@@ -19,8 +19,15 @@ def use_omapmux():
   Returns:
     True is the device-tree path exists and is not populated. False otherwise.
   """
-  return os.path.exists(MUX_ROOT)
+  if not os.path.exists(MUX_ROOT):
+    return False
 
+  for mux_file in os.listdir(MUX_ROOT):
+    mux_file_path = os.path.join(MUX_ROOT, mux_file)
+    if os.path.isfile(mux_file_path):
+      return True
+
+  return False
 
 class BBmuxController(object):
   """Provides omap mux controls to interfaces that require them.
