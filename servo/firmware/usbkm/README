@@ -1,0 +1,76 @@
+Servo AVR keyboard emulator
+---------------------------
+
+This firmware installs into the avr in Servo v2, v3, v4 to allow serial control
+of a USB keyboard. It is intended to take the place of usb-km232
+http://www.hagstromelectronics.com/products/usbkm232.html and retain
+compatibility with the hdctools/usbkm232 library.
+
+Software is built on:
+http://www.fourwalledcubicle.com/LUFA.php LUFA release 140928
+
+
+To use:
+enable via --usbkm232=atmega commandline option.
+
+
+
+Manual config: (this is taken care of via --usbkm232=atmega)
+Confirm the serial port is 9600/8/n/1:
+dut-control atmega_baudrate:9600 atmega_bits:eight atmega_parity:none atmega_sbits:one
+
+Confirm the serial port location:
+dut-control atmega_pty
+atmega_pty:/dev/pts/31
+
+Confirm the AVR is connected to USB via the USB mux.
+dut-control atmega_rst:off
+dut-control usb_mux_sel4:on
+
+Verify on the DUT that the avr is visible:
+lsusb should show "LUFA Keyboard"
+
+cd ~/trunk/src/third_party/hdctools/usbkm232
+USBKM232_UART_DEVICE=/dev/pts/31 python ./space.py
+
+
+
+To build:
+Install the AVR toolchain (outside chroot):
+sudo apt-get install gcc-avr binutils-avr gdb-avr avr-libc avrdude
+
+Unzip LUFA, downloaded from
+http://www.github.com/abcminiuser/lufa/archive/LUFA-140928.zip
+and copy LUFA to this directory.
+
+cd KeyboardSerial
+make
+
+Keyboard.hex is generated.
+
+
+
+To install:
+Plug both HOST_IN and DUT_HUB_IN usb ports to the host, and start servod.
+
+Boot AVR into DFU mode by enabling the HardWareBoot mode strapping and reset:
+dut-control at_hwb:on
+dut-control atmega_rst:on
+dut-control atmega_rst:off
+dut-control at_hwb:off
+
+Select avr on the USB mux.
+dut-control usb_mux_sel4:on
+
+At this point you will see an Atmel DFU device in lsusb.
+
+Flash:
+sudo dfu-programmer atmega32u4 erase
+sudo dfu-programmer atmega32u4 flash main.hex
+
+Reboot:
+dut-control at_hwb:off
+dut-control atmega_rst:on
+dut-control atmega_rst:off
+
+At this point you should see a "LUFA Keyboard" in lsusb.
