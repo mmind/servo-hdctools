@@ -263,7 +263,9 @@ class Servod(object):
       Si2cError: Raised on init failure.
     """
     self._logger.info("Si2cBus: interface: %s" % interface)
-    return stm32i2c.Si2cBus(self._vendor, self._product, interface['interface'])
+    port = interface.get('port', 0)
+    return stm32i2c.Si2cBus(self._vendor, self._product,
+        interface['interface'], port=port)
 
   def _init_bb_adc(self, interface):
     """Initalize beaglebone ADC interface."""

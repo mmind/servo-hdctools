@@ -46,6 +46,7 @@ class Si2cBus(object):
     self._logger.debug("")
 
     self._port = port
+    self._logger.debug("Set port %d" % port)
 
     self._susb = stm32usb.Susb(vendor=vendor, product=product,
         interface=interface, serialname=serialname, logger=self._logger)
@@ -78,8 +79,8 @@ class Si2cBus(object):
       Si2cError on transaction failure.
     """
     self._logger.debug("Si2c.wr_rd("
-        "slave_address=0x%x, write_list=%s, read_count=%s)" % (
-          slave_address, write_list, read_count))
+        "port=%d, slave_address=0x%x, write_list=%s, read_count=%s)" % (
+          self._port, slave_address, write_list, read_count))
 
     # Clean up args from python style to correct types.
     if not write_list:

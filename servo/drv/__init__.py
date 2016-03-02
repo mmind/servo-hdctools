@@ -47,6 +47,7 @@ import pty_driver
 import sleep
 import storm_power
 import stumpy_power
+import sx1505
 import tca6416
 import tcs3414
 import uart
