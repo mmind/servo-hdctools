@@ -15,10 +15,10 @@ import stat
 import termios
 
 import ec3po
-import ftdiuart
+import uart
 
 
-class EC3PO(ftdiuart.Fuart):
+class EC3PO(uart.Uart):
   """Class for an EC-3PO console interpreter instance.
 
   This includes both the interpreter and the console objects for one UART.
@@ -69,6 +69,18 @@ class EC3PO(ftdiuart.Fuart):
     # Set the permissions to 660.
     os.chmod(os.ttyname(user_pty), (stat.S_IRGRP | stat.S_IWGRP |
                                     stat.S_IRUSR | stat.S_IWUSR))
+
+    # Change the owner and group of the PTY to the user who started servod.
+    try:
+      uid = int(os.environ.get('SUDO_UID', -1))
+    except TypeError:
+      uid = -1
+
+    try:
+      gid = int(os.environ.get('SUDO_GID', -1))
+    except TypeError:
+      gid = -1
+    os.fchown(user_pty, uid, gid)
 
     # Create a console.
     c = ec3po.console.Console(master_pty, os.ttyname(user_pty),
