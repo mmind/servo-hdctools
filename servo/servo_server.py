@@ -139,10 +139,9 @@ class Servod(object):
                    'sumo', 'tidus', 'tricky', 'veyron_mickey', 'veyron_rialto',
                    'zako'):
       if self._usbkm232 is None:
-        logging.warn("No device path specified for usbkm232 handler. Returning "
-                     "the MatrixKeyboardHandler, which is likely the wrong "
-                     "keyboard handler for the board type specified.")
-        return keyboard_handlers.MatrixKeyboardHandler(servo)
+        logging.info("No device path specified for usbkm232 handler. Use "
+                     "the servo atmega chip to handle.")
+        self._usbkm232 = 'atmega'
       if self._usbkm232 == 'atmega':
         # Use servo onboard keyboard emulator.
         self.set('atmega_rst', 'on')
