@@ -626,8 +626,8 @@ class USBkm232Handler(_BaseHandler):
        self.serial.write(chr(0))
        rsp = self.serial.read(1)
        if not rsp or (ord(rsp) != 0xff):
-         logging.error("Presence check response from atmega KB emu: rsp: %s" % rsp)
-         raise Exception("Atmega KB offline: failed to communicate.")
+           logging.error("Presence check response from atmega KB emu: rsp: %s" % rsp)
+           logging.error("Atmega KB offline: failed to communicate.")
 
     def _press(self, press_ch):
         """Encode and return character to press using usbkm232.
