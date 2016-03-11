@@ -41,7 +41,7 @@
     <alias>raw_usbpd_uart_pty</alias>
     <doc>Psuedo-terminal (pty) thats connnected to USB PD MCU's
      uart console</doc>
-    <params cmd="get" subtype="pty" interface="1" drv="uart">
+    <params cmd="get" subtype="pty" interface="1" drv="uart" clobber_ok="">
     </params>
   </control>
   <!-- EC-3PO console interpreter for USB PD -->
@@ -61,28 +61,28 @@
     <name>uart4_baudrate</name>
     <alias>usbpd_uart_baudrate</alias>
     <doc>Baudrate for CPU's uart console</doc>
-    <params drv="uart" subtype="props" line_prop="baudrate"
+    <params drv="uart" subtype="props" line_prop="baudrate" clobber_ok=""
     interface="1"></params>
   </control>
   <control>
     <name>uart4_parity</name>
     <alias>usbpd_uart_parity</alias>
     <doc>Parity for CPU's uart console</doc>
-    <params drv="uart" subtype="props" line_prop="parity"
+    <params drv="uart" subtype="props" line_prop="parity" clobber_ok=""
     interface="1" map="uart_parity"></params>
   </control>
   <control>
     <name>uart4_sbits</name>
     <alias>usbpd_uart_sbits</alias>
     <doc>Number of stop bits for CPU's uart console</doc>
-    <params drv="uart" subtype="props" line_prop="sbits"
+    <params drv="uart" subtype="props" line_prop="sbits" clobber_ok=""
     interface="1" map="uart_sbits"></params>
   </control>
   <control>
     <name>uart4_bits</name>
     <alias>usbpd_uart_bits</alias>
     <doc>Number of data bits for CPU's uart console</doc>
-    <params drv="uart" subtype="props" line_prop="bits"
+    <params drv="uart" subtype="props" line_prop="bits" clobber_ok=""
     interface="1" map="uart_bits"></params>
   </control>
   <!-- USB PD UART Automation Controls -->
