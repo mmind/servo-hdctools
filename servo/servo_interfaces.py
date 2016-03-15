@@ -117,3 +117,6 @@ INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002][0] = 'ftdi_uart'
 INTERFACE_BOARDS['lars'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['lars'][0x18d1][0x5002][0] = 'ftdi_uart'
+INTERFACE_BOARDS['sentry'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['sentry'][0x18d1][0x5002][0] = 'ftdi_uart'
