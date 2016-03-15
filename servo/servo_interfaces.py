@@ -86,8 +86,8 @@ for vid, pid in PLANKTON_ID_DEFAULTS:
 SERVO_ID_DEFAULTS.extend(PLANKTON_ID_DEFAULTS)
 
 # Allow Board overrides of interfaces as we've started to overload some servo V2
-# pinout functionality.  To-date just swapping EC SPI interface for USB PD MCU
-# UART
+# pinout functionality.  To-date just swapping EC SPI and JTAG interfaces for
+# USB PD MCU UART
 # TODO(tbroch) See about availability of extra uart on Servo V3/beaglebone
 INTERFACE_BOARDS = collections.defaultdict(
     lambda: collections.defaultdict(dict))

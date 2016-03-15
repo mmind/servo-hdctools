@@ -343,6 +343,11 @@ class Servod(object):
         except AttributeError:
           # This overlay has no get method for the interface so skip init.
           self._logger.warn('No interface for PD MCU UART.')
+          self._logger.warn('Usually, this happens because the interface is set'
+                            ' incorrectly.  If you\'re overriding an existing'
+                            ' interface, be sure to update the interface lists'
+                            ' for your board at the end of '
+                            'servo/servo_interfaces.py')
           return None
 
       elif interface['index'] == servo_interfaces.EC3PO_EC_INTERFACE_NUM:
