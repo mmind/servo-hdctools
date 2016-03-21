@@ -137,6 +137,9 @@ INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
 INTERFACE_BOARDS['strago'][0x18d1][0x5002][0] = 'ftdi_uart'
 
 # Skylake boards re-purpose JTAG to be UART
+INTERFACE_BOARDS['cave'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['cave'][0x18d1][0x5002][0] = 'ftdi_uart'
 INTERFACE_BOARDS['chell'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['chell'][0x18d1][0x5002][0] = 'ftdi_uart'
