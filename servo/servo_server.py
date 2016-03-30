@@ -891,9 +891,9 @@ class Servod(object):
     self._keyboard.ctrl_d(press_secs)
     return True
 
-  def ctrl_u(self):
+  def ctrl_u(self, press_secs=''):
     """Simulate Ctrl-u simultaneous button presses."""
-    self._keyboard.ctrl_u()
+    self._keyboard.ctrl_u(press_secs)
     return True
 
   def ctrl_enter(self, press_secs=''):

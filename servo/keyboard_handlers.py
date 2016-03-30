@@ -729,7 +729,7 @@ class USBkm232Handler(_BaseHandler):
         self._write([self._press('<lctrl>'), self._press('d')])
 
 
-    def ctrl_u(self):
+    def ctrl_u(self, press_secs=''):
         """Press and release ctrl-u sequence."""
         self._write([self._press('<lctrl>'), self._press('u')])
 
