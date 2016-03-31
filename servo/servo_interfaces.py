@@ -132,6 +132,9 @@ INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'
 INTERFACE_BOARDS['oak'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['oak'][0x18d1][0x5002][5] = 'ftdi_uart'
+INTERFACE_BOARDS['elm'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['elm'][0x18d1][0x5002][5] = 'ftdi_uart'
 # strago re-purposes JTAG to be UART
 INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
