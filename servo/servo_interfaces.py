@@ -64,10 +64,11 @@ for vid, pid in SERVO_MICRO_DEFAULTS:
      {'name': 'stm32_uart', 'interface': 6}, # 6: uart1 / dut ec
      {'name': 'ec3po_uart',                  # 7: servo console
       'raw_pty': 'raw_servo_console_pty'},
-     {'name': 'ec3po_uart',                  # 8: dut ec console
-      'raw_pty': 'raw_ec_uart_pty'},
+     'dummy',                                # 8: dummy
      {'name': 'ec3po_uart',                  # 9: dut pd console
       'raw_pty': 'raw_usbpd_uart_pty'},
+     {'name': 'ec3po_uart',                  #10: dut ec console
+      'raw_pty': 'raw_ec_uart_pty'},
     ]
 
 # Servo v4
