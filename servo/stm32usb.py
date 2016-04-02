@@ -67,6 +67,10 @@ class Susb():
     cfg = dev.get_active_configuration()
     intf = usb.util.find_descriptor(cfg, bInterfaceNumber=interface)
     self._intf = intf
+
+    # Detatch raiden.ko if it is loaded.
+    if dev.is_kernel_driver_active(intf.bInterfaceNumber) is True:
+            dev.detach_kernel_driver(intf.bInterfaceNumber)
     self._logger.debug("InterfaceNumber: %s" % intf.bInterfaceNumber)
 
     read_ep_number = intf.bInterfaceNumber + self.READ_ENDPOINT
