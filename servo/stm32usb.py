@@ -61,7 +61,11 @@ class Susb():
       raise SusbError("USB device not found")
 
     self._logger.debug("Found stm32: %04x:%04x" % (vendor, product))
-    dev.set_configuration()
+    # If we can't set configuration, it's already been set.
+    try:
+      dev.set_configuration()
+    except usb.core.USBError:
+      pass
 
     # Get an endpoint instance.
     cfg = dev.get_active_configuration()
