@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>common.xml</name>
+  </include>
+
+
+  <!-- UART and CONSOLE settings -->
+  <control>
+    <name>raw_ec_uart_pty</name>
+    <doc>Ryu CCD EC_PD console.</doc>
+    <params cmd="get" subtype="pty" interface="1" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>ap_uart_pty</name>
+    <doc>Ryu CCD AP console.</doc>
+    <params cmd="get" subtype="pty" interface="2" drv="uart">
+    </params>
+  </control>
+
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="10" drv="uart"></params>
+  </control>
+  <control>
+    <name>ec_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the EC UART.</doc>
+    <params interface="10" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+</root>

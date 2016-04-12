@@ -143,7 +143,8 @@ def usb_get_iserial(device):
     pass
   except Exception, e:
     # Servo micro and v4 currently do not support serial number.
-    if device.idVendor == 0x18d1 and device.idProduct in [0x501a, 0x501b]:
+    if device.idVendor == 0x18d1 \
+       and device.idProduct in [0x501a, 0x501b, 0x500f]:
       pass
     else:
       raise e

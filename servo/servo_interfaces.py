@@ -8,8 +8,8 @@ import collections
 INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
 SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x0403, 0x6014), (0x18d1, 0x5001),
-                     (0x18d1, 0x5002), (0x18d1, 0x5004), (0x18d1, 0x501a),
-                     (0x18d1, 0x501b)]
+                     (0x18d1, 0x5002), (0x18d1, 0x5004), (0x18d1, 0x500f),
+                     (0x18d1, 0x501a), (0x18d1, 0x501b)]
 
 # servo v1 w/o FT4232h EEPROM programmed
 INTERFACE_DEFAULTS[0x0403][0x6011] = ['ftdi_gpio', 'ftdi_i2c',
@@ -51,6 +51,22 @@ for vid, pid in SERVO_V3_DEFAULTS:
 
 INTERFACE_DEFAULTS[0x0403][0x6014] = INTERFACE_DEFAULTS[0x18d1][0x5004]
 
+# Ryu Raiden CCD
+RAIDEN_DEFAULTS = [(0x18d1, 0x500f)]
+for vid, pid in RAIDEN_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
+    [{'name': 'stm32_uart', 'interface': 0}, # 1: EC_PD
+     {'name': 'stm32_uart', 'interface': 1}, # 2: AP
+     'dummy',                                # 3
+     'dummy',                                # 4
+     'dummy',                                # 5
+     'dummy',                                # 6
+     'dummy',                                # 7
+     'dummy',                                # 8
+     'dummy',                                # 9
+     {'name': 'ec3po_uart',                  #10: dut ec console
+      'raw_pty': 'raw_ec_uart_pty'},
+    ]
 
 # Servo micro
 SERVO_MICRO_DEFAULTS = [(0x18d1, 0x501a)]
