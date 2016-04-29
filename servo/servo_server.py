@@ -627,7 +627,7 @@ class Servod(object):
       else:
         shutil.copyfile(image_path, usb_dev)
     except IOError as e:
-      self._logger.error("Failed to transfer image to USB device: %s ( %d ) ",
+      self._logger.error("Failed to transfer image to USB device: %s ( %s ) ",
                          e.strerror, e.errno)
       return False
     except urllib.ContentTooShortError:
