@@ -408,13 +408,18 @@ class Servod(object):
           self._logger.info('No PD MCU UART.')
           return None
         except AttributeError:
-          # This overlay has no get method for the interface so skip init.
-          self._logger.warn('No interface for PD MCU UART.')
-          self._logger.warn('Usually, this happens because the interface is set'
-                            ' incorrectly.  If you\'re overriding an existing'
-                            ' interface, be sure to update the interface lists'
-                            ' for your board at the end of '
-                            'servo/servo_interfaces.py')
+          # This overlay has no get method for the interface so skip init.  For
+          # servo v2, it's common for interfaces to be overridden such as
+          # reusing JTAG pins for the PD MCU UART instead.  Therefore, print an
+          # error message indicating that the interface might be set
+          # incorrectly.
+          if (vid, pid) in servo_interfaces.SERVO_V2_DEFAULTS:
+            self._logger.warn('No interface for PD MCU UART.')
+            self._logger.warn('Usually, this happens because the interface is '
+                              'set incorrectly.  If you\'re overriding an '
+                              'existing interface, be sure to update the '
+                              'interface lists for your board at the end of '
+                              'servo/servo_interfaces.py')
           return None
 
       elif interface['index'] == servo_interfaces.EC3PO_EC_INTERFACE_NUM:
@@ -832,12 +837,12 @@ class Servod(object):
         # Workaround for bug chrome-os-partner:42349. Without this check, the
         # gpio will briefly pulse low if we set it from high to high.
         if self.get(control_name) != value:
-            self.set(control_name, value)
+          self.set(control_name, value)
+        if verbose:
+          self._logger.info('Initialized %s to %s', control_name, value)
       except Exception as e:
         self._logger.error("Problem initializing %s -> %s :: %s",
                            control_name, value, str(e))
-      if verbose:
-        self._logger.info('Initialized %s to %s', control_name, value)
 
     # Init keyboard after all the intefaces are up.
     self._keyboard = self._init_keyboard_handler(self, self._board)

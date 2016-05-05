@@ -27,10 +27,29 @@ class ec3poDriver(hw_driver.HwDriver):
 
     Args:
       state: A boolean indicating whether to connect or disconnect the
-        intepreter from the UART.
+        intepreter from the UART if the interface is valid.
     """
-    self._interface.set_interp_connect(state)
+    if self._interface is not None:
+      self._interface.set_interp_connect(state)
+    else:
+      # Fail silently for now.  A NoneType interface indicates that this
+      # interface is not supported on the current servo host.  There's not much
+      # we can really do.
+      self._logger.debug('There is no UART on this servo for this '
+                         'specific interface.')
 
   def _Get_interp_connect(self):
-    """Get the state of the interpreter connection to the UART."""
-    return self._interface.get_interp_connect()
+    """Get the state of the interpreter connection to the UART.
+
+    Returns:
+      A string, either 'on' or 'off', indicating the connection state of the
+        interpreter if the interface is valid.
+    """
+    if self._interface is not None:
+      return self._interface.get_interp_connect()
+    else:
+      # Fail silently for now.  A NoneType interface indicates that this
+      # interface is not supported on the current servo host.  There's not much
+      # we can really do.
+      self._logger.debug('There is no UART on this servo for this '
+                         'specific interface.')
