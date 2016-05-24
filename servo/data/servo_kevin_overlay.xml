@@ -1,8 +1,5 @@
 <root>
   <include>
-    <name>servoflex_v2_r0_p50.xml</name>
-  </include>
-  <include>
-    <name>arm_ec_common.xml</name>
+    <name>servo_gru_overlay.xml</name>
   </include>
 </root>
