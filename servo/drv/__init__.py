@@ -19,6 +19,7 @@ import daisy_ec
 import daisy_power
 import ec
 import ec3po_driver
+import gale_power
 import gpio
 import hw_driver
 import i2c_reg

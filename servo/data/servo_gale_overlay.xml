@@ -1,0 +1,15 @@
+<root>
+  <include>
+    <name>servoflex_v2_r0_p50.xml</name>
+  </include>
+  <control>
+    <name>dev_mode</name>
+    <doc>dev_mode GPIO is inverted on gale</doc>
+    <params map="onoff_i" clobber_ok=""></params>
+  </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params cmd="set" interface="servo" drv="gale_power" input_type="str"/>
+  </control>
+</root>
