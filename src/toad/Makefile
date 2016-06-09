@@ -11,7 +11,7 @@ ETC_DEST	= $(DESTDIR)$(ETCDIR)
 UDEV_DEST	= $(ETC_DEST)/udev/rules.d
 
 CFLAGS  	+= -Wno-cast-qual $(LIBFTDI_CFLAGS)
-LDLIBS		+= $(LIBFTDI_LDLIBS)
+LDLIBS		+= $(LIBFTDI_LDLIBS) -lusb
 
 FTDI_COMMON	= $(HDCTOOLS_BUILD_DIR)/lib/ftdicommon.o
 
