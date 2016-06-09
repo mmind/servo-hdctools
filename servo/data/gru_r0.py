@@ -12,11 +12,11 @@ inas = [
         (0x47, 'pp3300_haven', 3.3, 0.01, 'rem', True),
         (0x48, 'ppvar_bigcpu', 0.9, 0.01, 'rem', True),
         (0x49, 'pp900_ap', 0.9, 0.01, 'rem', True),
-        (0x4A, 'pp1800_ec', 1.8, 0.01, 'rem', True),
+        (0x4A, 'pp1800_ec', 1.8, 0.1, 'rem', True),
         (0x4B, 'pp1800_sensor', 1.8, 0.01, 'rem', True),
         (0x4C, 'pp1800', 1.8, 0.01, 'rem', True),
         (0x4D, 'pp1200_lpddr', 1.2, 0.01, 'rem', True),
-        (0x4E, 'pp3300_ec', 3.3, 0.01, 'rem', True),
+        (0x4E, 'pp3300_ec', 3.3, 0.1, 'rem', True),
         (0x4F, 'pp3300_s0', 3.3, 0.01, 'rem', True),
        ]
 
