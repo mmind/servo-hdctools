@@ -1,0 +1,6 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-toadlink
+
+Fix linking of toad binary (missing libusb)
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
