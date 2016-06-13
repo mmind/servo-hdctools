@@ -45,7 +45,7 @@ class Susb():
       vendor    : usb vendor id of stm32 device
       product   : usb product id of stm32 device
       interface : interface number ( 1 - 4 ) of stm32 device to use
-      serialname: string of device serialname. TODO(nsanders): implement this.
+      serialname: string of device serialname.
 
     Raises:
       SusbError: An error accessing Susb object
@@ -56,11 +56,24 @@ class Susb():
     self._logger.debug("")
 
     # Find the stm32.
-    dev = usb.core.find(idVendor=vendor, idProduct=product)
-    if dev is None:
+    dev_list = usb.core.find(idVendor=vendor, idProduct=product, find_all=True)
+    if dev_list is None:
       raise SusbError("USB device not found")
 
-    self._logger.debug("Found stm32: %04x:%04x" % (vendor, product))
+    # Check if we have multiple stm32s and we've specified the serial.
+    dev = None
+    if len(dev_list) > 1 and serialname is not None:
+      for d in dev_list:
+        if usb.util.get_string(d, 256, d.iSerialNumber) == serialname:
+          dev = d
+          break
+      if dev is None:
+        raise SusbError("USB device(%s) not found" % serialname)
+    else:
+      dev = dev_list[0]
+
+    serial = '(%s)' % serialname if serialname else ''
+    self._logger.debug("Found stm32%s: %04x:%04x" % (serial, vendor, product))
     # If we can't set configuration, it's already been set.
     try:
       dev.set_configuration()

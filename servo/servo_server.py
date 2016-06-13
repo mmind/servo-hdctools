@@ -226,7 +226,8 @@ class Servod(object):
       ServodError: Raised on init failure.
     """
     self._logger.info("Suart: interface: %s" % interface)
-    sobj = stm32uart.Suart(self._vendor, self._product, interface['interface'])
+    sobj = stm32uart.Suart(self._vendor, self._product, interface['interface'],
+                           self._serialname)
 
     try:
       sobj.run()
@@ -247,8 +248,13 @@ class Servod(object):
     Raises:
       SgpioError: Raised on init failure.
     """
-    self._logger.info("Sgpio: interface: %s" % interface)
-    return stm32gpio.Sgpio(self._vendor, self._product)
+    interface_number = interface
+    # Interface could be a dict.
+    if type(interface) is dict:
+      interface_number = interface['interface']
+    self._logger.info("Sgpio: interface: %s" % interface_number)
+    return stm32gpio.Sgpio(self._vendor, self._product, interface_number,
+                           self._serialname)
 
   def _init_stm32_i2c(self, interface):
     """Initialize stm32 USB to I2C bridge interface and open for use
@@ -265,7 +271,7 @@ class Servod(object):
     self._logger.info("Si2cBus: interface: %s" % interface)
     port = interface.get('port', 0)
     return stm32i2c.Si2cBus(self._vendor, self._product,
-        interface['interface'], port=port)
+        interface['interface'], port=port, serialname=self._serialname)
 
   def _init_bb_adc(self, interface):
     """Initalize beaglebone ADC interface."""
