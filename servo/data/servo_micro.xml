@@ -76,7 +76,7 @@
     <name>fw_wp_en</name>
     <doc>Enables forwarding of write-protect gpio. Must assert this
     and set fw_wp_vref prior to changing fw_wp.</doc>
-    <params interface="2" drv="tca6416" slv="0x20" port="0"
+    <params interface="4" drv="tca6416" slv="0x20" port="0"
     offset="0" map="onoff" init="off"></params>
   </control>
   <control>
