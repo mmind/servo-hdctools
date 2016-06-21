@@ -77,6 +77,8 @@ class Servod(object):
     self._product = product
     self._serialname = serialname
     self._syscfg = config
+    # Hold the last image path so we can reduce downloads to the usb device.
+    self._image_path = None
     # list of objects (Fi2c, Fgpio) to physical interfaces (gpio, i2c) that ftdi
     # interfaces are mapped to
     self._interface_list = []
@@ -631,6 +633,12 @@ class Servod(object):
       self._logger.error("No usb device connected to servo")
       return False
 
+    # Let's check if we downloaded this last time and if so assume the image is
+    # still on the usb device and return True.
+    if self._image_path == image_path:
+      self._logger.debug("Image already on USB device, skipping transfer")
+      return True
+
     try:
       if image_path.startswith(self._HTTP_PREFIX):
         self._logger.debug("Image path is a URL, downloading image")
@@ -656,6 +664,7 @@ class Servod(object):
       # failures.
       subprocess.call(["sync"])
       subprocess.call(["blockdev", "--rereadpt", usb_dev])
+    self._image_path = image_path
     return True
 
   def make_image_noninteractive(self):
