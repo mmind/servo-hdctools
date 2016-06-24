@@ -142,7 +142,7 @@ class Servod(object):
     elif board in ('buddy', 'cranky', 'guado', 'jecht', 'mccloud', 'monroe',
                    'ninja', 'nyan_kitty', 'panther', 'rikku', 'stumpy',
                    'sumo', 'tidus', 'tricky', 'veyron_mickey', 'veyron_rialto',
-                   'zako'):
+                   'veyron_tiger', 'zako'):
       if self._usbkm232 is None:
         logging.info("No device path specified for usbkm232 handler. Use "
                      "the servo atmega chip to handle.")
