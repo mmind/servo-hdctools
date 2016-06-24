@@ -131,10 +131,14 @@ def usb_get_iserial(device):
     device: usb.Device object
 
   Returns:
-    iserial: USB devices iSerial string
+    iserial: USB devices iSerial string or empty string if the device has
+             no serial number.
   """
   device_handle = device.open()
-  iserial = None
+  # The device has no serial number string descriptor.
+  if device.iSerialNumber == 0:
+    return ""
+  iserial = ""
   try:
     iserial = device_handle.getString(device.iSerialNumber, MAX_ISERIAL_STR)
   except usb.USBError, e:
@@ -142,13 +146,6 @@ def usb_get_iserial(device):
     #   usb.USBError: error sending control message: Broken pipe
     # Need to investigate further
     pass
-  except Exception, e:
-    # Servo micro and v4 currently do not support serial number.
-    if device.idVendor == 0x18d1 \
-       and device.idProduct in [0x501a, 0x501b, 0x500f]:
-      pass
-    else:
-      raise e
   return iserial
 
 def usb_find(vendor, product, serialname):
