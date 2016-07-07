@@ -90,13 +90,20 @@ for vid, pid in SERVO_MICRO_DEFAULTS:
 # Servo v4
 SERVO_V4_DEFAULTS = [(0x18d1, 0x501b)]
 for vid, pid in SERVO_V4_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = \
-    [{'name': 'stm32_gpio', 'interface': 1}, # 1: 32x GPIO block.
-     {'name': 'stm32_uart', 'interface': 0}, # 2: servo console.
-     {'name': 'stm32_i2c', 'interface': 2},  # 3: i2c
-     {'name': 'stm32_uart', 'interface': 3}, # 4: dut sbu uart
-     {'name': 'stm32_uart', 'interface': 4}, # 4: atmega uart
-     {'name': 'ec3po_uart',                  # 6: servo v4 console
+  # dummy slots for servo micro use (interface #1-10).
+  INTERFACE_DEFAULTS[vid][pid] = ['dummy'] * 10
+
+  # Buffer slots for servo micro (interface #11-20).
+  INTERFACE_DEFAULTS[vid][pid] += ['dummy'] * 10
+
+  # Servo v4 interfaces.
+  INTERFACE_DEFAULTS[vid][pid] += \
+    [{'name': 'stm32_gpio', 'interface': 1}, #21: 32x GPIO block.
+     {'name': 'stm32_uart', 'interface': 0}, #22: servo console.
+     {'name': 'stm32_i2c', 'interface': 2},  #23: i2c
+     {'name': 'stm32_uart', 'interface': 3}, #24: dut sbu uart
+     {'name': 'stm32_uart', 'interface': 4}, #25: atmega uart
+     {'name': 'ec3po_uart',                  #26: servo v4 console
       'raw_pty': 'raw_servo_v4_console_pty'},
     ]
 

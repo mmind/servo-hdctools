@@ -101,11 +101,18 @@ class Servod(object):
         name = interface['name']
         # Store interface index for those that care about it.
         interface['index'] = i
-      elif type(interface) is str:
+      elif type(interface) is str and interface != 'dummy':
         name = interface
         # It's a FTDI related interface.
         interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
         is_ftdi_interface = True
+      elif type(interface) is str and interface == 'dummy':
+        # 'dummy' reserves the interface for future use.  Typically the
+        # interface will be managed by external third-party tools like
+        # openOCD for JTAG or flashrom for SPI.  In the case of servo V4,
+        # it serves as a placeholder for servo micro interfaces.
+        self._interface_list.append(None)
+        continue
       else:
         raise ServodError("Illegal interface type %s" % type(interface))
 
@@ -173,21 +180,6 @@ class Servod(object):
     """Servod deconstructor."""
     for interface in self._interface_list:
       del(interface)
-
-  def _init_dummy(self, interface):
-    """Initialize dummy interface.
-
-    Dummy interface is just a mechanism to reserve that interface for non servod
-    interaction.  Typically the interface will be managed by external
-    third-party tools like openOCD or urjtag for JTAG or flashrom for SPI
-    interfaces.
-
-    TODO(tbroch): Investigate merits of incorporating these third-party
-    interfaces into servod or creating a communication channel between them
-
-    Returns: None
-    """
-    return None
 
   def _init_ftdi_gpio(self, interface):
     """Initialize gpio driver interface and open for use.

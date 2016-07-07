@@ -6,4 +6,5 @@ inas = [
         (0x40, 'ppdut5', 5.0, 0.005, 'rem', True),
         (0x41, 'ppchg5', 5.0, 0.005, 'rem', True),
        ]
-interface = 3
+# Must be servo v4's i2c interface array index + 1 from servo_interface.py.
+interface = 23
