@@ -27,6 +27,7 @@ import ftdiuart
 import i2cbus
 import keyboard_handlers
 import servo_interfaces
+import servo_postinit
 import stm32gpio
 import stm32i2c
 import stm32uart
@@ -134,6 +135,7 @@ class Servod(object):
       else:
         self._interface_list.append(result)
 
+    servo_postinit.post_init(self)
 
   def _init_keyboard_handler(self, servo, board=''):
     """Initialize the correct keyboard handler for board.
