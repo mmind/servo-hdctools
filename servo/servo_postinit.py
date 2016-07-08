@@ -5,6 +5,9 @@
 
 import collections
 import logging
+import os
+import re
+import subprocess
 import usb
 
 import servo_interfaces
@@ -36,10 +39,32 @@ class ServoV4PostInit(BasePostInit):
   """
 
   SERVO_MICRO_CFG = 'servo_micro.xml'
+  USB_SYSFS_PATH = '/sys/bus/usb/devices'
+  CHILD_RE = re.compile(r'\d+-\d+(\.\d+){1,}\Z')
+  BUS_FILE = 'busnum'
+  DEV_FILE = 'devnum'
 
   def __init__(self, *args, **dargs):
     super(ServoV4PostInit, self).__init__(*args, **dargs)
     self.servo_micro_devices = None
+    self.usb_hierarchy = None
+
+  def get_servo_v4_usb_device(self):
+    """Return associated servo v4 usb.core.Device object.
+
+    Returns:
+      servo v4 usb.core.Device object associated with the servod instance.
+    """
+    servo_v4_devices = []
+    for vid, pid in servo_interfaces.SERVO_V4_DEFAULTS:
+      devs = usb.core.find(idVendor=vid, idProduct=pid, find_all=True)
+      if devs:
+        servo_v4_devices.extend(devs)
+    for d in servo_v4_devices:
+      d_serial = usb.util.get_string(d, 256, d.iSerialNumber)
+      if not self.servod._serialname or d_serial == self.servod._serialname:
+        return d
+    return None
 
   def get_servo_micro_devices(self):
     """Return all servo micros detected.
@@ -64,10 +89,74 @@ class ServoV4PostInit(BasePostInit):
     """
     return len(self.get_servo_micro_devices()) > 0
 
+  def _get_usb_hierarchy(self):
+    """Walk through usb sysfs files and gather parent identifiers.
+
+    The usb sysfs dir contains dirs of the following format:
+    - 1-2
+    - 1-2:1.0
+    - 1-2.4
+    - 1-2.4:1.0
+
+    The naming convention works like so:
+      <roothub>-<hub port>[.port[.port]]:config.interface
+
+    We are only going to be concerned with the roothub, hub port and port.
+    We are going to create a hierarchy where each device will store the usb
+    sysfs path of its roothub and hub port.  We will also grab the device's
+    bus and device number to help correlate to a usb.core.Device object.
+
+    We will walk through each dir and only match on device dirs
+    (e.g. '1-2.4') and ignore config.interface dirs.  When we get a hit, we'll
+    grab the bus/dev and infer the roothub and hub port from the dir name
+    ('1-2' from '1-2.4') and store the info into a dict.
+
+    The dict key will be a tuple of (bus, dev) and value be the sysfs path.
+
+    Returns:
+      Dict of tuple (bus,dev) to sysfs path.
+    """
+    if self.usb_hierarchy is not None:
+      return self.usb_hierarchy
+
+    self.usb_hierarchy = {}
+    for usb_dir in os.listdir(self.USB_SYSFS_PATH):
+      bus_file = os.path.join(self.USB_SYSFS_PATH, usb_dir, self.BUS_FILE)
+      dev_file = os.path.join(self.USB_SYSFS_PATH, usb_dir, self.DEV_FILE)
+      if (self.CHILD_RE.match(usb_dir)
+          and os.path.exists(bus_file)
+          and os.path.exists(dev_file)):
+        parent_arr = usb_dir.split('.')[:-1]
+        parent = '.'.join(parent_arr)
+
+        bus = ''
+        with open(bus_file, 'r') as bfile:
+          bus = bfile.read().strip()
+
+        dev = ''
+        with open(dev_file, 'r') as dfile:
+          dev = dfile.read().strip()
+
+        self.usb_hierarchy[(bus, dev)] = parent
+    return self.usb_hierarchy
+
+  def _get_parent(self, usb_device):
+    """Return the parent of the supplied usb_device.
+
+    Args:
+      usb_device: usb.core.Device object.
+
+    Returns:
+      SysFS path string of parent of the supplied usb device.
+    """
+    return self._get_usb_hierarchy().get((str(usb_device.bus),
+                                          str(usb_device.address)))
+
+
   def servo_micro_behind_v4(self, servo_micro):
     """Check if the supplied servo_micro device is behind the servo v4.
 
-    We'll be checking to see if the port the servo v4 is on is the same port
+    We'll be checking to see if the servo v4 shares the same parent
     as the servo micro.
 
     Args:
@@ -77,8 +166,15 @@ class ServoV4PostInit(BasePostInit):
     Returns:
       True if the servo_micro device is behind the servo v4, False otherwise.
     """
-    # TODO(kevcheng): Implement this.
-    return True
+    servo_v4 = self.get_servo_v4_usb_device()
+
+    servo_v4_parent = self._get_parent(servo_v4)
+    servo_micro_parent = self._get_parent(servo_micro)
+    self._logger.debug('servo v4 parent: %s', servo_v4_parent)
+    self._logger.debug('servo micro parent: %s', servo_micro_parent)
+
+    return (servo_v4_parent and servo_micro_parent
+            and servo_v4_parent == servo_micro_parent)
 
   def add_servo_micro_config(self):
     """Add in the servo micro interface."""
@@ -99,8 +195,22 @@ class ServoV4PostInit(BasePostInit):
     self.servod.init_servo_interfaces(vendor, product, serial,
                                       servo_micro_interface)
 
+  def kick_devices(self):
+    """General method to do misc actions.
+
+    We'll need to do certain things (like 'lsusb' for servo micro) to ensure
+    we can detect and initialize extra devices properly.  This method is here
+    to hold all those necessary pre-postinit actions.
+    """
+    # Run 'lsusb' so that servo micros are configured and show up in sysfs.
+    subprocess.call(['lsusb'])
+
   def post_init(self):
     self._logger.debug("")
+
+    # Do misc actions so we can detect devices we might want to initialize.
+    self.kick_devices()
+
     # We want to check if we have a servo micro connected to this servo v4
     # and if so, initialize it and add it to the servod instance.
     if self.servo_micro_detected():
