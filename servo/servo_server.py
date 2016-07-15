@@ -51,6 +51,76 @@ class Servod(object):
   _USB_J3_PWR_ON = "on"
   _USB_J3_PWR_OFF = "off"
 
+  def init_servo_interfaces(self, vendor, product, serialname,
+                            interfaces):
+    """Init the servo interfaces with the given interfaces.
+
+    We don't use the self._{vendor,product,serialname} attributes because we
+    want to allow other callers to initialize other interfaces that may not
+    be associated with the initialized attributes (e.g. a servo v4 servod object
+    that wants to also initialize a servo micro interface).
+
+    Args:
+      vendor: USB vendor id of FTDI device.
+      product: USB product id of FTDI device.
+      serialname: String of device serialname/number as defined in FTDI
+          eeprom.
+      interfaces: List of strings of interface types the server will
+          instantiate.
+
+    Raises:
+      ServodError if unable to locate init method for particular interface.
+    """
+    # Extend the interface list if we need to.
+    interfaces_len = len(interfaces)
+    interface_list_len = len(self._interface_list)
+    if interfaces_len > interface_list_len:
+      self._interface_list += [None] * (interfaces_len - interface_list_len)
+
+    shifted = 0
+    for i, interface in enumerate(interfaces):
+      is_ftdi_interface = False
+      if type(interface) is dict:
+        name = interface['name']
+        # Store interface index for those that care about it.
+        interface['index'] = i
+      elif type(interface) is str and interface != 'dummy':
+        name = interface
+        # It's a FTDI related interface.
+        interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
+        is_ftdi_interface = True
+      elif type(interface) is str and interface == 'dummy':
+        # 'dummy' reserves the interface for future use.  Typically the
+        # interface will be managed by external third-party tools like
+        # openOCD for JTAG or flashrom for SPI.  In the case of servo V4,
+        # it serves as a placeholder for servo micro interfaces.
+        continue
+      else:
+        raise ServodError("Illegal interface type %s" % type(interface))
+
+      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
+      if is_ftdi_interface and i and \
+            ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
+        product += 1
+        self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
+                          product)
+
+      self._logger.info("Initializing interface %d to %s", i + 1, name)
+      try:
+        func = getattr(self, '_init_%s' % name)
+      except AttributeError:
+        raise ServodError("Unable to locate init for interface %s" % name)
+      result = func(vendor, product, serialname, interface)
+
+      if isinstance(result, tuple):
+        result_len = len(result)
+        shifted += result_len - 1
+        self._interface_list += [None] * result_len
+        for result_index, r in enumerate(result):
+          self._interface_list[i + result_index] = r
+      else:
+        self._interface_list[i + shifted] = result
+
   def __init__(self, config, vendor, product, serialname=None,
                interfaces=None, board="", version=None, usbkm232=None):
     """Servod constructor.
@@ -65,9 +135,9 @@ class Servod(object):
       version: String. Servo board version. Examples: servo_v1, servo_v2,
           servo_v2_r0, servo_v3
       usbkm232: String. Optional. Path to USB-KM232 device which allow for
-                sending keyboard commands to DUTs that do not have built in
-                keyboards. Used in FAFT tests.  Use 'atmega' for on board AVR MCU.
-                e.g. '/dev/ttyUSB0' or 'atmega'
+          sending keyboard commands to DUTs that do not have built in
+          keyboards. Used in FAFT tests.  Use 'atmega' for on board AVR MCU.
+          e.g. '/dev/ttyUSB0' or 'atmega'
 
     Raises:
       ServodError: if unable to locate init method for particular interface
@@ -96,53 +166,18 @@ class Servod(object):
       except KeyError:
         interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
-    for i, interface in enumerate(interfaces):
-      is_ftdi_interface = False
-      if type(interface) is dict:
-        name = interface['name']
-        # Store interface index for those that care about it.
-        interface['index'] = i
-      elif type(interface) is str and interface != 'dummy':
-        name = interface
-        # It's a FTDI related interface.
-        interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
-        is_ftdi_interface = True
-      elif type(interface) is str and interface == 'dummy':
-        # 'dummy' reserves the interface for future use.  Typically the
-        # interface will be managed by external third-party tools like
-        # openOCD for JTAG or flashrom for SPI.  In the case of servo V4,
-        # it serves as a placeholder for servo micro interfaces.
-        self._interface_list.append(None)
-        continue
-      else:
-        raise ServodError("Illegal interface type %s" % type(interface))
-
-      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
-      if is_ftdi_interface and i and \
-            ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
-        self._product += 1
-        self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
-                          self._product)
-
-      self._logger.info("Initializing interface %d to %s", i + 1, name)
-      try:
-        func = getattr(self, '_init_%s' % name)
-      except AttributeError:
-        raise ServodError("Unable to locate init for interface %s" % name)
-      result = func(interface)
-      if isinstance(result, tuple):
-        self._interface_list.extend(result)
-      else:
-        self._interface_list.append(result)
-
+    self.init_servo_interfaces(vendor, product, serialname, interfaces)
     servo_postinit.post_init(self)
 
   def _init_keyboard_handler(self, servo, board=''):
     """Initialize the correct keyboard handler for board.
 
-    @param servo: servo object.
-    @param board: string, board name.
+    Args:
+      servo: servo object.
+      board: string, board name.
 
+    Returns:
+      keyboard handler object.
     """
     if board == 'parrot':
       return keyboard_handlers.ParrotHandler(servo)
@@ -183,7 +218,7 @@ class Servod(object):
     for interface in self._interface_list:
       del(interface)
 
-  def _init_ftdi_dummy(self, interface):
+  def _init_ftdi_dummy(self, vendor, product, serialname, interface):
     """Dummy interface for ftdi devices.
 
     This is a dummy function specifically for ftdi devices to not initialize
@@ -194,7 +229,7 @@ class Servod(object):
     """
     return None
 
-  def _init_ftdi_gpio(self, interface):
+  def _init_ftdi_gpio(self, vendor, product, serialname, interface):
     """Initialize gpio driver interface and open for use.
 
     Args:
@@ -206,8 +241,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdigpio.Fgpio(self._vendor, self._product, interface,
-                          self._serialname)
+    fobj = ftdigpio.Fgpio(vendor, product, interface, serialname)
     try:
       fobj.open()
     except ftdigpio.FgpioError as e:
@@ -215,7 +249,7 @@ class Servod(object):
 
     return fobj
 
-  def _init_stm32_uart(self, interface):
+  def _init_stm32_uart(self, vendor, product, serialname, interface):
     """Initialize stm32 uart interface and open for use
 
     Note, the uart runs in a separate thread.  Users wishing to
@@ -233,8 +267,8 @@ class Servod(object):
       ServodError: Raised on init failure.
     """
     self._logger.info("Suart: interface: %s" % interface)
-    sobj = stm32uart.Suart(self._vendor, self._product, interface['interface'],
-                           self._serialname)
+    sobj = stm32uart.Suart(vendor, product, interface['interface'],
+                           serialname)
 
     try:
       sobj.run()
@@ -244,7 +278,7 @@ class Servod(object):
     self._logger.info("%s" % sobj.get_pty())
     return sobj
 
-  def _init_stm32_gpio(self, interface):
+  def _init_stm32_gpio(self, vendor, product, serialname, interface):
     """Initialize stm32 gpio interface.
     Args:
       interface: interface number of stm32 device to use.
@@ -260,10 +294,9 @@ class Servod(object):
     if type(interface) is dict:
       interface_number = interface['interface']
     self._logger.info("Sgpio: interface: %s" % interface_number)
-    return stm32gpio.Sgpio(self._vendor, self._product, interface_number,
-                           self._serialname)
+    return stm32gpio.Sgpio(vendor, product, interface_number, serialname)
 
-  def _init_stm32_i2c(self, interface):
+  def _init_stm32_i2c(self, vendor, product, serialname, interface):
     """Initialize stm32 USB to I2C bridge interface and open for use
 
     Args:
@@ -277,18 +310,18 @@ class Servod(object):
     """
     self._logger.info("Si2cBus: interface: %s" % interface)
     port = interface.get('port', 0)
-    return stm32i2c.Si2cBus(self._vendor, self._product,
-        interface['interface'], port=port, serialname=self._serialname)
+    return stm32i2c.Si2cBus(vendor, product, interface['interface'],
+                            port=port, serialname=serialname)
 
-  def _init_bb_adc(self, interface):
+  def _init_bb_adc(self, vendor, product, serialname, interface):
     """Initalize beaglebone ADC interface."""
     return bbadc.BBadc()
 
-  def _init_bb_gpio(self, interface):
+  def _init_bb_gpio(self, vendor, product, serialname, interface):
     """Initalize beaglebone gpio interface."""
     return bbgpio.BBgpio()
 
-  def _init_ftdi_i2c(self, interface):
+  def _init_ftdi_i2c(self, vendor, product, serialname, interface):
     """Initialize i2c interface and open for use.
 
     Args:
@@ -300,8 +333,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdii2c.Fi2c(self._vendor, self._product, interface,
-                        self._serialname)
+    fobj = ftdii2c.Fi2c(vendor, product, interface, serialname)
     try:
       fobj.open()
     except ftdii2c.Fi2cError as e:
@@ -318,11 +350,11 @@ class Servod(object):
     """Initalize beaglebone i2c interface."""
     return bbi2c.BBi2c(interface)
 
-  def _init_dev_i2c(self, interface):
+  def _init_dev_i2c(self, vendor, product, serialname, interface):
     """Initalize Linux i2c-dev interface."""
     return i2cbus.I2CBus('/dev/i2c-%d' % interface['bus_num'])
 
-  def _init_ftdi_uart(self, interface):
+  def _init_ftdi_uart(self, vendor, product, serialname, interface):
     """Initialize ftdi uart inteface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
@@ -339,8 +371,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdiuart.Fuart(self._vendor, self._product, interface,
-                          self._serialname)
+    fobj = ftdiuart.Fuart(vendor, product, interface, serialname)
     try:
       fobj.run()
     except ftdiuart.FuartError as e:
@@ -350,12 +381,13 @@ class Servod(object):
     return fobj
 
   # TODO (sbasi) crbug.com/187492 - Implement bbuart.
-  def _init_bb_uart(self, interface):
+  def _init_bb_uart(self, vendor, product, serialname, interface):
     """Initalize beaglebone uart interface."""
     logging.debug('UART INTERFACE: %s', interface)
     return bbuart.BBuart(interface)
 
-  def _init_ftdi_gpiouart(self, interface):
+  def _init_ftdi_gpiouart(self, vendor, product, serialname,
+                          interface):
     """Initialize special gpio + uart interface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
@@ -373,8 +405,7 @@ class Servod(object):
       ServodError: If init fails
     """
     fgpio = self._init_ftdi_gpio(interface)
-    fuart = ftdiuart.Fuart(self._vendor, self._product, interface,
-                           self._serialname, fgpio._fc)
+    fuart = ftdiuart.Fuart(vendor, product, interface, serialname, fgpio._fc)
     try:
       fuart.run()
     except ftdiuart.FuartError as e:
@@ -383,7 +414,7 @@ class Servod(object):
     self._logger.info("uart pty: %s" % fuart.get_pty())
     return fgpio, fuart
 
-  def _init_ec3po_uart(self, interface):
+  def _init_ec3po_uart(self, vendor, product, serialname, interface):
     """Initialize EC-3PO console interpreter interface.
 
     Args:
@@ -393,8 +424,8 @@ class Servod(object):
       An EC3PO object representing the EC-3PO interface or None if there's no
       interface for the USB PD UART.
     """
-    vid = self._vendor
-    pid = self._product
+    vid = vendor
+    pid = product
     # The current PID might be incremented if there are multiple FTDI.
     # Therefore, try rewinding the PID back one if we don't find the base PID in
     # the SERVO_ID_DEFAULTS
