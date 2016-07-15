@@ -72,7 +72,7 @@ for vid, pid in RAIDEN_DEFAULTS:
 SERVO_MICRO_DEFAULTS = [(0x18d1, 0x501a)]
 for vid, pid in SERVO_MICRO_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = \
-    ['stm32_gpio',                           # 1: 32x GPIO block
+    ['dummy',                                # 1:
      {'name': 'stm32_uart', 'interface': 0}, # 2: uart3/legacy
      {'name': 'stm32_uart', 'interface': 3}, # 3: servo console
      {'name': 'stm32_i2c', 'interface': 4},  # 4: i2c
