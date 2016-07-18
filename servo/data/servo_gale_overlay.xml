@@ -1,6 +1,6 @@
 <root>
   <include>
-    <name>servoflex_v2_r0_p50.xml</name>
+    <name>servoflex_cosmos.xml</name>
   </include>
   <control>
     <name>dev_mode</name>
