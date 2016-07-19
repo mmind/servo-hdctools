@@ -963,6 +963,15 @@ class Servod(object):
     return True
 
 
+  def sysrq_x(self, press_secs=''):
+    """Simulate Alt VolumeUp X simultaneous press.
+
+    This key combination is the kernel system request (sysrq) x.
+    """
+    self._keyboard.sysrq_x(press_secs)
+    return True
+
+
 def test():
   """Integration testing.
 

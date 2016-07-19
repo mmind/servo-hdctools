@@ -29,7 +29,7 @@ class kb(hw_driver.HwDriver):
     Args:
       key: see keyboard.xml's kb_precanned map,
         d_key="0" ctrl_d="1" ctrl_u="2" ctrl_enter="3" enter_key="4"
-        refresh_key="5" ctrl_refresh_key="6"
+        refresh_key="5" ctrl_refresh_key="6" sysrq_x="7"
 
     Raises:
       kbError: if key is not a member of kb_precanned map.
@@ -48,5 +48,7 @@ class kb(hw_driver.HwDriver):
       self._servo.refresh_key(.1)
     elif  key == 6:
       self._servo.ctrl_refresh_key(.1)
+    elif  key == 7:
+      self._servo.sysrq_x(.1)
     else:
       raise kbError("Unknown key enum: %s", key)
