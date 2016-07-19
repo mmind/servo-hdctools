@@ -181,6 +181,17 @@ class Servod(object):
     for interface in self._interface_list:
       del(interface)
 
+  def _init_ftdi_dummy(self, interface):
+    """Dummy interface for ftdi devices.
+
+    This is a dummy function specifically for ftdi devices to not initialize
+    anything but to help pad the interface list.
+
+    Returns:
+      None.
+    """
+    return None
+
   def _init_ftdi_gpio(self, interface):
     """Initialize gpio driver interface and open for use.
 

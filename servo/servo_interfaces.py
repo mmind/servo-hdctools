@@ -27,8 +27,8 @@ EC3PO_EC_INTERFACE_NUM = 9
 SERVO_V2_DEFAULTS = [(0x18d1, 0x5002)]
 for vid, pid in SERVO_V2_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = \
-    ['dummy', 'ftdi_i2c', 'ftdi_uart', 'ftdi_uart', 'dummy',
-     'dummy', 'ftdi_uart', 'ftdi_uart',
+    ['ftdi_dummy', 'ftdi_i2c', 'ftdi_uart', 'ftdi_uart', 'ftdi_dummy',
+     'ftdi_dummy', 'ftdi_uart', 'ftdi_uart',
      {'name': 'ec3po_uart'},
      {'name': 'ec3po_uart'}]
 
