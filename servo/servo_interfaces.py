@@ -9,7 +9,7 @@ INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
 SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x0403, 0x6014), (0x18d1, 0x5001),
                      (0x18d1, 0x5002), (0x18d1, 0x5004), (0x18d1, 0x500f),
-                     (0x18d1, 0x501a), (0x18d1, 0x501b)]
+                     (0x18d1, 0x5014), (0x18d1, 0x501a), (0x18d1, 0x501b)]
 
 # servo v1 w/o FT4232h EEPROM programmed
 INTERFACE_DEFAULTS[0x0403][0x6011] = ['ftdi_gpio', 'ftdi_i2c',
@@ -64,6 +64,24 @@ for vid, pid in RAIDEN_DEFAULTS:
      'dummy',                                # 7
      'dummy',                                # 8
      'dummy',                                # 9
+     {'name': 'ec3po_uart',                  #10: dut ec console
+      'raw_pty': 'raw_ec_uart_pty'},
+    ]
+
+# cr50 CCD
+CCD_DEFAULTS = [(0x18d1, 0x5014)]
+for vid, pid in CCD_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
+    [{'name': 'stm32_uart', 'interface': 3}, # 1: EC_PD
+     {'name': 'stm32_uart', 'interface': 2}, # 2: AP
+     {'name': 'stm32_uart', 'interface': 0}, # 3: cr50 console
+     'dummy',                                # 4: HID: intf 1
+     'dummy',                                # 5: USB FW: intf 4
+     'dummy',                                # 6: SPI: intf 5
+     {'name': 'ec3po_uart',                  # 7: cr50 console
+      'raw_pty': 'raw_cr50_console_pty'},
+     'dummy',                                # 8: dummy
+     'dummy',                                # 8: dummy
      {'name': 'ec3po_uart',                  #10: dut ec console
       'raw_pty': 'raw_ec_uart_pty'},
     ]
