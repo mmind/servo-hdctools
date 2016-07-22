@@ -84,16 +84,20 @@ class ServoV4PostInit(BasePostInit):
     """Add in the servo micro interface."""
     self.servod._syscfg.add_cfg_file(self.SERVO_MICRO_CFG)
 
-  def init_servo_micro(self):
+  def init_servo_micro(self, servo_micro):
     """Initialize the servo micro interfaces.
 
-    We'll override the existing dummy interfaces self.servod._interface_list
-    with servo micro interfaces.
+    Args:
+      servo_micro: usb.core.Device object that represents the servo_micro
+          we should be checking against.
     """
-    # TODO(kevcheng): refactor out the init stuff to make this clean and then
-    # init the servo micro interfaces in the exisiting
-    # self.servod._interface_list.
-    return
+    vendor = servo_micro.idVendor
+    product = servo_micro.idProduct
+    serial = usb.util.get_string(servo_micro, 256, servo_micro.iSerialNumber)
+    servo_micro_interface = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
+
+    self.servod.init_servo_interfaces(vendor, product, serial,
+                                      servo_micro_interface)
 
   def post_init(self):
     self._logger.debug("")
@@ -104,7 +108,7 @@ class ServoV4PostInit(BasePostInit):
         # We'll assume we have at most one servo micro behind the v4.
         if self.servo_micro_behind_v4(servo_micro):
           self.add_servo_micro_config()
-          self.init_servo_micro()
+          self.init_servo_micro(servo_micro)
           return
 
 
