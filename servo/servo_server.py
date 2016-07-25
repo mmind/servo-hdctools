@@ -2,10 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Servo Server."""
+import datetime
+import fcntl
 import fnmatch
 import imp
 import logging
 import os
+import random
 import shutil
 import SimpleXMLRPCServer
 import subprocess
@@ -50,6 +53,10 @@ class Servod(object):
   _USB_J3_PWR = "prtctl4_pwren"
   _USB_J3_PWR_ON = "on"
   _USB_J3_PWR_OFF = "off"
+  _USB_LOCK_FILE = "/var/lib/servod/lock_file"
+  # It takes about 16-17 seconds for the entire probe usb device method,
+  # let's wait double plus some buffer.
+  _MAX_USB_LOCK_WAIT = 40
 
   def init_servo_interfaces(self, vendor, product, serialname,
                             interfaces):
@@ -159,6 +166,9 @@ class Servod(object):
     self._board = board
     self._version = version
     self._usbkm232 = usbkm232
+    # Seed the random generator with the serial to differentiate from other
+    # servod processes.
+    random.seed(serialname if serialname else time.time())
     # Note, interface i is (i - 1) in list
     if not interfaces:
       try:
@@ -611,17 +621,78 @@ class Servod(object):
     usb_set = fnmatch.filter(os.listdir("/dev/"), "sd[a-z]")
     return set(["/dev/" + dev for dev in usb_set])
 
-  def _probe_host_usb_dev(self):
+  def _block_other_servod_usb_probe(self):
+    """Block other servod processes by locking a file.
+
+    To enable multiple servods processes to safely probe_host_usb_dev, we use
+    a given lock file to signal other servod processes that we're probing
+    for a usb device.
+
+    If the lock file exists, we open it and try to lock it.
+    - If another servod processes has locked it already, we'll sleep a random
+      amount of time and try again, we'll keep doing that until
+      _MAX_USB_LOCK_WAIT amount of time has passed.
+
+    - If we're able to lock the file, we'll return the file descriptor for the
+      _unblock_other_servod_usb_probe() method to unlock and close the file
+      descriptor.
+
+    This blocking behavior is only enabled if the lock file exists, if it
+    doesn't, then we pretend the block was successful.
+
+    Returns:
+      A tuple of (lock_file_descriptor, lock_succeeded).
+      - lock_file_descriptor is the file descriptor of the open lock file.
+        We'll keep it open until we're done probing for the usb device.
+      - lock_succeeded is a boolean to enable us to proceed probing for a
+        device if the lock file does not exist.  We need to be able to tell
+        the difference between failing to lock a file and no lock file existing.
+    """
+    if os.path.exists(self._USB_LOCK_FILE):
+      start_time = datetime.datetime.now()
+      while True:
+        try:
+          lock_file = open(self._USB_LOCK_FILE)
+          fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+          return lock_file, True
+        except IOError:
+          lock_file.close()
+          current_time = datetime.datetime.now()
+          current_wait_time = (current_time - start_time).total_seconds()
+          if current_wait_time > self._MAX_USB_LOCK_WAIT:
+            return None, False
+        # Sleep random amount.
+        sleep_time = time.sleep(random.random())
+    return None, True
+
+  def _unblock_other_servod_usb_probe(self, lock_file):
+    """Unblock other servod processes from probing usb devices.
+
+    Args:
+      lock_file: File descriptor of lock file to unlock and close.
+    """
+    if lock_file:
+      fcntl.flock(lock_file, fcntl.LOCK_UN)
+      lock_file.close()
+
+  def probe_host_usb_dev(self):
     """Probe the USB disk device plugged in the servo from the host side.
 
     Method can fail by:
     1) Having multiple servos connected and returning incorrect /dev/sdX of
-       another servo.
+       another servo unless _USB_LOCK_FILE exists on the servo host.  If that
+       file exists, then it is safe to probe for usb devices among multiple
+       servod instances.
     2) Finding multiple /dev/sdX and returning None.
 
     Returns:
-      USB disk path if one and only one USB disk path is found, otherwise None.
+      USB disk path if one and only one USB disk path is found, otherwise an
+      empty string.
     """
+    lock_file, block_success = self._block_other_servod_usb_probe()
+    if not block_success:
+      return ''
+
     original_value = self.get(self._USB_J3)
     original_usb_power = self.get(self._USB_J3_PWR)
     # Make the host unable to see the USB disk.
@@ -641,12 +712,14 @@ class Servod(object):
       self.set(self._USB_J3_PWR, self._USB_J3_PWR_OFF)
       time.sleep(self._USB_POWEROFF_DELAY)
 
+    self._unblock_other_servod_usb_probe(lock_file)
+
     # Subtract the two sets to find the usb device.
     diff_set = has_usb_set - no_usb_set
     if len(diff_set) == 1:
       return diff_set.pop()
     else:
-      return None
+      return ''
 
   def download_image_to_usb(self, image_path):
     """Download image and save to the USB device found by probe_host_usb_dev.
@@ -664,7 +737,7 @@ class Servod(object):
     """
     self._logger.debug("image_path(%s)" % image_path)
     self._logger.debug("Detecting USB stick device...")
-    usb_dev = self._probe_host_usb_dev()
+    usb_dev = self.probe_host_usb_dev()
     if not usb_dev:
       self._logger.error("No usb device connected to servo")
       return False
@@ -718,7 +791,7 @@ class Servod(object):
                   occurred.
     """
     result = True
-    usb_dev = self._probe_host_usb_dev()
+    usb_dev = self.probe_host_usb_dev()
     if not usb_dev:
       self._logger.error("No usb device connected to servo")
       return False
