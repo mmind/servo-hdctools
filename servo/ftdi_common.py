@@ -29,6 +29,8 @@ SERVO_PID_DEFAULTS = \
      'servo_v1': [0x5001],
      'servo_v2': [0x5002],
      'servo_v3': [0x5004, 0x6014],
+     'servo_v4': [0x501b],
+     'servo_micro': [0x501a],
      'toad_v1': [0x6015], #Vendor ID is 0x403 : FTDI
      'reston': [0x5007],
      'fruitpie': [0x5009],
@@ -41,6 +43,8 @@ SERVO_CONFIG_DEFAULTS = \
      'servo_v2_r0': ['servo_v2_r0.xml'],
      'servo_v2': ['servo_v2_r1.xml'],
      'servo_v3': ['servo_v3_r0.xml'],
+     'servo_v4': ['servo_v4.xml'],
+     'servo_micro': ['servo_micro.xml'],
      'toad_v1': ['toad.xml'],
      'reston': ['reston.xml'],
      'fruitpie': ['fruitpie.xml'],
