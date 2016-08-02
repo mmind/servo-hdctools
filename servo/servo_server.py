@@ -404,7 +404,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fgpio = self._init_ftdi_gpio(interface)
+    fgpio = self._init_ftdi_gpio(vendor, product, serialname, interface)
     fuart = ftdiuart.Fuart(vendor, product, interface, serialname, fgpio._fc)
     try:
       fuart.run()
