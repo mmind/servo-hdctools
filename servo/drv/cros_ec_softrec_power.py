@@ -49,8 +49,14 @@ class crosEcSoftrecPower(cros_ec_power.CrosECPower):
       # upcoming recovery mode request.
       self._cold_reset()
       # Restart the EC, but leave the system CPU off...
-      self._interface.set('ec_uart_regexp', 'None')
-      self._interface.set('ec_uart_cmd', 'reboot ap-off')
+      try:
+        # Before proceeding, we should really check that the EC has reset from
+        # our command.  Pexpect is minimally greedy so we won't be able to match
+        # the exact reset cause string.  But, this should be good enough.
+        self._interface.set('ec_uart_regexp', '["Reset cause:"]')
+        self._interface.set('ec_uart_cmd', 'reboot ap-off')
+      finally:
+        self._interface.set('ec_uart_regexp', 'None')
       time.sleep(self._reset_recovery_time)
       # Now the EC keeps the AP off. Release warm reset before powering
       # on the AP.
@@ -59,11 +65,19 @@ class crosEcSoftrecPower(cros_ec_power.CrosECPower):
       # Need to clear the flag in secondary (B) copy of the host events if
       # we're in non-recovery mode.
       cmd = self._REC_TYPE_HOSTEVENT_CMD_DICT[self._REC_TYPE_REC_OFF_CLEARB]
-      self._interface.set('ec_uart_cmd', cmd)
+      try:
+        self._interface.set('ec_uart_regexp', '["Events:"]')
+        self._interface.set('ec_uart_cmd', cmd)
+      finally:
+        self._interface.set('ec_uart_regexp', 'None')
 
     # Tell the EC to tell the CPU we're in recovery mode or non-recovery mode.
     cmd = self._REC_TYPE_HOSTEVENT_CMD_DICT[rec_type]
-    self._interface.set('ec_uart_cmd', cmd)
+    try:
+      self._interface.set('ec_uart_regexp', '["Events:"]')
+      self._interface.set('ec_uart_cmd', cmd)
+    finally:
+      self._interface.set('ec_uart_regexp', 'None')
     time.sleep(self._RECOVERY_DETECTION_DELAY)
     self._power_on_ap()
 
