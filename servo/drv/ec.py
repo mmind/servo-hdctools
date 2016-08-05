@@ -22,10 +22,6 @@ KEY_STATE = [0, 1, 1, 1, 1]
 KEY_MATRIX = [[[(0,4), (11,4)], [(2,4), None]],
               [[(0,2), (11,2)], [(2,2), None]]]
 
-# The memory address storing lid switch state
-LID_STATUS_ADDR = "0x40080730"
-LID_STATUS_MASK = 0x1
-
 # EC console mask for enabling only command channel
 COMMAND_CHANNEL_MASK = 0x1
 
@@ -188,11 +184,11 @@ class ec(pty_driver.ptyDriver):
       1: Lid opened.
     """
     self._limit_channel()
-    result = self._issue_cmd_get_results("rw %s" % LID_STATUS_ADDR,
-        ["read %s = 0x.......(.)" % LID_STATUS_ADDR])[0]
+    result = self._issue_cmd_get_results("lidstate",
+        ["lid state: (open|closed)"])[0]
     self._restore_channel()
-    res_code = int(result[1], 16)
-    return res_code & LID_STATUS_MASK
+
+    return 1 if result[1] == "open" else 0
 
   def _Set_lid_open(self, value):
     """Setter of lid_open.

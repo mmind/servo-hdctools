@@ -18,6 +18,7 @@ import cros_ec_softrec_power
 import daisy_ec
 import daisy_power
 import ec
+import ec_lm4
 import ec3po_gpio
 import ec3po_driver
 import gale_power
