@@ -11,6 +11,7 @@ import subprocess
 import usb
 
 import servo_interfaces
+import system_config
 
 
 POST_INIT = collections.defaultdict(dict)
@@ -177,8 +178,23 @@ class ServoV4PostInit(BasePostInit):
             and servo_v4_parent == servo_micro_parent)
 
   def add_servo_micro_config(self):
-    """Add in the servo micro interface."""
-    self.servod._syscfg.add_cfg_file(self.SERVO_MICRO_CFG)
+    """Add in the servo micro interface.
+
+    We need to recreate a system config so servo_micro controls are properly
+    overwritten.  We will recreate the config list but with servo micro
+    in front and append the rest of the existing config files loaded
+    up.  Duplicates are ok since the SystemConfig object keeps track of that
+    for us and will ignore them.
+    """
+    cfg_files = [self.SERVO_MICRO_CFG]
+    cfg_files.extend(
+        [os.path.basename(f) for f in self.servod._syscfg._loaded_xml_files])
+
+    self._logger.debug("Resetting system config files")
+    new_syscfg = system_config.SystemConfig()
+    for cfg_file in cfg_files:
+      new_syscfg.add_cfg_file(cfg_file)
+    self.servod._syscfg = new_syscfg
 
   def init_servo_micro(self, servo_micro):
     """Initialize the servo micro interfaces.

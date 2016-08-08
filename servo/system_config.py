@@ -93,7 +93,7 @@ class SystemConfig(object):
     self._logger.debug("")
     self.syscfg_dict = collections.defaultdict(dict)
     self.hwinit = []
-    self._loaded_xml_files = set()
+    self._loaded_xml_files = []
 
   def find_cfg_file(self, filename):
     """Find the filename for a system XML config file.
@@ -153,7 +153,7 @@ class SystemConfig(object):
     if filename in self._loaded_xml_files:
       self._logger.warn("Already sourced system file %s.", filename)
       return
-    self._loaded_xml_files.add(filename)
+    self._loaded_xml_files.append(filename)
 
     self._logger.info("Loading XML config %s", filename)
     root = xml.etree.ElementTree.parse(filename).getroot()
