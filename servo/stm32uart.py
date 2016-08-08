@@ -52,6 +52,7 @@ class Suart(uart.Uart):
     Raises:
       SuartError: If init fails
     """
+    super(Suart, self).__init__()
     self._logger = logging.getLogger('Suart')
     self._logger.debug('')
     self._logger.debug('Suart opening %04x:%04x, intf %d, sn: %s' % (
