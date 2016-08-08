@@ -24,11 +24,6 @@
     <params device="0" host="1"></params>
   </map>
   <map>
-    <name>onoff_dut_host_sel</name>
-    <doc>Select between DUT and host. Default is host</doc>
-    <params host="0" dut="1"></params>
-  </map>
-  <map>
     <name>onoff_sd_usb_sel</name>
     <doc>Select between sd and usb. Default is sd</doc>
     <params usb="0" sd="1"></params>
@@ -38,6 +33,11 @@
     <doc>Select between uservo and fastboot passthrough. Default is
     uservo</doc>
     <params uservo="0" fastboot="1"></params>
+  </map>
+  <map>
+    <name>usbkey</name>
+    <doc>Determines whether DUT or host sees USB port</doc>
+    <params servo_sees_usbkey="0" dut_sees_usbkey="1"></params>
   </map>
 
   <!-- GPIO on chip settings -->
@@ -229,18 +229,21 @@
   </control>
   <control>
     <name>usb3_mux_sel</name>
+    <alias>usb_mux_sel1</alias>
     <doc>USB3.0_TYPEA_MUX_SEL</doc>
     <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
-    offset="3" map="onoff_dut_host_sel" init="host"></params>
+    offset="3" map="usbkey" init="servo_sees_usbkey"></params>
   </control>
   <control>
     <name>usb3_mux_en</name>
+    <alias>usb_mux_oe1</alias>
     <doc>USB3.0_TYPEA_MUX_EN_L</doc>
     <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
     offset="4" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>usb3_pwr_en</name>
+    <alias>prtctl4_pwren</alias>
     <doc>USB3.0_TYPE_A_PWR_EN</doc>
     <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
     offset="5" map="onoff" init="on"></params>
@@ -274,7 +277,7 @@
     <name>sd_mux_sel</name>
     <doc>EMMC_MUX_SEL</doc>
     <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
-    offset="10" map="onoff_dut_host_sel" init="host"></params>
+    offset="10" map="usbkey" init="servo_sees_usbkey"></params>
   </control>
 
   <!-- UART and CONSOLE settings -->
