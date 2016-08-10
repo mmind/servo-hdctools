@@ -51,6 +51,7 @@ import storm_power
 import stumpy_power
 import sx1505
 import sx1506
+import sx1506_v4
 import tca6416
 import tcs3414
 import uart

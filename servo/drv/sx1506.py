@@ -15,7 +15,6 @@ class Sx1506Error(Exception):
 # Indexing is: reg_cache[((interface, i2c addr), reg addr)] = value
 reg_cache = {}
 
-
 class sx1506(hw_driver.HwDriver):
   """Object to access drv=sx1506 controls."""
 
@@ -27,6 +26,9 @@ class sx1506(hw_driver.HwDriver):
   REG_PU= 4
   REG_PD= 6
 
+  # Power on defaults
+  INIT_DATA = 0xFFFF
+  INIT_DIR = 0xFFFF
 
   def __init__(self, interface, params):
     """Constructor.
@@ -54,12 +56,15 @@ class sx1506(hw_driver.HwDriver):
     global reg_cache
     self._reg_cache = reg_cache
     self._cacheindex = (self._interface, slave)
-    # Cache REG_DATA
-    outputs = self._reg_cache.get((self._cacheindex, self.REG_DATA), 0xffff)
-    self._reg_cache[(self._cacheindex, self.REG_DATA)] = outputs
     # Cache REG_DIR
-    dir = self._reg_cache.get((self._cacheindex, self.REG_DIR), self.read16(self.REG_DIR))
+    dir = self._reg_cache.get((self._cacheindex, self.REG_DIR), self.INIT_DIR)
     self._reg_cache[(self._cacheindex, self.REG_DIR)] = dir
+    self.write16(self.REG_DIR, dir)
+
+    # Cache REG_DATA
+    outputs = self._reg_cache.get((self._cacheindex, self.REG_DATA), self.INIT_DATA)
+    self._reg_cache[(self._cacheindex, self.REG_DATA)] = outputs
+    self.write16(self.REG_DATA, outputs)
 
     # Initlialize pullup
     if self._io_type == 'PU':
@@ -129,11 +134,15 @@ class sx1506(hw_driver.HwDriver):
 
       current_out_reg = self._reg_cache[(self._cacheindex, self.REG_DATA)]
       new_out_reg = hw_value | (current_out_reg & ~mask)
-      if new_out_reg != current_out_reg:
-        self._reg_cache[(self._cacheindex, self.REG_DATA)] = new_out_reg
-        self.write16(self.REG_DATA, new_out_reg)
+      self._reg_cache[(self._cacheindex, self.REG_DATA)] = new_out_reg
+      self.write16(self.REG_DATA, new_out_reg)
 
     current_dir_reg = self._reg_cache[(self._cacheindex, self.REG_DIR)]
+    actual_dir_reg = self.read16(self.REG_DIR)
+    if (current_dir_reg != actual_dir_reg):
+      self._logger.error("sx1506 REG_DIR should be 0x%x, actually is 0x%x!" \
+          % (current_dir_reg, actual_dir_reg))
+      current_dir_reg = actual_dir_reg
     if change_to_input:
       new_dir_reg = current_dir_reg | mask
     else:
