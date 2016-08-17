@@ -211,73 +211,73 @@
   <control>
     <name>sbu_uart_sel</name>
     <doc>SBU_UART_SEL: Select between CCD or UART on SBU</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="0" map="onoff_sbu_uart_sel" init="ccd"></params>
   </control>
   <control>
     <name>atmega_rst</name>
     <doc>ATMEL_RESET_L: reset atmega</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="1" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>sbu_flip_sel</name>
     <doc>SBU_FLIP_SEL: Flip SBU lines based on cable
     rotation.</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="2" map="onoff" init="off"></params>
   </control>
   <control>
     <name>usb3_mux_sel</name>
     <alias>usb_mux_sel1</alias>
     <doc>USB3.0_TYPEA_MUX_SEL</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="3" map="usbkey" init="servo_sees_usbkey"></params>
   </control>
   <control>
     <name>usb3_mux_en</name>
     <alias>usb_mux_oe1</alias>
     <doc>USB3.0_TYPEA_MUX_EN_L</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="4" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>usb3_pwr_en</name>
     <alias>prtctl4_pwren</alias>
     <doc>USB3.0_TYPE_A_PWR_EN</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="5" map="onoff" init="on"></params>
   </control>
   <control>
     <name>host_sd_usb_mux_sel</name>
     <doc>TYPEA_EMMC_MUX_SEL</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="6" map="onoff_sd_usb_sel" init="usb"></params>
   </control>
   <control>
     <name>uservo_pwr_en</name>
     <doc>USERVO_POWER_EN</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
+    <params interface="23" drv="tca6416" slv="0x20" port="0"
     offset="7" map="onoff" init="on"></params>
   </control>
   <control>
     <name>uservo_fastboot_mux_sel</name>
     <doc>USERVO_FASTBOOT_MUX_SEL</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
-    offset="8" map="onoff_uservo_fastboot_sel" init="uservo">
+    <params interface="23" drv="tca6416" slv="0x20" port="1"
+    offset="0" map="onoff_uservo_fastboot_sel" init="uservo">
     </params>
   </control>
   <control>
     <name>host_sd_usb_mux_en</name>
     <doc>TYPEA_EMMC_MUX_EN_L</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
-    offset="9" map="onoff_i" init="on"></params>
+    <params interface="23" drv="tca6416" slv="0x20" port="1"
+    offset="1" map="onoff_i" init="on"></params>
   </control>
   <control>
     <name>sd_mux_sel</name>
     <doc>EMMC_MUX_SEL</doc>
-    <params interface="23" drv="sx1506_v4" slv="0x20" port="0"
-    offset="10" map="usbkey" init="servo_sees_usbkey"></params>
+    <params interface="23" drv="tca6416" slv="0x20" port="1"
+    offset="2" map="usbkey" init="servo_sees_usbkey"></params>
   </control>
 
   <!-- UART and CONSOLE settings -->
