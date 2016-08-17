@@ -1,0 +1,9 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-includedirs
+
+Adapt include dirs to prevent an error:
+      [3]  Compiling ftdigpio.c
+cc1: error: -D_GNU_SOURCE=1: Datei oder Verzeichnis nicht gefunden [-Werror=missing-include-dirs]
+cc1: all warnings being treated as errors
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>

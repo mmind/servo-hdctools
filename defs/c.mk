@@ -62,8 +62,8 @@ CWARN	=					\
 
 INCLUDES	=				\
 		$(HOSTOS_INCLUDE)		\
-		-I$(HDCTOOLS_DIR)/include	\
-		-I$(HDCTOOLS_SOURCE_DIR)
+		-I$(HDCTOOLS_DIR)/include	
+#		-I$(HDCTOOLS_SOURCE_DIR)
 
 LD_LIB		= $(HOSTOS_LD_LIB)
 LIB_EXT		= $(HOSTOS_LIB_EXT)
