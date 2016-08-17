@@ -117,6 +117,7 @@ static const struct cmd COMMAND_LIST[] = {
 };
 
 
+#if 0
 /* Config data at start of FT230X EEPROM for programming */
 static const unsigned char TOAD_EEPROM_00[] = {
     /* 00 */ 0x00, 0x00,  // First two bytes must be zero
@@ -141,7 +142,7 @@ static const unsigned char TOAD_EEPROM_00[] = {
     /* 35 */ 0, 0, 0,  // Not an FT1248 (clock polarity, data endianness, flow)
     /* 38 */ 0, 0, 0,  // No RS485 echo suppression, no power save, D2XX driver
 };
-
+#endif
 
 /* Entry-point.
  * Processes global options, determines the command, and hands off to the

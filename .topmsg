@@ -1,0 +1,12 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-toad-unused
+
+Disable the unused TOAD_EEPROM_00 var to squelch
+
+/tmp/hdctools-20160523/src/toad/toad.c:121:28: error: ‘TOAD_EEPROM_00’ defined but not used [-Werror=unused-const-variable=]
+ static const unsigned char TOAD_EEPROM_00[] = {
+                            ^~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
