@@ -359,7 +359,7 @@ static int fuart_wr_rd_locked(struct fuart_context *fuartc) {
       rd_buf += bytes;
       bytes_remaining -= bytes;
     }
-    if ((bytes == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK)) &&
+    if ((bytes == -1) && (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) &&
         (retries < 10)) {
       retries++;
       goto retry_write;
