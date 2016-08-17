@@ -1,0 +1,14 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-eagain-gcc
+
+Fix useless warning
+/tmp/hdctools-20160523/lib/ftdiuart.c: In function ‘fuart_wr_rd_locked’:
+/tmp/hdctools-20160523/lib/ftdiuart.c:362:45: error: logical ‘or’ of equal expressions [-Werror=logical-op]
+     if ((bytes == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK)) &&
+                                             ^~
+cc1: all warnings being treated as errors
+
+
+See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69602 for reference
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
