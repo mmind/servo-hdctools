@@ -13,7 +13,7 @@
     </params>
   </control>
   <control>
-    <name>ap_uart_pty</name>
+    <name>cpu_uart_pty</name>
     <doc>CCD AP console.</doc>
     <params cmd="get" subtype="pty" interface="2" drv="uart">
     </params>
