@@ -58,6 +58,9 @@ class Servod(object):
   # let's wait double plus some buffer.
   _MAX_USB_LOCK_WAIT = 40
 
+  # This is the key to get the main serial used in the _serialnames dict.
+  MAIN_SERIAL = "main"
+
   def init_servo_interfaces(self, vendor, product, serialname,
                             interfaces):
     """Init the servo interfaces with the given interfaces.
@@ -153,7 +156,7 @@ class Servod(object):
     self._logger.debug("")
     self._vendor = vendor
     self._product = product
-    self._serialname = serialname
+    self._serialnames = {self.MAIN_SERIAL: serialname}
     self._syscfg = config
     # Hold the last image path so we can reduce downloads to the usb device.
     self._image_path = None
@@ -872,8 +875,8 @@ class Servod(object):
     """
     self._logger.debug("name(%s)" % (name))
     if name == 'serialname':
-      if self._serialname:
-        return self._serialname
+      if self._serialnames[self.MAIN_SERIAL]:
+        return self._serialnames[self.MAIN_SERIAL]
       return 'unknown'
     (param, drv) = self._get_param_drv(name)
     try:
@@ -1076,6 +1079,11 @@ class Servod(object):
     """
     self._keyboard.sysrq_x(press_secs)
     return True
+
+
+  def get_servo_serials(self):
+    """Return all the serials associated with this process."""
+    return self._serialnames
 
 
 def test():

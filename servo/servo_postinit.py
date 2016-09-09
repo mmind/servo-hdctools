@@ -63,7 +63,8 @@ class ServoV4PostInit(BasePostInit):
         servo_v4_devices.extend(devs)
     for d in servo_v4_devices:
       d_serial = usb.util.get_string(d, 256, d.iSerialNumber)
-      if not self.servod._serialname or d_serial == self.servod._serialname:
+      if (not self.servod._serialnames[self.servod.MAIN_SERIAL] or
+          d_serial == self.servod._serialnames[self.servod.MAIN_SERIAL]):
         return d
     return None
 
@@ -207,6 +208,7 @@ class ServoV4PostInit(BasePostInit):
     product = servo_micro.idProduct
     serial = usb.util.get_string(servo_micro, 256, servo_micro.iSerialNumber)
     servo_micro_interface = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
+    self.servod._serialnames['servo_micro'] = serial
 
     self.servod.init_servo_interfaces(vendor, product, serial,
                                       servo_micro_interface)
