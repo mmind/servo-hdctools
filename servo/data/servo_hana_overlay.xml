@@ -1,0 +1,9 @@
+<root>
+  <include>
+    <name>servo_oak_overlay.xml</name>
+  </include>
+  <control>
+    <name>spi1_vref</name>
+    <params init="off" clobber_ok=""></params>
+  </control>
+</root>
