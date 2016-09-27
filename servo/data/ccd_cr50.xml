@@ -15,13 +15,13 @@
   <control>
     <name>cpu_uart_pty</name>
     <doc>CCD AP console.</doc>
-    <params cmd="get" subtype="pty" interface="2" drv="uart">
+    <params cmd="get" subtype="pty" interface="3" drv="uart">
     </params>
   </control>
   <control>
     <name>raw_cr50_console_pty</name>
     <doc>CCD cr50 console.</doc>
-    <params cmd="get" subtype="pty" interface="3" drv="uart">
+    <params cmd="get" subtype="pty" interface="4" drv="uart">
     </params>
   </control>
 
@@ -41,12 +41,12 @@
     <name>ec3po_cr50_console</name>
     <alias>cr50_console_pty</alias>
     <doc>cr50 console provided via EC-3PO console interpreter.</doc>
-    <params cmd="get" subtype="pty" interface="7" drv="uart"></params>
+    <params cmd="get" subtype="pty" interface="8" drv="uart"></params>
   </control>
   <control>
     <name>cr50_ec3po_interp_connect</name>
     <doc>State indicating if interpreter is listening to the cr50 console.</doc>
-    <params interface="7" drv="ec3po_driver" map="onoff" init="on"
+    <params interface="8" drv="ec3po_driver" map="onoff" init="on"
     subtype="interp_connect"></params>
   </control>
 </root>
