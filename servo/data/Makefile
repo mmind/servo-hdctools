@@ -16,7 +16,7 @@ INA219		= wario.xml waluigi.xml servo_loc.xml link_dvt.xml link.xml    \
 		  strago_proto.xml veyron_danger_p1.xml ryu_p0_loc.xml oak.xml \
 		  veyron_brain_p1.xml ryu_p5_loc.xml ryu_evt2_loc.xml \
 		  ryu_dvt_loc.xml kunimitsu.xml amenia_inas.xml kevin_r0_loc.xml \
-		  kevin_r1_loc.xml
+		  kevin_r1_loc.xml kevin_r2_loc.xml
 INA231		= samus.xml whale_samus_dut.xml gru_r0.xml servo_v4_inas.xml
 INA3221		= glados_p1_inas.xml glados_r2_inas.xml chell_r1_inas.xml \
                   reef_r1_inas.xml
