@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Servo Server."""
+import contextlib
 import datetime
 import fcntl
 import fnmatch
@@ -38,6 +39,9 @@ import stm32uart
 
 MAX_I2C_CLOCK_HZ = 100000
 
+# It takes about 16-17 seconds for the entire probe usb device method,
+# let's wait double plus some buffer.
+_MAX_USB_LOCK_WAIT = 40
 
 class ServodError(Exception):
   """Exception class for servod."""
@@ -54,9 +58,6 @@ class Servod(object):
   _USB_J3_PWR_ON = "on"
   _USB_J3_PWR_OFF = "off"
   _USB_LOCK_FILE = "/var/lib/servod/lock_file"
-  # It takes about 16-17 seconds for the entire probe usb device method,
-  # let's wait double plus some buffer.
-  _MAX_USB_LOCK_WAIT = 40
 
   # This is the key to get the main serial used in the _serialnames dict.
   MAIN_SERIAL = "main"
@@ -624,61 +625,84 @@ class Servod(object):
     usb_set = fnmatch.filter(os.listdir("/dev/"), "sd[a-z]")
     return set(["/dev/" + dev for dev in usb_set])
 
-  def _block_other_servod_usb_probe(self):
+  @contextlib.contextmanager
+  def _block_other_servod(self, timeout=None):
     """Block other servod processes by locking a file.
 
     To enable multiple servods processes to safely probe_host_usb_dev, we use
     a given lock file to signal other servod processes that we're probing
-    for a usb device.
+    for a usb device.  This will be a context manager that will return
+    if the block was successful or not.
 
     If the lock file exists, we open it and try to lock it.
     - If another servod processes has locked it already, we'll sleep a random
       amount of time and try again, we'll keep doing that until
-      _MAX_USB_LOCK_WAIT amount of time has passed.
+      timeout amount of time has passed.
 
-    - If we're able to lock the file, we'll return the file descriptor for the
-      _unblock_other_servod_usb_probe() method to unlock and close the file
-      descriptor.
+    - If we're able to lock the file, we'll yield that the block was successful
+      and upon return, unlock the file and exit out.
 
     This blocking behavior is only enabled if the lock file exists, if it
     doesn't, then we pretend the block was successful.
 
-    Returns:
-      A tuple of (lock_file_descriptor, lock_succeeded).
-      - lock_file_descriptor is the file descriptor of the open lock file.
-        We'll keep it open until we're done probing for the usb device.
-      - lock_succeeded is a boolean to enable us to proceed probing for a
-        device if the lock file does not exist.  We need to be able to tell
-        the difference between failing to lock a file and no lock file existing.
+    Args:
+      timeout: Max waiting time for the block to succeed.
     """
-    if os.path.exists(self._USB_LOCK_FILE):
+    if not os.path.exists(self._USB_LOCK_FILE):
+      # No lock file so we'll pretend the block was a success.
+      yield True
+    else:
       start_time = datetime.datetime.now()
       while True:
-        try:
-          lock_file = open(self._USB_LOCK_FILE)
-          fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-          return lock_file, True
-        except IOError:
-          lock_file.close()
-          current_time = datetime.datetime.now()
-          current_wait_time = (current_time - start_time).total_seconds()
-          if current_wait_time > self._MAX_USB_LOCK_WAIT:
-            return None, False
+        with open(self._USB_LOCK_FILE) as lock_file:
+          try:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            yield True
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+            break
+          except IOError:
+            current_time = datetime.datetime.now()
+            current_wait_time = (current_time - start_time).total_seconds()
+            if timeout and current_wait_time > timeout:
+              yield False
+              break
         # Sleep random amount.
         sleep_time = time.sleep(random.random())
-    return None, True
 
-  def _unblock_other_servod_usb_probe(self, lock_file):
-    """Unblock other servod processes from probing usb devices.
+  def safe_switch_usbkey_power(self, power_state, timeout=_MAX_USB_LOCK_WAIT):
+    """Toggle the usb power safely.
+
+    We'll make sure we're the only servod process toggling the usbkey power.
 
     Args:
-      lock_file: File descriptor of lock file to unlock and close.
-    """
-    if lock_file:
-      fcntl.flock(lock_file, fcntl.LOCK_UN)
-      lock_file.close()
+      power_state: The setting to set for the usbkey power.
+      timeout: Timeout to wait for blocking other servod processes.
 
-  def probe_host_usb_dev(self):
+    Returns:
+      An empty string to appease the xmlrpc gods.
+    """
+    with self._block_other_servod(timeout=timeout):
+      if power_state != self.get(self._USB_J3_PWR):
+        self.set(self._USB_J3_PWR, power_state)
+    return ''
+
+  def safe_switch_usbkey(self, mux_direction, timeout=_MAX_USB_LOCK_WAIT):
+    """Toggle the usb direction safely.
+
+    We'll make sure we're the only servod process toggling the usbkey direction.
+
+    Args:
+      power_state: The setting to set for the usbkey power.
+      timeout: Timeout to wait for blocking other servod processes.
+
+    Returns:
+      An empty string to appease the xmlrpc gods.
+    """
+    with self._block_other_servod(timeout=timeout):
+      self._switch_usbkey(mux_direction)
+    return ''
+
+  def probe_host_usb_dev(self, timeout=_MAX_USB_LOCK_WAIT):
     """Probe the USB disk device plugged in the servo from the host side.
 
     Method can fail by:
@@ -688,41 +712,42 @@ class Servod(object):
        servod instances.
     2) Finding multiple /dev/sdX and returning None.
 
+    Args:
+      timeout: Timeout to wait for blocking other servod processes.
+
     Returns:
       USB disk path if one and only one USB disk path is found, otherwise an
       empty string.
     """
-    lock_file, block_success = self._block_other_servod_usb_probe()
-    if not block_success:
-      return ''
+    with self._block_other_servod(timeout=timeout) as block_success:
+      if not block_success:
+        return ''
 
-    original_value = self.get(self._USB_J3)
-    original_usb_power = self.get(self._USB_J3_PWR)
-    # Make the host unable to see the USB disk.
-    if (original_usb_power == self._USB_J3_PWR_ON and
-        original_value != self._USB_J3_TO_DUT):
-      self._switch_usbkey(self._USB_J3_TO_DUT)
-    no_usb_set = self._get_usb_port_set()
+      original_value = self.get(self._USB_J3)
+      original_usb_power = self.get(self._USB_J3_PWR)
+      # Make the host unable to see the USB disk.
+      if (original_usb_power == self._USB_J3_PWR_ON and
+          original_value != self._USB_J3_TO_DUT):
+        self._switch_usbkey(self._USB_J3_TO_DUT)
+      no_usb_set = self._get_usb_port_set()
 
-    # Make the host able to see the USB disk.
-    self._switch_usbkey(self._USB_J3_TO_SERVO)
-    has_usb_set = self._get_usb_port_set()
+      # Make the host able to see the USB disk.
+      self._switch_usbkey(self._USB_J3_TO_SERVO)
+      has_usb_set = self._get_usb_port_set()
 
-    # Back to its original value.
-    if original_value != self._USB_J3_TO_SERVO:
-      self._switch_usbkey(original_value)
-    if original_usb_power != self._USB_J3_PWR_ON:
-      self.set(self._USB_J3_PWR, self._USB_J3_PWR_OFF)
-      time.sleep(self._USB_POWEROFF_DELAY)
+      # Back to its original value.
+      if original_value != self._USB_J3_TO_SERVO:
+        self._switch_usbkey(original_value)
+      if original_usb_power != self._USB_J3_PWR_ON:
+        self.set(self._USB_J3_PWR, self._USB_J3_PWR_OFF)
+        time.sleep(self._USB_POWEROFF_DELAY)
 
-    self._unblock_other_servod_usb_probe(lock_file)
-
-    # Subtract the two sets to find the usb device.
-    diff_set = has_usb_set - no_usb_set
-    if len(diff_set) == 1:
-      return diff_set.pop()
-    else:
-      return ''
+      # Subtract the two sets to find the usb device.
+      diff_set = has_usb_set - no_usb_set
+      if len(diff_set) == 1:
+        return diff_set.pop()
+      else:
+        return ''
 
   def download_image_to_usb(self, image_path):
     """Download image and save to the USB device found by probe_host_usb_dev.
