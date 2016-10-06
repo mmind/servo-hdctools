@@ -189,6 +189,9 @@ INTERFACE_BOARDS['asuka'][0x18d1][0x5002][0] = 'ftdi_uart'
 INTERFACE_BOARDS['cave'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['cave'][0x18d1][0x5002][0] = 'ftdi_uart'
+INTERFACE_BOARDS['caroline'][0x18d1][0x5002] = \
+    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+INTERFACE_BOARDS['caroline'][0x18d1][0x5002][0] = 'ftdi_uart'
 INTERFACE_BOARDS['chell'][0x18d1][0x5002] = \
     list(INTERFACE_DEFAULTS[0x18d1][0x5002])
 INTERFACE_BOARDS['chell'][0x18d1][0x5002][0] = 'ftdi_uart'
