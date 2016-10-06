@@ -15,7 +15,7 @@
   <control>
     <name>power_state</name>
     <doc>Used to turn the DUT off and on</doc>
-    <params cmd="set" interface="servo" drv="gale_power" input_type="str"/>
+    <params cmd="set" interface="servo" drv="storm_power" input_type="str"/>
   </control>
   <control>
     <name>cold_reset</name>
