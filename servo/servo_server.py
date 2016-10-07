@@ -61,6 +61,7 @@ class Servod(object):
 
   # This is the key to get the main serial used in the _serialnames dict.
   MAIN_SERIAL = "main"
+  MICRO_SERVO_SERIAL = "micro_servo"
 
   def init_servo_interfaces(self, vendor, product, serialname,
                             interfaces):

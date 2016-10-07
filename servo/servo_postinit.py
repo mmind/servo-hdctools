@@ -130,18 +130,31 @@ class ServoV4PostInit(BasePostInit):
 
   SERVO_MICRO_CFG = 'servo_micro.xml'
 
+  def _get_all_usb_devices(self, vid_pid_list):
+    """Return all associated USB devices which match the given VID/PID's.
+
+    Args:
+      vid_pid_list: List of tuple (vid, pid).
+
+    Returns:
+      List of usb.core.Device objects.
+    """
+    all_devices = []
+    for vid, pid in vid_pid_list:
+      devs = usb.core.find(idVendor=vid, idProduct=pid, find_all=True)
+      if devs:
+        all_devices.extend(devs)
+    return all_devices
+
   def get_servo_v4_usb_device(self):
     """Return associated servo v4 usb.core.Device object.
 
     Returns:
       servo v4 usb.core.Device object associated with the servod instance.
     """
-    servo_v4_devices = []
-    for vid, pid in servo_interfaces.SERVO_V4_DEFAULTS:
-      devs = usb.core.find(idVendor=vid, idProduct=pid, find_all=True)
-      if devs:
-        servo_v4_devices.extend(devs)
-    for d in servo_v4_devices:
+    servo_v4_candidates = self._get_all_usb_devices(
+        servo_interfaces.SERVO_V4_DEFAULTS)
+    for d in servo_v4_candidates:
       d_serial = usb.util.get_string(d, 256, d.iSerialNumber)
       if (not self.servod._serialnames[self.servod.MAIN_SERIAL] or
           d_serial == self.servod._serialnames[self.servod.MAIN_SERIAL]):
@@ -154,23 +167,21 @@ class ServoV4PostInit(BasePostInit):
     Returns:
       List of servo micro devices as usb.core.Device objects.
     """
-    servo_micro_devices = []
-    for vid, pid in servo_interfaces.SERVO_MICRO_DEFAULTS:
-      devs = usb.core.find(idVendor=vid, idProduct=pid, find_all=True)
-      if devs:
-        servo_micro_devices.extend(devs)
-    return servo_micro_devices
+    return self._get_all_usb_devices(servo_interfaces.SERVO_MICRO_DEFAULTS)
 
-  def add_servo_micro_config(self):
-    """Add in the servo micro interface.
+  def prepend_config(self, new_cfg_file):
+    """Prepend the given new config file to the existing system config.
 
-    We need to recreate a system config so servo_micro controls are properly
-    overwritten.  We will recreate the config list but with servo micro
+    The new config, like servo_micro, is properly overwritten by some board
+    overlays. So we will recreate the config list but with the new config
     in front and append the rest of the existing config files loaded
-    up.  Duplicates are ok since the SystemConfig object keeps track of that
+    up. Duplicates are ok since the SystemConfig object keeps track of that
     for us and will ignore them.
+
+    Args:
+      new_cfg_file: List of config files.
     """
-    cfg_files = [self.SERVO_MICRO_CFG]
+    cfg_files = [new_cfg_file]
     cfg_files.extend(
         [os.path.basename(f) for f in self.servod._syscfg._loaded_xml_files])
 
@@ -180,21 +191,31 @@ class ServoV4PostInit(BasePostInit):
       new_syscfg.add_cfg_file(cfg_file)
     self.servod._syscfg = new_syscfg
 
-  def init_servo_micro(self, servo_micro):
-    """Initialize the servo micro interfaces.
+  def add_servo_serial(self, servo_usb, servo_serial_key):
+    """Add the servo serial number.
 
     Args:
-      servo_micro: usb.core.Device object that represents the servo_micro
-          we should be checking against.
+      servo_usb: usb.core.Device object that represents the new detected
+          servo we should be checking against.
+      servo_serial_key: Key to the servo serial dict.
     """
-    vendor = servo_micro.idVendor
-    product = servo_micro.idProduct
-    serial = usb.util.get_string(servo_micro, 256, servo_micro.iSerialNumber)
-    servo_micro_interface = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
-    self.servod._serialnames['servo_micro'] = serial
+    serial = usb.util.get_string(servo_usb, 256, servo_usb.iSerialNumber)
+    self.servod._serialnames[servo_serial_key] = serial
+
+  def init_servo_interfaces(self, servo_usb):
+    """Initialize the new servo interfaces.
+
+    Args:
+      servo_usb: usb.core.Device object that represents the new detected
+          servo we should be checking against.
+    """
+    vendor = servo_usb.idVendor
+    product = servo_usb.idProduct
+    serial = usb.util.get_string(servo_usb, 256, servo_usb.iSerialNumber)
+    servo_interface = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
     self.servod.init_servo_interfaces(vendor, product, serial,
-                                      servo_micro_interface)
+                                      servo_interface)
 
   def kick_devices(self):
     """General method to do misc actions.
@@ -224,8 +245,9 @@ class ServoV4PostInit(BasePostInit):
       # on servo v4 board. Check the USB hierarchy to find the micro-servo
       # behind. Assume we have at most one servo micro behind the servo v4.
       if usb_hierarchy.share_same_parent(servo_v4, servo_micro):
-        self.add_servo_micro_config()
-        self.init_servo_micro(servo_micro)
+        self.prepend_config(self.SERVO_MICRO_CFG)
+        self.add_servo_serial(servo_micro, self.servod.MICRO_SERVO_SERIAL)
+        self.init_servo_interfaces(servo_micro)
         return
 
 
