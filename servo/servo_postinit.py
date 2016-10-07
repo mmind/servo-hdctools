@@ -129,6 +129,8 @@ class ServoV4PostInit(BasePostInit):
   """
 
   SERVO_MICRO_CFG = 'servo_micro.xml'
+  # Only support CR50 CCD.
+  CCD_CFG = 'ccd_cr50.xml'
 
   def _get_all_usb_devices(self, vid_pid_list):
     """Return all associated USB devices which match the given VID/PID's.
@@ -168,6 +170,14 @@ class ServoV4PostInit(BasePostInit):
       List of servo micro devices as usb.core.Device objects.
     """
     return self._get_all_usb_devices(servo_interfaces.SERVO_MICRO_DEFAULTS)
+
+  def get_ccd_devices(self):
+    """Return all CCD USB devices detected.
+
+    Returns:
+      List of CCD USB devices as usb.core.Device objects.
+    """
+    return self._get_all_usb_devices(servo_interfaces.CCD_DEFAULTS)
 
   def prepend_config(self, new_cfg_file):
     """Prepend the given new config file to the existing system config.
@@ -249,6 +259,19 @@ class ServoV4PostInit(BasePostInit):
         self.add_servo_serial(servo_micro, self.servod.MICRO_SERVO_SERIAL)
         self.init_servo_interfaces(servo_micro)
         return
+
+    # Try to enable CCD iff no servo-micro is detected.
+    ccd_candidates = self.get_ccd_devices()
+    for ccd in ccd_candidates:
+      # Pick the proper CCD endpoint behind the servo v4.
+      if usb_hierarchy.share_same_parent(servo_v4, ccd):
+        self.prepend_config(self.CCD_CFG)
+        self.add_servo_serial(ccd, self.servod.CCD_SERIAL)
+        self.init_servo_interfaces(ccd)
+        return
+
+    # If no CCD endpoint is detected, print a message to inform users.
+    self._logger.info("No micro-servo and CCD detected.")
 
 
 # Add in servo v4 post init method.
