@@ -49,4 +49,30 @@
     <params interface="8" drv="ec3po_driver" map="onoff" init="on"
     subtype="interp_connect"></params>
   </control>
+
+  <!-- Controls overwritten by Cr50 -->
+  <control>
+    <name>cold_reset</name>
+    <doc>cold_reset</doc>
+    <params subtype="cold_reset" interface="8" drv="cr50" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>warm_reset</name>
+    <doc>warm_reset</doc>
+    <params subtype="warm_reset" interface="8" drv="cr50" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>pwr_button</name>
+    <doc>Power button GPIO</doc>
+    <params subtype="pwr_button" interface="8" drv="cr50" map="press"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ccd_ec_uart_en</name>
+    <doc>Enable/disable EC UART on CCD</doc>
+    <params subtype="ccd_ec_uart_en" interface="8" drv="cr50" map="onoff"
+    clobber_ok="" init="on"></params>
+  </control>
 </root>
