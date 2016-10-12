@@ -669,14 +669,15 @@ class Servod(object):
         # Sleep random amount.
         sleep_time = time.sleep(random.random())
 
-  def safe_switch_usbkey_power(self, power_state, timeout=_MAX_USB_LOCK_WAIT):
+  def safe_switch_usbkey_power(self, power_state, timeout=0):
     """Toggle the usb power safely.
 
     We'll make sure we're the only servod process toggling the usbkey power.
 
     Args:
       power_state: The setting to set for the usbkey power.
-      timeout: Timeout to wait for blocking other servod processes.
+      timeout: Timeout to wait for blocking other servod processes, default is
+          no timeout.
 
     Returns:
       An empty string to appease the xmlrpc gods.
@@ -686,14 +687,15 @@ class Servod(object):
         self.set(self._USB_J3_PWR, power_state)
     return ''
 
-  def safe_switch_usbkey(self, mux_direction, timeout=_MAX_USB_LOCK_WAIT):
+  def safe_switch_usbkey(self, mux_direction, timeout=0):
     """Toggle the usb direction safely.
 
     We'll make sure we're the only servod process toggling the usbkey direction.
 
     Args:
       power_state: The setting to set for the usbkey power.
-      timeout: Timeout to wait for blocking other servod processes.
+      timeout: Timeout to wait for blocking other servod processes, default is
+          no timeout.
 
     Returns:
       An empty string to appease the xmlrpc gods.
