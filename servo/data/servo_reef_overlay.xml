@@ -14,6 +14,11 @@
     shutdown_delay="11.0" />
   </control>
   <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="pp1800"/>
+  </control>
+  <control>
     <name>ec_chip</name>
     <doc>EC chip name (read-only)</doc>
     <params clobber_ok="" cmd="get" subtype="chip" interface="servo"

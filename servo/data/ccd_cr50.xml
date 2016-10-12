@@ -75,4 +75,9 @@
     <params subtype="ccd_ec_uart_en" interface="8" drv="cr50" map="onoff"
     clobber_ok="" init="on"></params>
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params interface="8" drv="fw_wp_ccd" input_type="str"/>
+  </control>
 </root>

@@ -12,4 +12,9 @@
     <params clobber_ok="" cmd="set" shutdown_ec_command="power off"
             drv="veyron_power" reset_recovery="0.5"/>
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="pp3300"/>
+  </control>
 </root>

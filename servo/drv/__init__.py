@@ -23,6 +23,9 @@ import ec_lm4
 import ec3po_gpio
 import ec3po_driver
 import ec3po_servo_micro
+import fw_wp_ccd
+import fw_wp_servoflex
+import fw_wp_state
 import gpio
 import hw_driver
 import i2c_reg
