@@ -749,13 +749,14 @@ class Servod(object):
       else:
         return ''
 
-  def download_image_to_usb(self, image_path):
+  def download_image_to_usb(self, image_path, probe_timeout=_MAX_USB_LOCK_WAIT):
     """Download image and save to the USB device found by probe_host_usb_dev.
     If the image_path is a URL, it will download this url to the USB path;
     otherwise it will simply copy the image_path's contents to the USB path.
 
     Args:
       image_path: path or url to the recovery image.
+      probe_timeout: timeout for the probe to take.
 
     Returns:
       True|False: True if process completed successfully, False if error
@@ -765,7 +766,7 @@ class Servod(object):
     """
     self._logger.debug("image_path(%s)" % image_path)
     self._logger.debug("Detecting USB stick device...")
-    usb_dev = self.probe_host_usb_dev()
+    usb_dev = self.probe_host_usb_dev(timeout=probe_timeout)
     if not usb_dev:
       self._logger.error("No usb device connected to servo")
       return False
