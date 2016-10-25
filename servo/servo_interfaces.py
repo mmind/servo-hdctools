@@ -162,51 +162,20 @@ SERVO_ID_DEFAULTS.extend(PLANKTON_ID_DEFAULTS)
 
 # Allow Board overrides of interfaces as we've started to overload some servo V2
 # pinout functionality.  To-date just swapping EC SPI and JTAG interfaces for
-# USB PD MCU UART
-# TODO(tbroch) See about availability of extra uart on Servo V3/beaglebone
+# USB PD MCU UART.  Note this can NOT be done on servo V3.  See crbug.com/567842
+# for details.
 INTERFACE_BOARDS = collections.defaultdict(
     lambda: collections.defaultdict(dict))
-# samus re-purposes EC SPI to be USB PD UART
-INTERFACE_BOARDS['samus'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'
-# oak re-purposes EC SPI to be USB PD UART
-INTERFACE_BOARDS['oak'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['oak'][0x18d1][0x5002][5] = 'ftdi_uart'
-INTERFACE_BOARDS['elm'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['elm'][0x18d1][0x5002][5] = 'ftdi_uart'
-# strago re-purposes JTAG to be UART
-INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['strago'][0x18d1][0x5002][0] = 'ftdi_uart'
 
-# Skylake boards re-purpose JTAG to be UART
-INTERFACE_BOARDS['asuka'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['asuka'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['cave'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['cave'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['caroline'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['caroline'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['chell'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['chell'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['glados'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['glados'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['lars'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['lars'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['pbody'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['pbody'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['sentry'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['sentry'][0x18d1][0x5002][0] = 'ftdi_uart'
+# re-purposes EC SPI to be UART for USBPD MCU
+for board in ['elm', 'oak', 'samus']:
+  INTERFACE_BOARDS[board][0x18d1][0x5002] = \
+      list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+  INTERFACE_BOARDS[board][0x18d1][0x5002][5] = 'ftdi_uart'
+
+# re-purposes JTAG to be UART for USBPD MCU
+for board in ['asuka', 'caroline', 'cave', 'chell', 'glados', 'kunimitsu',
+              'lars', 'pbody', 'sentry', 'strago']:
+  INTERFACE_BOARDS[board][0x18d1][0x5002] = \
+      list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+  INTERFACE_BOARDS[board][0x18d1][0x5002][0] = 'ftdi_uart'
