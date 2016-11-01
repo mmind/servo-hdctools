@@ -211,14 +211,16 @@ class Servod(object):
         self.set('at_hwb', 'off')
         self.set('atmega_rst', 'off')
         self._usbkm232 = self.get('atmega_pty')
-        self.set('atmega_baudrate', '9600')
-        self.set('atmega_bits', 'eight')
-        self.set('atmega_parity', 'none')
-        self.set('atmega_sbits', 'one')
-        self.set('usb_mux_sel4', 'on')
-        self.set('usb_mux_oe4', 'on')
-        # Allow atmega bootup time.
-        time.sleep(1.0)
+        # We don't need to set the atmega uart settings if we're a servo v4.
+        if self._version != 'servo_v4':
+          self.set('atmega_baudrate', '9600')
+          self.set('atmega_bits', 'eight')
+          self.set('atmega_parity', 'none')
+          self.set('atmega_sbits', 'one')
+          self.set('usb_mux_sel4', 'on')
+          self.set('usb_mux_oe4', 'on')
+          # Allow atmega bootup time.
+          time.sleep(1.0)
       self._logger.info('USBKM232: %s', self._usbkm232)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
