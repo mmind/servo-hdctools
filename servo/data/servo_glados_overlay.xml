@@ -59,7 +59,7 @@
     <name>usbpd_ec3po_interp_connect</name>
     <doc>State indicating if interpreter is listening to the EC UART.</doc>
     <params interface="9" drv="ec3po_driver" map="onoff" init="on"
-    subtype="interp_connect"></params>
+    subtype="interp_connect" clobber_ok=""></params>
   </control>
   <control>
     <name>uart4_baudrate</name>
