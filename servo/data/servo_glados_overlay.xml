@@ -41,8 +41,12 @@
     <alias>raw_usbpd_uart_pty</alias>
     <doc>Psuedo-terminal (pty) thats connnected to USB PD MCU's
      uart console</doc>
-    <params cmd="get" subtype="pty" interface="1" drv="uart" clobber_ok="">
-    </params>
+    <!-- The servo_{v4,micro}_interface param is just a quick fix -->
+    <!-- to get servod working on boards that use this overlay with -->
+    <!-- servo v4 and uServo (and unblocking deployments). -->
+    <!-- A proper fix will be forthcoming. -->
+    <params cmd="get" subtype="pty" interface="1" drv="uart" clobber_ok=""
+    servo_v4_interface="2" servo_micro_interface="2"></params>
   </control>
   <!-- EC-3PO console interpreter for USB PD -->
   <control>
