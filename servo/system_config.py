@@ -184,7 +184,12 @@ class SystemConfig(object):
           remap = None
 
         if remap:
-          self.syscfg_dict[tag][remap] = self.syscfg_dict[tag][name]
+          try:
+            self.syscfg_dict[tag][remap] = self.syscfg_dict[tag][name]
+          except KeyError:
+            # Sometimes the remap control doesn't exist (e.g. fw_up in servo
+            # v4).  Just ignore it and continue on.
+            pass
           continue
 
         get_dict = None
