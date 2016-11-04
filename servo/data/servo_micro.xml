@@ -12,6 +12,11 @@
     Default is off</doc>
     <params off="0" pp3300="1" pp1800="2"></params>
   </map>
+  <map>
+    <name>usbpd_uart_map</name>
+    <doc>Enable alternate uart3 routing for PD</doc>
+    <params off="0" samus="1" glados="2"></params>
+  </map>
 
   <control>
     <name>uart1_enable</name>
@@ -335,5 +340,12 @@
     <doc>State indicating if interpreter is listening to the usb pd UART.</doc>
     <params interface="9" drv="ec3po_driver" map="onoff" init="on"
     subtype="interp_connect"></params>
+  </control>
+
+  <control>
+    <name>usbpd_uart_routing</name>
+    <doc>enable pd uart routing</doc>
+    <params interface="7" drv="ec3po_servo_micro"
+    subtype="usbpd_console" map="usbpd_uart_map"></params>
   </control>
 </root>
