@@ -13,4 +13,10 @@
     <params drv="cros_ec_softrec_power" clobber_ok=""
     shutdown_delay="11.0" />
   </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
+    drv="cros_chip" chip="npcx_spi"/>
+  </control>
 </root>
