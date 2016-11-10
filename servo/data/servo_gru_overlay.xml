@@ -16,4 +16,10 @@
     <doc>Used to turn the DUT off and on</doc>
     <params clobber_ok="" reset_recovery="0.5"/>
   </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
+    drv="cros_chip" chip="npcx_spi"/>
+  </control>
 </root>
