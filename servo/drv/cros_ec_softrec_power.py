@@ -36,6 +36,17 @@ class crosEcSoftrecPower(cros_ec_power.CrosECPower):
   # host event.
   _RECOVERY_DETECTION_DELAY = 1
 
+  def __init__(self, interface, params):
+    """Constructor
+
+    Args:
+      interface: driver interface object
+      params: dictionary of params
+    """
+    super(crosEcSoftrecPower, self).__init__(interface, params)
+    self._boot_to_rec_screen_delay = float(
+      self._params.get('boot_to_rec_screen_delay', 5.0))
+
   def _power_on_ap(self):
     """Power on the AP after initializing recovery state."""
     self._interface.power_short_press()
@@ -80,6 +91,9 @@ class crosEcSoftrecPower(cros_ec_power.CrosECPower):
       self._interface.set('ec_uart_regexp', 'None')
     time.sleep(self._RECOVERY_DETECTION_DELAY)
     self._power_on_ap()
+    if rec_mode == self.REC_ON:
+      # Allow time to reach the recovery screen before yielding control.
+      time.sleep(self._boot_to_rec_screen_delay)
 
   def _power_on(self, rec_mode):
     if rec_mode == self.REC_ON:
