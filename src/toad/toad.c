@@ -117,7 +117,7 @@ static const struct cmd COMMAND_LIST[] = {
 };
 
 
-#if 0
+#if NEW_LIBFTDI
 /* Config data at start of FT230X EEPROM for programming */
 static const unsigned char TOAD_EEPROM_00[] = {
     /* 00 */ 0x00, 0x00,  // First two bytes must be zero
