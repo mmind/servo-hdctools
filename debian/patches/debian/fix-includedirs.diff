@@ -1,0 +1,31 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-includedirs
+
+Adapt include dirs to prevent an error:
+      [3]  Compiling ftdigpio.c
+cc1: error: -D_GNU_SOURCE=1: Datei oder Verzeichnis nicht gefunden [-Werror=missing-include-dirs]
+cc1: all warnings being treated as errors
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+
+---
+ defs/c.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/defs/c.mk b/defs/c.mk
+index c0a64e4..a2b8e76 100644
+--- a/defs/c.mk
++++ b/defs/c.mk
+@@ -62,8 +62,8 @@ CWARN	=					\
+ 
+ INCLUDES	=				\
+ 		$(HOSTOS_INCLUDE)		\
+-		-I$(HDCTOOLS_DIR)/include	\
+-		-I$(HDCTOOLS_SOURCE_DIR)
++		-I$(HDCTOOLS_DIR)/include	
++#		-I$(HDCTOOLS_SOURCE_DIR)
+ 
+ LD_LIB		= $(HOSTOS_LD_LIB)
+ LIB_EXT		= $(HOSTOS_LIB_EXT)
+-- 
+tg: (f2558e6..) debian/fix-includedirs (depends on: upstream)

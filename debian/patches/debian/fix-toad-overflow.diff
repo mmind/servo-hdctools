@@ -1,0 +1,36 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-toad-overflow
+
+Fix error resulting from
+
+/tmp/servo-hdctools/src/toad/toad.c: In function ‘cmdInitialize’:
+/tmp/servo-hdctools/src/toad/toad.c:570:5: error: assuming signed overflow does not occur when simplifying conditional [-Werror=strict-overflow]
+     for (i = 1; i < (size_t)serial_size; ++i) {
+     ^~~
+
+by using a simple -fno-strict-overflow for now.
+
+There might be a nicer way to solve this, but that requires
+understanding better what toad does.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+
+---
+ src/toad/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/toad/Makefile b/src/toad/Makefile
+index d90f4ed..73abca0 100644
+--- a/src/toad/Makefile
++++ b/src/toad/Makefile
+@@ -14,7 +14,7 @@ ifeq ($(FTDIVERSION),)
+   LDLIBS	+= -lusb
+ endif
+ 
+-CFLAGS  	+= -Wno-cast-qual $(LIBFTDI_CFLAGS)
++CFLAGS  	+= -Wno-cast-qual -fno-strict-overflow $(LIBFTDI_CFLAGS)
+ LDLIBS		+= $(LIBFTDI_LDLIBS)
+ 
+ FTDI_COMMON	= $(HDCTOOLS_BUILD_DIR)/lib/ftdicommon.o
+-- 
+tg: (2be33d3..) debian/fix-toad-overflow (depends on: debian/fix-toadlink)

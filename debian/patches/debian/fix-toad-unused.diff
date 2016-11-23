@@ -1,0 +1,41 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-toad-unused
+
+TOAD_EEPROM_00 is only used when building against libftdi1,
+so mark it accordingly to squelch
+
+/tmp/hdctools-20160523/src/toad/toad.c:121:28: error: ‘TOAD_EEPROM_00’ defined but not used [-Werror=unused-const-variable=]
+ static const unsigned char TOAD_EEPROM_00[] = {
+                            ^~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+
+---
+ src/toad/toad.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/toad/toad.c b/src/toad/toad.c
+index 5baf2dd..865f43c 100644
+--- a/src/toad/toad.c
++++ b/src/toad/toad.c
+@@ -117,6 +117,7 @@ static const struct cmd COMMAND_LIST[] = {
+ };
+ 
+ 
++#if NEW_LIBFTDI
+ /* Config data at start of FT230X EEPROM for programming */
+ static const unsigned char TOAD_EEPROM_00[] = {
+     /* 00 */ 0x00, 0x00,  // First two bytes must be zero
+@@ -141,7 +142,7 @@ static const unsigned char TOAD_EEPROM_00[] = {
+     /* 35 */ 0, 0, 0,  // Not an FT1248 (clock polarity, data endianness, flow)
+     /* 38 */ 0, 0, 0,  // No RS485 echo suppression, no power save, D2XX driver
+ };
+-
++#endif
+ 
+ /* Entry-point.
+  * Processes global options, determines the command, and hands off to the
+-- 
+tg: (45bdada..) debian/fix-toad-unused (depends on: upstream)

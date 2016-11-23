@@ -1,0 +1,5 @@
+hdctools (20161012-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Heiko Stuebner <mmind@debian.org>  Thu, 09 Jun 2016 22:43:55 +0200

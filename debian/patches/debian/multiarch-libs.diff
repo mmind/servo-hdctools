@@ -1,0 +1,97 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/multiarch-libs
+
+Allow loading libraries from the local python directory,
+as the whole libftdi libraries are private to servo
+and also allow them to be multi-arch capable by being named
+according to the architecture.
+
+Also don't try to load libftdi.so but instead save the full soname
+used when building (like libftdi1.so.2) and use that when loading
+libftdi.
+
+Maybe split off that latter change later.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+
+---
+ servo/Makefile      |  8 ++++++++
+ servo/ftdi_utils.py | 18 +++++++++++++++---
+ 2 files changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/servo/Makefile b/servo/Makefile
+index 0236b79..73fb125 100644
+--- a/servo/Makefile
++++ b/servo/Makefile
+@@ -9,11 +9,19 @@ SUBDIRS_INSTALL	= $(foreach var,$(SUBDIRS),$(var)-install)
+ PYTHON_SRC	= $(notdir $(wildcard $(HDCTOOLS_SOURCE_DIR)/*.py))
+ PYTHON_DST	= $(addprefix $(THIS_BUILD_DIR)/, $(PYTHON_SRC))
+ LIBFTDI_DEP	= $(THIS_BUILD_DIR)/libftdi_for_servo.py
++DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
++ifneq ($(FTDIVERSION),)
++	LIBFTDI_FILE	= libftdi1.so
++else
++	LIBFTDI_FILE	= libftdi.so
++endif
++LIBFTDI_SONAME	= $(shell objdump -p /usr/lib/$(DEB_HOST_MULTIARCH)/$(LIBFTDI_FILE) | grep SONAME | awk '{print $$2}')
+ 
+ $(LIBFTDI_DEP):
+ 	$(MESSAGE) "Determine libftdi version using $(PKG_CONFIG)"
+ 	$(PKG_CONFIG) --exists libftdi1 && echo "LIB_NAME = 'ftdi1'" > $@ || \
+ 		echo "LIB_NAME = 'ftdi'" > $@
++	echo "LIB_SONAME = '$(LIBFTDI_SONAME)'" >> $@
+ 
+ $(THIS_BUILD_DIR)/%.py: $(HDCTOOLS_SOURCE_DIR)/%.py
+ 	$(MESSAGE) "Copying $(notdir $@)"
+diff --git a/servo/ftdi_utils.py b/servo/ftdi_utils.py
+index 4ce89ef..9eb1c10 100644
+--- a/servo/ftdi_utils.py
++++ b/servo/ftdi_utils.py
+@@ -10,6 +10,7 @@ import logging
+ import optparse
+ import os
+ import sys
++import sysconfig
+ 
+ import ftdi_common
+ import libftdi_for_servo
+@@ -31,6 +32,9 @@ def ftdi_locate_lib(lib_name):
+   if 'LD_LIBRARY_PATH' in os.environ:
+     paths.extend(os.environ['LD_LIBRARY_PATH'].split(os.pathsep))
+ 
++  # add the local path to paths to check
++  paths.append(os.path.dirname(__file__))
++
+   lib_ext = ".so"
+   if os.name == "posix" and sys.platform == "darwin":
+     lib_ext = ".dylib"
+@@ -39,6 +43,14 @@ def ftdi_locate_lib(lib_name):
+     lib_path = os.path.join(path,'lib' + lib_name + lib_ext)
+     if os.path.exists(lib_path):
+       return os.path.realpath(lib_path)
++
++    lname = '%s.%s%s' % (lib_name,
++                             sysconfig.get_config_var('MULTIARCH'),
++                             lib_ext)
++    lib_path = os.path.join(path,'lib' + lname)
++    if os.path.exists(lib_path):
++      return os.path.realpath(lib_path)
++
+   # Try the default OS library path
+   return 'lib' + lib_name + lib_ext
+ 
+@@ -57,9 +69,9 @@ def load_libs(*args):
+   dll_list = []
+   for lib_name in args:
+     if lib_name == 'ftdi':
+-      lib_name = libftdi_for_servo.LIB_NAME
+-
+-    lib_path = ftdi_locate_lib(lib_name)
++      lib_path = libftdi_for_servo.LIB_SONAME
++    else:
++      lib_path = ftdi_locate_lib(lib_name)
+     logging.debug("lib_path for %s is %s\n", lib_name, lib_path)
+ 
+     try:
+-- 
+tg: (45bdada..) debian/multiarch-libs (depends on: upstream)

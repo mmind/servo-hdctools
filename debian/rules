@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+export DH_VERBOSE = 1
+
+TG_BRANCHES := debian/fix-toadlink debian/fix-eagain-gcc debian/fix-includedirs debian/fix-toad-unused debian/fix-toad-overflow debian/multiarch-libs
+
+-include /usr/share/topgit/tg2quilt.mk
+
+# to export the patch series use
+#	debian/rules tg-clean
+#	debian/rules tg-export
+
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+export PYBUILD_NAME=hdctools-servo
+export PYBUILD_SYSTEM=distutils
+
+%:
+#	dh $@ --with python2
+	dh $@ --with python2,python3 --buildsystem=pybuild
+
+
+override_dh_auto_build:
+	make -j1
+	pybuild --build -i python{version} -p 2.7 --dir .
+
+override_dh_auto_install:
+	dh_auto_install
+
+	cp build/lib/libftdigpio.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdigpio.$(DEB_HOST_MULTIARCH).so
+	cp build/lib/libftdii2c.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdii2c.$(DEB_HOST_MULTIARCH).so
+	cp build/lib/libftdiuart.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdiuart.$(DEB_HOST_MULTIARCH).so

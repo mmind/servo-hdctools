@@ -1,0 +1,28 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/fix-toadlink
+
+Fix linking of toad binary (missing libusb)
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+
+---
+ src/toad/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/toad/Makefile b/src/toad/Makefile
+index c72b81d..d90f4ed 100644
+--- a/src/toad/Makefile
++++ b/src/toad/Makefile
+@@ -10,6 +10,10 @@ ETCDIR		= /etc
+ ETC_DEST	= $(DESTDIR)$(ETCDIR)
+ UDEV_DEST	= $(ETC_DEST)/udev/rules.d
+ 
++ifeq ($(FTDIVERSION),)
++  LDLIBS	+= -lusb
++endif
++
+ CFLAGS  	+= -Wno-cast-qual $(LIBFTDI_CFLAGS)
+ LDLIBS		+= $(LIBFTDI_LDLIBS)
+ 
+-- 
+tg: (45bdada..) debian/fix-toadlink (depends on: upstream)

@@ -1,0 +1,6 @@
+debian/fix-toadlink.diff -p1
+debian/fix-eagain-gcc.diff -p1
+debian/fix-includedirs.diff -p1
+debian/fix-toad-unused.diff -p1
+debian/fix-toad-overflow.diff -p1
+debian/multiarch-libs.diff -p1
