@@ -73,7 +73,6 @@ def load_libs(*args):
     else:
       lib_path = ftdi_locate_lib(lib_name)
     logging.debug("lib_path for %s is %s\n", lib_name, lib_path)
-    print "lib_path for %s is %s\n" % (lib_name, lib_path)
 
     try:
       dll_list.append(ctypes.cdll.LoadLibrary(lib_path))
