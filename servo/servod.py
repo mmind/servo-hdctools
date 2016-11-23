@@ -21,6 +21,7 @@ import multiservo
 import servo_interfaces
 import servo_server
 import system_config
+import terminal_freezer
 
 
 VERSION = pkg_resources.require('servo')[0].version
@@ -419,6 +420,10 @@ def main_function():
 
   loglevel, format = drv.loglevel.LOGLEVEL_MAP[level]
   logging.basicConfig(level=loglevel, format=format)
+
+  # Servod needs to be running in the chroot without PID namespaces in order to
+  # freeze terminals when reading from the UARTs.
+  terminal_freezer.CheckForPIDNamespace()
 
   logger = logging.getLogger(os.path.basename(sys.argv[0]))
   logger.info("Start")

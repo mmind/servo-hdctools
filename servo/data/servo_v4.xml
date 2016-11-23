@@ -76,8 +76,7 @@
   <control>
     <name>sbu_mux_enable</name>
     <doc>SBU_MUX_EN: enable DUT's SBU routing</doc>
-    <params interface="21" drv="gpio" offset="6" map="onoff"
-    init="off"></params>
+    <params interface="21" drv="gpio" offset="6" map="onoff"></params>
   </control>
   <control>
     <name>dut_usb_mux_enable</name>
@@ -225,7 +224,7 @@
     <doc>SBU_FLIP_SEL: Flip SBU lines based on cable
     rotation.</doc>
     <params interface="23" drv="tca6416" slv="0x20" port="0"
-    offset="2" map="onoff" init="off"></params>
+    offset="2" map="onoff"></params>
   </control>
   <control>
     <name>usb3_mux_sel</name>
