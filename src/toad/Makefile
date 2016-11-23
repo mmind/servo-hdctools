@@ -14,7 +14,7 @@ ifeq ($(FTDIVERSION),)
   LDLIBS	+= -lusb
 endif
 
-CFLAGS  	+= -Wno-cast-qual $(LIBFTDI_CFLAGS)
+CFLAGS  	+= -Wno-cast-qual -fno-strict-overflow $(LIBFTDI_CFLAGS)
 LDLIBS		+= $(LIBFTDI_LDLIBS)
 
 FTDI_COMMON	= $(HDCTOOLS_BUILD_DIR)/lib/ftdicommon.o

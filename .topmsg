@@ -1,6 +1,16 @@
 From: Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH] debian/fix-toadlink
+Subject: [PATCH] debian/fix-toad-overflow
 
-Fix linking of toad binary (missing libusb)
+Fix error resulting from
+
+/tmp/servo-hdctools/src/toad/toad.c: In function ‘cmdInitialize’:
+/tmp/servo-hdctools/src/toad/toad.c:570:5: error: assuming signed overflow does not occur when simplifying conditional [-Werror=strict-overflow]
+     for (i = 1; i < (size_t)serial_size; ++i) {
+     ^~~
+
+by using a simple -fno-strict-overflow for now.
+
+There might be a nicer way to solve this, but that requires
+understanding better what toad does.
 
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
