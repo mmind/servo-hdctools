@@ -2,10 +2,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Servo Server."""
+import contextlib
+import datetime
+import fcntl
 import fnmatch
 import imp
 import logging
 import os
+import random
 import shutil
 import SimpleXMLRPCServer
 import subprocess
@@ -27,6 +31,7 @@ import ftdiuart
 import i2cbus
 import keyboard_handlers
 import servo_interfaces
+import servo_postinit
 import stm32gpio
 import stm32i2c
 import stm32uart
@@ -34,6 +39,9 @@ import stm32uart
 
 MAX_I2C_CLOCK_HZ = 100000
 
+# It takes about 16-17 seconds for the entire probe usb device method,
+# let's wait double plus some buffer.
+_MAX_USB_LOCK_WAIT = 40
 
 class ServodError(Exception):
   """Exception class for servod."""
@@ -49,6 +57,82 @@ class Servod(object):
   _USB_J3_PWR = "prtctl4_pwren"
   _USB_J3_PWR_ON = "on"
   _USB_J3_PWR_OFF = "off"
+  _USB_LOCK_FILE = "/var/lib/servod/lock_file"
+
+  # This is the key to get the main serial used in the _serialnames dict.
+  MAIN_SERIAL = "main"
+  MICRO_SERVO_SERIAL = "micro_servo"
+  CCD_SERIAL = "ccd"
+
+  def init_servo_interfaces(self, vendor, product, serialname,
+                            interfaces):
+    """Init the servo interfaces with the given interfaces.
+
+    We don't use the self._{vendor,product,serialname} attributes because we
+    want to allow other callers to initialize other interfaces that may not
+    be associated with the initialized attributes (e.g. a servo v4 servod object
+    that wants to also initialize a servo micro interface).
+
+    Args:
+      vendor: USB vendor id of FTDI device.
+      product: USB product id of FTDI device.
+      serialname: String of device serialname/number as defined in FTDI
+          eeprom.
+      interfaces: List of strings of interface types the server will
+          instantiate.
+
+    Raises:
+      ServodError if unable to locate init method for particular interface.
+    """
+    # Extend the interface list if we need to.
+    interfaces_len = len(interfaces)
+    interface_list_len = len(self._interface_list)
+    if interfaces_len > interface_list_len:
+      self._interface_list += [None] * (interfaces_len - interface_list_len)
+
+    shifted = 0
+    for i, interface in enumerate(interfaces):
+      is_ftdi_interface = False
+      if type(interface) is dict:
+        name = interface['name']
+        # Store interface index for those that care about it.
+        interface['index'] = i
+      elif type(interface) is str and interface != 'dummy':
+        name = interface
+        # It's a FTDI related interface.
+        interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
+        is_ftdi_interface = True
+      elif type(interface) is str and interface == 'dummy':
+        # 'dummy' reserves the interface for future use.  Typically the
+        # interface will be managed by external third-party tools like
+        # openOCD for JTAG or flashrom for SPI.  In the case of servo V4,
+        # it serves as a placeholder for servo micro interfaces.
+        continue
+      else:
+        raise ServodError("Illegal interface type %s" % type(interface))
+
+      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
+      if is_ftdi_interface and i and \
+            ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
+        product += 1
+        self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
+                          product)
+
+      self._logger.info("Initializing interface %d to %s", i + 1, name)
+      try:
+        func = getattr(self, '_init_%s' % name)
+      except AttributeError:
+        raise ServodError("Unable to locate init for interface %s" % name)
+      result = func(vendor, product, serialname, interface)
+
+      if isinstance(result, tuple):
+        result_len = len(result)
+        shifted += result_len - 1
+        self._interface_list += [None] * result_len
+        for result_index, r in enumerate(result):
+          self._interface_list[i + result_index] = r
+      else:
+        self._interface_list[i + shifted] = result
 
   def __init__(self, config, vendor, product, serialname=None,
                interfaces=None, board="", version=None, usbkm232=None):
@@ -64,9 +148,9 @@ class Servod(object):
       version: String. Servo board version. Examples: servo_v1, servo_v2,
           servo_v2_r0, servo_v3
       usbkm232: String. Optional. Path to USB-KM232 device which allow for
-                sending keyboard commands to DUTs that do not have built in
-                keyboards. Used in FAFT tests.  Use 'atmega' for on board AVR MCU.
-                e.g. '/dev/ttyUSB0' or 'atmega'
+          sending keyboard commands to DUTs that do not have built in
+          keyboards. Used in FAFT tests.  Use 'atmega' for on board AVR MCU.
+          e.g. '/dev/ttyUSB0' or 'atmega'
 
     Raises:
       ServodError: if unable to locate init method for particular interface
@@ -75,8 +159,10 @@ class Servod(object):
     self._logger.debug("")
     self._vendor = vendor
     self._product = product
-    self._serialname = serialname
+    self._serialnames = {self.MAIN_SERIAL: serialname}
     self._syscfg = config
+    # Hold the last image path so we can reduce downloads to the usb device.
+    self._image_path = None
     # list of objects (Fi2c, Fgpio) to physical interfaces (gpio, i2c) that ftdi
     # interfaces are mapped to
     self._interface_list = []
@@ -86,6 +172,9 @@ class Servod(object):
     self._board = board
     self._version = version
     self._usbkm232 = usbkm232
+    # Seed the random generator with the serial to differentiate from other
+    # servod processes.
+    random.seed(serialname if serialname else time.time())
     # Note, interface i is (i - 1) in list
     if not interfaces:
       try:
@@ -93,45 +182,18 @@ class Servod(object):
       except KeyError:
         interfaces = servo_interfaces.INTERFACE_DEFAULTS[vendor][product]
 
-    for i, interface in enumerate(interfaces):
-      is_ftdi_interface = False
-      if type(interface) is dict:
-        name = interface['name']
-        # Store interface index for those that care about it.
-        interface['index'] = i
-      elif type(interface) is str:
-        name = interface
-        # It's a FTDI related interface.
-        interface = (i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) + 1
-        is_ftdi_interface = True
-      else:
-        raise ServodError("Illegal interface type %s" % type(interface))
-
-      # servos with multiple FTDI are guaranteed to have contiguous USB PIDs
-      if is_ftdi_interface and i and \
-            ((i % ftdi_common.MAX_FTDI_INTERFACES_PER_DEVICE) == 0):
-        self._product += 1
-        self._logger.info("Changing to next FTDI part @ pid = 0x%04x",
-                          self._product)
-
-      self._logger.info("Initializing interface %d to %s", i + 1, name)
-      try:
-        func = getattr(self, '_init_%s' % name)
-      except AttributeError:
-        raise ServodError("Unable to locate init for interface %s" % name)
-      result = func(interface)
-      if isinstance(result, tuple):
-        self._interface_list.extend(result)
-      else:
-        self._interface_list.append(result)
-
+    self.init_servo_interfaces(vendor, product, serialname, interfaces)
+    servo_postinit.post_init(self)
 
   def _init_keyboard_handler(self, servo, board=''):
     """Initialize the correct keyboard handler for board.
 
-    @param servo: servo object.
-    @param board: string, board name.
+    Args:
+      servo: servo object.
+      board: string, board name.
 
+    Returns:
+      keyboard handler object.
     """
     if board == 'parrot':
       return keyboard_handlers.ParrotHandler(servo)
@@ -139,8 +201,8 @@ class Servod(object):
       return keyboard_handlers.StoutHandler(servo)
     elif board in ('buddy', 'cranky', 'guado', 'jecht', 'mccloud', 'monroe',
                    'ninja', 'nyan_kitty', 'panther', 'rikku', 'stumpy',
-                   'sumo', 'tidus', 'tricky', 'veyron_mickey', 'veyron_rialto',
-                   'zako'):
+                   'sumo', 'tidus', 'tricky', 'veyron_fievel', 'veyron_mickey',
+                   'veyron_rialto', 'veyron_tiger', 'zako'):
       if self._usbkm232 is None:
         logging.info("No device path specified for usbkm232 handler. Use "
                      "the servo atmega chip to handle.")
@@ -151,14 +213,16 @@ class Servod(object):
         self.set('at_hwb', 'off')
         self.set('atmega_rst', 'off')
         self._usbkm232 = self.get('atmega_pty')
-        self.set('atmega_baudrate', '9600')
-        self.set('atmega_bits', 'eight')
-        self.set('atmega_parity', 'none')
-        self.set('atmega_sbits', 'one')
-        self.set('usb_mux_sel4', 'on')
-        self.set('usb_mux_oe4', 'on')
-        # Allow atmega bootup time.
-        time.sleep(1.0)
+        # We don't need to set the atmega uart settings if we're a servo v4.
+        if self._version != 'servo_v4':
+          self.set('atmega_baudrate', '9600')
+          self.set('atmega_bits', 'eight')
+          self.set('atmega_parity', 'none')
+          self.set('atmega_sbits', 'one')
+          self.set('usb_mux_sel4', 'on')
+          self.set('usb_mux_oe4', 'on')
+          # Allow atmega bootup time.
+          time.sleep(1.0)
       self._logger.info('USBKM232: %s', self._usbkm232)
       return keyboard_handlers.USBkm232Handler(servo, self._usbkm232)
     else:
@@ -172,22 +236,18 @@ class Servod(object):
     for interface in self._interface_list:
       del(interface)
 
-  def _init_dummy(self, interface):
-    """Initialize dummy interface.
+  def _init_ftdi_dummy(self, vendor, product, serialname, interface):
+    """Dummy interface for ftdi devices.
 
-    Dummy interface is just a mechanism to reserve that interface for non servod
-    interaction.  Typically the interface will be managed by external
-    third-party tools like openOCD or urjtag for JTAG or flashrom for SPI
-    interfaces.
+    This is a dummy function specifically for ftdi devices to not initialize
+    anything but to help pad the interface list.
 
-    TODO(tbroch): Investigate merits of incorporating these third-party
-    interfaces into servod or creating a communication channel between them
-
-    Returns: None
+    Returns:
+      None.
     """
     return None
 
-  def _init_ftdi_gpio(self, interface):
+  def _init_ftdi_gpio(self, vendor, product, serialname, interface):
     """Initialize gpio driver interface and open for use.
 
     Args:
@@ -199,8 +259,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdigpio.Fgpio(self._vendor, self._product, interface,
-                          self._serialname)
+    fobj = ftdigpio.Fgpio(vendor, product, interface, serialname)
     try:
       fobj.open()
     except ftdigpio.FgpioError as e:
@@ -208,7 +267,7 @@ class Servod(object):
 
     return fobj
 
-  def _init_stm32_uart(self, interface):
+  def _init_stm32_uart(self, vendor, product, serialname, interface):
     """Initialize stm32 uart interface and open for use
 
     Note, the uart runs in a separate thread.  Users wishing to
@@ -226,7 +285,8 @@ class Servod(object):
       ServodError: Raised on init failure.
     """
     self._logger.info("Suart: interface: %s" % interface)
-    sobj = stm32uart.Suart(self._vendor, self._product, interface['interface'])
+    sobj = stm32uart.Suart(vendor, product, interface['interface'],
+                           serialname)
 
     try:
       sobj.run()
@@ -236,7 +296,7 @@ class Servod(object):
     self._logger.info("%s" % sobj.get_pty())
     return sobj
 
-  def _init_stm32_gpio(self, interface):
+  def _init_stm32_gpio(self, vendor, product, serialname, interface):
     """Initialize stm32 gpio interface.
     Args:
       interface: interface number of stm32 device to use.
@@ -247,10 +307,14 @@ class Servod(object):
     Raises:
       SgpioError: Raised on init failure.
     """
-    self._logger.info("Sgpio: interface: %s" % interface)
-    return stm32gpio.Sgpio(self._vendor, self._product)
+    interface_number = interface
+    # Interface could be a dict.
+    if type(interface) is dict:
+      interface_number = interface['interface']
+    self._logger.info("Sgpio: interface: %s" % interface_number)
+    return stm32gpio.Sgpio(vendor, product, interface_number, serialname)
 
-  def _init_stm32_i2c(self, interface):
+  def _init_stm32_i2c(self, vendor, product, serialname, interface):
     """Initialize stm32 USB to I2C bridge interface and open for use
 
     Args:
@@ -264,18 +328,18 @@ class Servod(object):
     """
     self._logger.info("Si2cBus: interface: %s" % interface)
     port = interface.get('port', 0)
-    return stm32i2c.Si2cBus(self._vendor, self._product,
-        interface['interface'], port=port)
+    return stm32i2c.Si2cBus(vendor, product, interface['interface'],
+                            port=port, serialname=serialname)
 
-  def _init_bb_adc(self, interface):
+  def _init_bb_adc(self, vendor, product, serialname, interface):
     """Initalize beaglebone ADC interface."""
     return bbadc.BBadc()
 
-  def _init_bb_gpio(self, interface):
+  def _init_bb_gpio(self, vendor, product, serialname, interface):
     """Initalize beaglebone gpio interface."""
     return bbgpio.BBgpio()
 
-  def _init_ftdi_i2c(self, interface):
+  def _init_ftdi_i2c(self, vendor, product, serialname, interface):
     """Initialize i2c interface and open for use.
 
     Args:
@@ -287,8 +351,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdii2c.Fi2c(self._vendor, self._product, interface,
-                        self._serialname)
+    fobj = ftdii2c.Fi2c(vendor, product, interface, serialname)
     try:
       fobj.open()
     except ftdii2c.Fi2cError as e:
@@ -305,11 +368,11 @@ class Servod(object):
     """Initalize beaglebone i2c interface."""
     return bbi2c.BBi2c(interface)
 
-  def _init_dev_i2c(self, interface):
+  def _init_dev_i2c(self, vendor, product, serialname, interface):
     """Initalize Linux i2c-dev interface."""
     return i2cbus.I2CBus('/dev/i2c-%d' % interface['bus_num'])
 
-  def _init_ftdi_uart(self, interface):
+  def _init_ftdi_uart(self, vendor, product, serialname, interface):
     """Initialize ftdi uart inteface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
@@ -326,8 +389,7 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fobj = ftdiuart.Fuart(self._vendor, self._product, interface,
-                          self._serialname)
+    fobj = ftdiuart.Fuart(vendor, product, interface, serialname)
     try:
       fobj.run()
     except ftdiuart.FuartError as e:
@@ -337,12 +399,13 @@ class Servod(object):
     return fobj
 
   # TODO (sbasi) crbug.com/187492 - Implement bbuart.
-  def _init_bb_uart(self, interface):
+  def _init_bb_uart(self, vendor, product, serialname, interface):
     """Initalize beaglebone uart interface."""
     logging.debug('UART INTERFACE: %s', interface)
     return bbuart.BBuart(interface)
 
-  def _init_ftdi_gpiouart(self, interface):
+  def _init_ftdi_gpiouart(self, vendor, product, serialname,
+                          interface):
     """Initialize special gpio + uart interface and open for use
 
     Note, the uart runs in a separate thread (pthreads).  Users wishing to
@@ -359,9 +422,8 @@ class Servod(object):
     Raises:
       ServodError: If init fails
     """
-    fgpio = self._init_ftdi_gpio(interface)
-    fuart = ftdiuart.Fuart(self._vendor, self._product, interface,
-                           self._serialname, fgpio._fc)
+    fgpio = self._init_ftdi_gpio(vendor, product, serialname, interface)
+    fuart = ftdiuart.Fuart(vendor, product, interface, serialname, fgpio._fc)
     try:
       fuart.run()
     except ftdiuart.FuartError as e:
@@ -370,7 +432,7 @@ class Servod(object):
     self._logger.info("uart pty: %s" % fuart.get_pty())
     return fgpio, fuart
 
-  def _init_ec3po_uart(self, interface):
+  def _init_ec3po_uart(self, vendor, product, serialname, interface):
     """Initialize EC-3PO console interpreter interface.
 
     Args:
@@ -380,8 +442,8 @@ class Servod(object):
       An EC3PO object representing the EC-3PO interface or None if there's no
       interface for the USB PD UART.
     """
-    vid = self._vendor
-    pid = self._product
+    vid = vendor
+    pid = product
     # The current PID might be incremented if there are multiple FTDI.
     # Therefore, try rewinding the PID back one if we don't find the base PID in
     # the SERVO_ID_DEFAULTS
@@ -567,50 +629,140 @@ class Servod(object):
     usb_set = fnmatch.filter(os.listdir("/dev/"), "sd[a-z]")
     return set(["/dev/" + dev for dev in usb_set])
 
-  def _probe_host_usb_dev(self):
+  @contextlib.contextmanager
+  def _block_other_servod(self, timeout=None):
+    """Block other servod processes by locking a file.
+
+    To enable multiple servods processes to safely probe_host_usb_dev, we use
+    a given lock file to signal other servod processes that we're probing
+    for a usb device.  This will be a context manager that will return
+    if the block was successful or not.
+
+    If the lock file exists, we open it and try to lock it.
+    - If another servod processes has locked it already, we'll sleep a random
+      amount of time and try again, we'll keep doing that until
+      timeout amount of time has passed.
+
+    - If we're able to lock the file, we'll yield that the block was successful
+      and upon return, unlock the file and exit out.
+
+    This blocking behavior is only enabled if the lock file exists, if it
+    doesn't, then we pretend the block was successful.
+
+    Args:
+      timeout: Max waiting time for the block to succeed.
+    """
+    if not os.path.exists(self._USB_LOCK_FILE):
+      # No lock file so we'll pretend the block was a success.
+      yield True
+    else:
+      start_time = datetime.datetime.now()
+      while True:
+        with open(self._USB_LOCK_FILE) as lock_file:
+          try:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            yield True
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+            break
+          except IOError:
+            current_time = datetime.datetime.now()
+            current_wait_time = (current_time - start_time).total_seconds()
+            if timeout and current_wait_time > timeout:
+              yield False
+              break
+        # Sleep random amount.
+        sleep_time = time.sleep(random.random())
+
+  def safe_switch_usbkey_power(self, power_state, timeout=0):
+    """Toggle the usb power safely.
+
+    We'll make sure we're the only servod process toggling the usbkey power.
+
+    Args:
+      power_state: The setting to set for the usbkey power.
+      timeout: Timeout to wait for blocking other servod processes, default is
+          no timeout.
+
+    Returns:
+      An empty string to appease the xmlrpc gods.
+    """
+    with self._block_other_servod(timeout=timeout):
+      if power_state != self.get(self._USB_J3_PWR):
+        self.set(self._USB_J3_PWR, power_state)
+    return ''
+
+  def safe_switch_usbkey(self, mux_direction, timeout=0):
+    """Toggle the usb direction safely.
+
+    We'll make sure we're the only servod process toggling the usbkey direction.
+
+    Args:
+      power_state: The setting to set for the usbkey power.
+      timeout: Timeout to wait for blocking other servod processes, default is
+          no timeout.
+
+    Returns:
+      An empty string to appease the xmlrpc gods.
+    """
+    with self._block_other_servod(timeout=timeout):
+      self._switch_usbkey(mux_direction)
+    return ''
+
+  def probe_host_usb_dev(self, timeout=_MAX_USB_LOCK_WAIT):
     """Probe the USB disk device plugged in the servo from the host side.
 
     Method can fail by:
     1) Having multiple servos connected and returning incorrect /dev/sdX of
-       another servo.
+       another servo unless _USB_LOCK_FILE exists on the servo host.  If that
+       file exists, then it is safe to probe for usb devices among multiple
+       servod instances.
     2) Finding multiple /dev/sdX and returning None.
 
+    Args:
+      timeout: Timeout to wait for blocking other servod processes.
+
     Returns:
-      USB disk path if one and only one USB disk path is found, otherwise None.
+      USB disk path if one and only one USB disk path is found, otherwise an
+      empty string.
     """
-    original_value = self.get(self._USB_J3)
-    original_usb_power = self.get(self._USB_J3_PWR)
-    # Make the host unable to see the USB disk.
-    if (original_usb_power == self._USB_J3_PWR_ON and
-        original_value != self._USB_J3_TO_DUT):
-      self._switch_usbkey(self._USB_J3_TO_DUT)
-    no_usb_set = self._get_usb_port_set()
+    with self._block_other_servod(timeout=timeout) as block_success:
+      if not block_success:
+        return ''
 
-    # Make the host able to see the USB disk.
-    self._switch_usbkey(self._USB_J3_TO_SERVO)
-    has_usb_set = self._get_usb_port_set()
+      original_value = self.get(self._USB_J3)
+      original_usb_power = self.get(self._USB_J3_PWR)
+      # Make the host unable to see the USB disk.
+      if (original_usb_power == self._USB_J3_PWR_ON and
+          original_value != self._USB_J3_TO_DUT):
+        self._switch_usbkey(self._USB_J3_TO_DUT)
+      no_usb_set = self._get_usb_port_set()
 
-    # Back to its original value.
-    if original_value != self._USB_J3_TO_SERVO:
-      self._switch_usbkey(original_value)
-    if original_usb_power != self._USB_J3_PWR_ON:
-      self.set(self._USB_J3_PWR, self._USB_J3_PWR_OFF)
-      time.sleep(self._USB_POWEROFF_DELAY)
+      # Make the host able to see the USB disk.
+      self._switch_usbkey(self._USB_J3_TO_SERVO)
+      has_usb_set = self._get_usb_port_set()
 
-    # Subtract the two sets to find the usb device.
-    diff_set = has_usb_set - no_usb_set
-    if len(diff_set) == 1:
-      return diff_set.pop()
-    else:
-      return None
+      # Back to its original value.
+      if original_value != self._USB_J3_TO_SERVO:
+        self._switch_usbkey(original_value)
+      if original_usb_power != self._USB_J3_PWR_ON:
+        self.set(self._USB_J3_PWR, self._USB_J3_PWR_OFF)
+        time.sleep(self._USB_POWEROFF_DELAY)
 
-  def download_image_to_usb(self, image_path):
+      # Subtract the two sets to find the usb device.
+      diff_set = has_usb_set - no_usb_set
+      if len(diff_set) == 1:
+        return diff_set.pop()
+      else:
+        return ''
+
+  def download_image_to_usb(self, image_path, probe_timeout=_MAX_USB_LOCK_WAIT):
     """Download image and save to the USB device found by probe_host_usb_dev.
     If the image_path is a URL, it will download this url to the USB path;
     otherwise it will simply copy the image_path's contents to the USB path.
 
     Args:
       image_path: path or url to the recovery image.
+      probe_timeout: timeout for the probe to take.
 
     Returns:
       True|False: True if process completed successfully, False if error
@@ -620,10 +772,16 @@ class Servod(object):
     """
     self._logger.debug("image_path(%s)" % image_path)
     self._logger.debug("Detecting USB stick device...")
-    usb_dev = self._probe_host_usb_dev()
+    usb_dev = self.probe_host_usb_dev(timeout=probe_timeout)
     if not usb_dev:
       self._logger.error("No usb device connected to servo")
       return False
+
+    # Let's check if we downloaded this last time and if so assume the image is
+    # still on the usb device and return True.
+    if self._image_path == image_path:
+      self._logger.debug("Image already on USB device, skipping transfer")
+      return True
 
     try:
       if image_path.startswith(self._HTTP_PREFIX):
@@ -650,6 +808,7 @@ class Servod(object):
       # failures.
       subprocess.call(["sync"])
       subprocess.call(["blockdev", "--rereadpt", usb_dev])
+    self._image_path = image_path
     return True
 
   def make_image_noninteractive(self):
@@ -667,7 +826,7 @@ class Servod(object):
                   occurred.
     """
     result = True
-    usb_dev = self._probe_host_usb_dev()
+    usb_dev = self.probe_host_usb_dev()
     if not usb_dev:
       self._logger.error("No usb device connected to servo")
       return False
@@ -748,8 +907,8 @@ class Servod(object):
     """
     self._logger.debug("name(%s)" % (name))
     if name == 'serialname':
-      if self._serialname:
-        return self._serialname
+      if self._serialnames[self.MAIN_SERIAL]:
+        return self._serialnames[self.MAIN_SERIAL]
       return 'unknown'
     (param, drv) = self._get_param_drv(name)
     try:
@@ -943,6 +1102,20 @@ class Servod(object):
     """
     self._keyboard.imaginary_key(press_secs)
     return True
+
+
+  def sysrq_x(self, press_secs=''):
+    """Simulate Alt VolumeUp X simultaneous press.
+
+    This key combination is the kernel system request (sysrq) x.
+    """
+    self._keyboard.sysrq_x(press_secs)
+    return True
+
+
+  def get_servo_serials(self):
+    """Return all the serials associated with this process."""
+    return self._serialnames
 
 
 def test():

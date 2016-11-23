@@ -334,7 +334,7 @@
     <name>dut_hub_pwren</name>
     <doc>enable power to DUT's USB hub</doc>
     <params interface="2" drv="tca6416" slv="0x21" port="1"
-    offset="5" map="onoff"></params>
+    offset="5" map="onoff" init="on"></params>
   </control>
   <control>
     <name>usb_mux_sel3</name>
@@ -727,5 +727,11 @@
     <doc>State indicating if interpreter is listening to the EC UART.</doc>
     <params interface="10" drv="ec3po_driver" map="onoff" init="on"
     subtype="interp_connect"></params>
+  </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params interface="servo" drv="fw_wp_servoflex" input_type="str"
+    fw_wp_vref="pp1800"/>
   </control>
 </root>

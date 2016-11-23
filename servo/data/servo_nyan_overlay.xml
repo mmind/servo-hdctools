@@ -11,4 +11,9 @@
     <params clobber_ok="" shutdown_delay="3.0" reset_recovery="5.0"
             drv="cros_ec_softrec_power" />
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="off"/>
+  </control>
 </root>

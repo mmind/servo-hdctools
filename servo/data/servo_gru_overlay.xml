@@ -5,4 +5,21 @@
   <include>
     <name>arm_ec_common.xml</name>
   </include>
+  <control>
+    <name>lid_open</name>
+    <doc>emulated lid switch on ec</doc>
+    <params subtype="lid_open" interface="10" drv="ec" map="yesno"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>power_state</name>
+    <doc>Used to turn the DUT off and on</doc>
+    <params clobber_ok="" reset_recovery="0.5"/>
+  </control>
+  <control>
+    <name>ec_chip</name>
+    <doc>EC chip name (read-only)</doc>
+    <params clobber_ok="" cmd="get" subtype="chip" interface="servo"
+    drv="cros_chip" chip="npcx_spi"/>
+  </control>
 </root>

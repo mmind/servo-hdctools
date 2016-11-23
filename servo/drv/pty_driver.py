@@ -3,12 +3,16 @@
 # found in the LICENSE file.
 
 import ast
+import contextlib
 import errno
 import os
 import pexpect
 from pexpect import fdpexpect
+import re
 
 import hw_driver
+import servo.terminal_freezer
+
 
 DEFAULT_UART_TIMEOUT = 3  # 3 seconds is plenty even for slow platforms
 
@@ -32,11 +36,29 @@ class ptyDriver(hw_driver.HwDriver):
     self._dict = UART_PARAMS
     self._interface = interface
 
+  @contextlib.contextmanager
   def _open(self):
-    """Connect to serial device and create pexpect interface."""
-    self._logger.debug('opening %s', self._pty_path)
-    self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
-    self._child = fdpexpect.fdspawn(self._fd)
+    """Connect to serial device and create pexpect interface.
+
+    Note that this should be called with the 'with-syntax' since it will handle
+    freezing and thawing any other terminals that are using this PTY as well as
+    closing the connection when finished.
+    """
+    # Freeze any terminals that are using this PTY, otherwise when we check
+    # for the regex matches, it will fail with a 'resource temporarily
+    # unavailable' error.
+    with servo.terminal_freezer.TerminalFreezer(self._pty_path):
+      self._logger.debug('opening %s', self._pty_path)
+      self._fd = os.open(self._pty_path, os.O_RDWR | os.O_NONBLOCK)
+      try:
+        self._child = fdpexpect.fdspawn(self._fd)
+        # pexpect dafaults to a 100ms delay before sending characters, to
+        # work around race conditions in ssh. We don't need this feature
+        # so we'll change delaybeforesend from 0.1 to 0.001 to speed things up.
+        self._child.delaybeforesend = 0.001
+        yield
+      finally:
+        self._close()
 
   def _close(self):
     """Close serial device connection."""
@@ -117,25 +139,24 @@ class ptyDriver(hw_driver.HwDriver):
       ptyError: If timed out waiting for a response
     """
     result_list = []
-    self._open()
-    try:
-      self._send(cmds)
-      self._logger.debug("Sent cmds: %s" % cmds)
-      for regex in regex_list:
-        self._child.expect(regex, timeout)
-        match = self._child.match
-        lastindex = match.lastindex if match and match.lastindex else 0
-        # Create a tuple which contains the entire matched string and all
-        # the subgroups of the match.
-        result = match.group(*range(lastindex + 1)) if match else None
-        result_list.append(result)
-        self._logger.debug("Result: %s" % str(result))
-    except pexpect.TIMEOUT:
-      self._logger.debug("Before: ^%s^" % self._child.before)
-      self._logger.debug("After: ^%s^" % self._child.after)
-      raise ptyError("Timeout waiting for response.")
-    finally:
-      self._close()
+    with self._open():
+      try:
+        self._send(cmds)
+        self._logger.debug("Sent cmds: %s" % cmds)
+        if regex_list:
+          for regex in regex_list:
+            self._child.expect(regex, timeout)
+            match = self._child.match
+            lastindex = match.lastindex if match and match.lastindex else 0
+            # Create a tuple which contains the entire matched string and all
+            # the subgroups of the match.
+            result = match.group(*range(lastindex + 1)) if match else None
+            result_list.append(result)
+            self._logger.debug("Result: %s" % str(result))
+      except pexpect.TIMEOUT:
+        self._logger.debug("Before: ^%s^" % self._child.before)
+        self._logger.debug("After: ^%s^" % self._child.after)
+        raise ptyError("Timeout waiting for response.")
     return result_list
 
   def _issue_cmd_get_multi_results(self, cmd, regex):
@@ -153,24 +174,22 @@ class ptyDriver(hw_driver.HwDriver):
       all the subgroups of the match. None if not matched.
     """
     result_list = []
-    self._open()
-    try:
+    with self._open():
       self._send(cmd)
       self._logger.debug("Sending cmd: %s" % cmd)
-      while True:
-        try:
-          self._child.expect(regex, timeout=0.1)
-          match = self._child.match
-          lastindex = match.lastindex if match and match.lastindex else 0
-          # Create a tuple which contains the entire matched string and all
-          # the subgroups of the match.
-          result = match.group(*range(lastindex + 1)) if match else None
-          result_list.append(result)
-          self._logger.debug("Got result: %s" % str(result))
-        except pexpect.TIMEOUT:
-          break
-    finally:
-      self._close()
+      if regex:
+        while True:
+          try:
+            self._child.expect(regex, timeout=0.1)
+            match = self._child.match
+            lastindex = match.lastindex if match and match.lastindex else 0
+            # Create a tuple which contains the entire matched string and all
+            # the subgroups of the match.
+            result = match.group(*range(lastindex + 1)) if match else None
+            result_list.append(result)
+            self._logger.debug("Got result: %s" % str(result))
+          except pexpect.TIMEOUT:
+            break
     return result_list
 
   def _Set_uart_timeout(self, timeout):
@@ -223,9 +242,9 @@ class ptyDriver(hw_driver.HwDriver):
     """
     if self._dict['uart_regexp']:
       self._dict['uart_cmd'] = self._issue_cmd_get_results(
-                                   cmd,
-                                   self._dict['uart_regexp'],
-                                   self._dict['uart_timeout'])
+          cmd,
+          self._dict['uart_regexp'],
+          self._dict['uart_timeout'])
     else:
       self._dict['uart_cmd'] = None
       self._issue_cmd(cmd)

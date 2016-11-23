@@ -9,7 +9,7 @@ INTERFACE_DEFAULTS = collections.defaultdict(dict)
 
 SERVO_ID_DEFAULTS = [(0x0403, 0x6011), (0x0403, 0x6014), (0x18d1, 0x5001),
                      (0x18d1, 0x5002), (0x18d1, 0x5004), (0x18d1, 0x500f),
-                     (0x18d1, 0x501a), (0x18d1, 0x501b)]
+                     (0x18d1, 0x5014), (0x18d1, 0x501a), (0x18d1, 0x501b)]
 
 # servo v1 w/o FT4232h EEPROM programmed
 INTERFACE_DEFAULTS[0x0403][0x6011] = ['ftdi_gpio', 'ftdi_i2c',
@@ -27,8 +27,8 @@ EC3PO_EC_INTERFACE_NUM = 9
 SERVO_V2_DEFAULTS = [(0x18d1, 0x5002)]
 for vid, pid in SERVO_V2_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = \
-    ['dummy', 'ftdi_i2c', 'ftdi_uart', 'ftdi_uart', 'dummy',
-     'dummy', 'ftdi_uart', 'ftdi_uart',
+    ['ftdi_dummy', 'ftdi_i2c', 'ftdi_uart', 'ftdi_uart', 'ftdi_dummy',
+     'ftdi_dummy', 'ftdi_uart', 'ftdi_uart',
      {'name': 'ec3po_uart'},
      {'name': 'ec3po_uart'}]
 
@@ -68,11 +68,29 @@ for vid, pid in RAIDEN_DEFAULTS:
       'raw_pty': 'raw_ec_uart_pty'},
     ]
 
+# cr50 CCD
+CCD_DEFAULTS = [(0x18d1, 0x5014)]
+for vid, pid in CCD_DEFAULTS:
+  INTERFACE_DEFAULTS[vid][pid] = \
+    [{'name': 'stm32_uart', 'interface': 3}, # 1: EC_PD
+     {'name': 'stm32_i2c', 'interface': 6},  # 2: i2c
+     {'name': 'stm32_uart', 'interface': 2}, # 3: AP
+     {'name': 'stm32_uart', 'interface': 0}, # 4: cr50 console
+     'dummy',                                # 5: HID: intf 1
+     'dummy',                                # 6: USB FW: intf 4
+     'dummy',                                # 7: SPI: intf 5
+     {'name': 'ec3po_uart',                  # 8: cr50 console
+      'raw_pty': 'raw_cr50_console_pty'},
+     'dummy',                                # 9: dummy
+     {'name': 'ec3po_uart',                  #10: dut ec console
+      'raw_pty': 'raw_ec_uart_pty'},
+    ]
+
 # Servo micro
 SERVO_MICRO_DEFAULTS = [(0x18d1, 0x501a)]
 for vid, pid in SERVO_MICRO_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = \
-    ['stm32_gpio',                           # 1: 32x GPIO block
+    ['dummy',                                # 1:
      {'name': 'stm32_uart', 'interface': 0}, # 2: uart3/legacy
      {'name': 'stm32_uart', 'interface': 3}, # 3: servo console
      {'name': 'stm32_i2c', 'interface': 4},  # 4: i2c
@@ -90,13 +108,20 @@ for vid, pid in SERVO_MICRO_DEFAULTS:
 # Servo v4
 SERVO_V4_DEFAULTS = [(0x18d1, 0x501b)]
 for vid, pid in SERVO_V4_DEFAULTS:
-  INTERFACE_DEFAULTS[vid][pid] = \
-    [{'name': 'stm32_gpio', 'interface': 1}, # 1: 32x GPIO block.
-     {'name': 'stm32_uart', 'interface': 0}, # 2: servo console.
-     {'name': 'stm32_i2c', 'interface': 2},  # 3: i2c
-     {'name': 'stm32_uart', 'interface': 3}, # 4: dut sbu uart
-     {'name': 'stm32_uart', 'interface': 4}, # 4: atmega uart
-     {'name': 'ec3po_uart',                  # 6: servo v4 console
+  # dummy slots for servo micro use (interface #1-10).
+  INTERFACE_DEFAULTS[vid][pid] = ['dummy'] * 10
+
+  # Buffer slots for servo micro (interface #11-20).
+  INTERFACE_DEFAULTS[vid][pid] += ['dummy'] * 10
+
+  # Servo v4 interfaces.
+  INTERFACE_DEFAULTS[vid][pid] += \
+    [{'name': 'stm32_gpio', 'interface': 1}, #21: 32x GPIO block.
+     {'name': 'stm32_uart', 'interface': 0}, #22: servo console.
+     {'name': 'stm32_i2c', 'interface': 2},  #23: i2c
+     {'name': 'stm32_uart', 'interface': 3}, #24: dut sbu uart
+     {'name': 'stm32_uart', 'interface': 4}, #25: atmega uart
+     {'name': 'ec3po_uart',                  #26: servo v4 console
       'raw_pty': 'raw_servo_v4_console_pty'},
     ]
 
@@ -137,42 +162,20 @@ SERVO_ID_DEFAULTS.extend(PLANKTON_ID_DEFAULTS)
 
 # Allow Board overrides of interfaces as we've started to overload some servo V2
 # pinout functionality.  To-date just swapping EC SPI and JTAG interfaces for
-# USB PD MCU UART
-# TODO(tbroch) See about availability of extra uart on Servo V3/beaglebone
+# USB PD MCU UART.  Note this can NOT be done on servo V3.  See crbug.com/567842
+# for details.
 INTERFACE_BOARDS = collections.defaultdict(
     lambda: collections.defaultdict(dict))
-# samus re-purposes EC SPI to be USB PD UART
-INTERFACE_BOARDS['samus'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['samus'][0x18d1][0x5002][5] = 'ftdi_uart'
-# oak re-purposes EC SPI to be USB PD UART
-INTERFACE_BOARDS['oak'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['oak'][0x18d1][0x5002][5] = 'ftdi_uart'
-INTERFACE_BOARDS['elm'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['elm'][0x18d1][0x5002][5] = 'ftdi_uart'
-# strago re-purposes JTAG to be UART
-INTERFACE_BOARDS['strago'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['strago'][0x18d1][0x5002][0] = 'ftdi_uart'
 
-# Skylake boards re-purpose JTAG to be UART
-INTERFACE_BOARDS['cave'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['cave'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['chell'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['chell'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['glados'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['glados'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['kunimitsu'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['lars'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['lars'][0x18d1][0x5002][0] = 'ftdi_uart'
-INTERFACE_BOARDS['sentry'][0x18d1][0x5002] = \
-    list(INTERFACE_DEFAULTS[0x18d1][0x5002])
-INTERFACE_BOARDS['sentry'][0x18d1][0x5002][0] = 'ftdi_uart'
+# re-purposes EC SPI to be UART for USBPD MCU
+for board in ['elm', 'oak', 'samus']:
+  INTERFACE_BOARDS[board][0x18d1][0x5002] = \
+      list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+  INTERFACE_BOARDS[board][0x18d1][0x5002][5] = 'ftdi_uart'
+
+# re-purposes JTAG to be UART for USBPD MCU
+for board in ['asuka', 'caroline', 'cave', 'chell', 'glados', 'kunimitsu',
+              'lars', 'pbody', 'sentry', 'strago']:
+  INTERFACE_BOARDS[board][0x18d1][0x5002] = \
+      list(INTERFACE_DEFAULTS[0x18d1][0x5002])
+  INTERFACE_BOARDS[board][0x18d1][0x5002][0] = 'ftdi_uart'

@@ -34,8 +34,8 @@ class sx1505(hw_driver.HwDriver):
     Args:
       interface: i2c interface object to handle low-level communication to
           control
-      params: dictionary of params needed to perform operations on ina219
-          devices.  All items are strings initially but should be cast to types
+      params: dictionary of params needed to perform operations on an sx1505
+          io expander.  All items are strings initially but should be cast to types
           detailed below.
 
 
@@ -58,7 +58,8 @@ class sx1505(hw_driver.HwDriver):
     outputs = self._reg_cache.get((self._cacheindex, self.REG_DATA), 0xff)
     self._reg_cache[(self._cacheindex, self.REG_DATA)] = outputs
     # Cache REG_DIR
-    dir = self._reg_cache.get((self._cacheindex, self.REG_DIR), 0xff)
+    dir = self._reg_cache.get((self._cacheindex, self.REG_DIR),
+        self._i2c_obj._read_reg(self.REG_DIR))
     self._reg_cache[(self._cacheindex, self.REG_DIR)] = dir
 
     # Initlialize pullup

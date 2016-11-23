@@ -7,4 +7,9 @@
     <alias>usbpd_boot_mode</alias>
     <params clobber_ok="" od="PP" map="onoff"></params>
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="pp3300"/>
+  </control>
 </root>

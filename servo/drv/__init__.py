@@ -10,6 +10,7 @@ import ad5248
 import alex_power
 import arm_ec
 import beltino_power
+import cr50
 import cros_chip
 import cros_ec_hardrec_power
 import cros_ec_pd_softrec_power
@@ -18,8 +19,13 @@ import cros_ec_softrec_power
 import daisy_ec
 import daisy_power
 import ec
+import ec_lm4
+import ec3po_gpio
 import ec3po_driver
-import gale_power
+import ec3po_servo_micro
+import fw_wp_ccd
+import fw_wp_servoflex
+import fw_wp_state
 import gpio
 import hw_driver
 import i2c_reg
@@ -49,9 +55,12 @@ import sleep
 import storm_power
 import stumpy_power
 import sx1505
+import sx1506
+import sx1506_v4
 import tca6416
 import tcs3414
 import uart
+import veyron_chromebox_power
 import veyron_mickey_power
 import veyron_power
 import veyron_rialto_power

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<root>
+  <include>
+    <name>common.xml</name>
+  </include>
+
+
+  <!-- UART and CONSOLE settings -->
+  <control>
+    <name>raw_ec_uart_pty</name>
+    <doc>CCD EC_PD console.</doc>
+    <params cmd="get" subtype="pty" interface="1" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>cpu_uart_pty</name>
+    <doc>CCD AP console.</doc>
+    <params cmd="get" subtype="pty" interface="3" drv="uart">
+    </params>
+  </control>
+  <control>
+    <name>raw_cr50_console_pty</name>
+    <doc>CCD cr50 console.</doc>
+    <params cmd="get" subtype="pty" interface="4" drv="uart">
+    </params>
+  </control>
+
+  <control>
+    <name>ec3po_ec_console</name>
+    <alias>ec_uart_pty</alias>
+    <doc>EC UART console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="10" drv="uart"></params>
+  </control>
+  <control>
+    <name>ec_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the EC UART.</doc>
+    <params interface="10" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+  <control>
+    <name>ec3po_cr50_console</name>
+    <alias>cr50_console_pty</alias>
+    <doc>cr50 console provided via EC-3PO console interpreter.</doc>
+    <params cmd="get" subtype="pty" interface="8" drv="uart"></params>
+  </control>
+  <control>
+    <name>cr50_ec3po_interp_connect</name>
+    <doc>State indicating if interpreter is listening to the cr50 console.</doc>
+    <params interface="8" drv="ec3po_driver" map="onoff" init="on"
+    subtype="interp_connect"></params>
+  </control>
+
+  <!-- Controls overwritten by Cr50 -->
+  <control>
+    <name>cold_reset</name>
+    <doc>cold_reset</doc>
+    <params subtype="cold_reset" interface="8" drv="cr50" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>warm_reset</name>
+    <doc>warm_reset</doc>
+    <params subtype="warm_reset" interface="8" drv="cr50" map="onoff"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>pwr_button</name>
+    <doc>Power button GPIO</doc>
+    <params subtype="pwr_button" interface="8" drv="cr50" map="press"
+    clobber_ok=""></params>
+  </control>
+  <control>
+    <name>ccd_ec_uart_en</name>
+    <doc>Enable/disable EC UART on CCD</doc>
+    <params subtype="ccd_ec_uart_en" interface="8" drv="cr50" map="onoff"
+    clobber_ok="" init="on"></params>
+  </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params interface="8" drv="fw_wp_ccd" input_type="str"/>
+  </control>
+</root>

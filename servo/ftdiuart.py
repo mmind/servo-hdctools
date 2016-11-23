@@ -92,6 +92,7 @@ class Fuart(uart.Uart):
     Raises:
       FuartError: If either ftdi or fuart inits fail
     """
+    super(Fuart, self).__init__()
     self._logger = logging.getLogger('Fuart')
     self._logger.debug('')
     (self._flib, self._lib) = ftdi_utils.load_libs('ftdi', 'ftdiuart')
@@ -106,13 +107,6 @@ class Fuart(uart.Uart):
                                              )
     self._is_closed = True
     self._fuartc = FuartContext()
-
-    self._capture_active = 0
-    self._capture_buffer = []
-    self._capture_thread = None
-    self._capture_lock = threading.Lock()
-    # Remember parent thread to be able to find out if it is still running.
-    self._parent_thread = threading.current_thread()
 
     if ftdi_context:
       self._fc = ftdi_context

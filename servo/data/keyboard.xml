@@ -3,7 +3,7 @@
   <map>
     <name>kb_precanned</name>
     <doc>map for press and release of keyboard buttons</doc>
-    <params d_key="0" ctrl_d="1" ctrl_u="2" ctrl_enter="3" enter_key="4" refresh_key="5" ctrl_refresh_key="6"></params>
+    <params d_key="0" ctrl_d="1" ctrl_u="2" ctrl_enter="3" enter_key="4" refresh_key="5" ctrl_refresh_key="6" sysrq_x="7"></params>
   </map>
   <control>
     <name>kb_press</name>

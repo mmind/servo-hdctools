@@ -150,6 +150,14 @@ class _BaseHandler(object):
         NotImplementedError()
 
 
+    def sysrq_x(self, press_secs=''):
+        """Simulate Alt VolumeUp X simultaneous press.
+
+        This key combination is the kernel system request (sysrq) X.
+        """
+        NotImplementedError()
+
+
 class MatrixKeyboardHandler(_BaseHandler):
     """Matrix keyboard handler for DUT with internal keyboards.
 
@@ -463,6 +471,14 @@ class ChromeECHandler(_BaseHandler):
         self._press_and_release_keys(['<ctrl_l>', '<f3>'], press_secs)
 
 
+    def sysrq_x(self, press_secs=''):
+        """Simulate Alt VolumeUp X simultaneous press.
+
+        This key combination is the kernel system request (sysrq) x.
+        """
+        self._press_and_release_keys(['<alt_l>', '<f10>', 'x'], press_secs)
+
+
 class USBkm232Handler(_BaseHandler):
     """Keyboard handler for devices without internal keyboard."""
 
@@ -768,6 +784,16 @@ class USBkm232Handler(_BaseHandler):
         This key combination is an alternative of Space key.
         """
         self._write([self._press('<lctrl>'), self._press('<f3>')])
+
+
+    def sysrq_x(self, press_secs=''):
+        """Simulate Alt VolumeUp X simultaneous press.
+
+        This key combination is the kernel system request (sysrq) x.
+        """
+        self._write([self._press('<lalt>'),
+                     self._press('<f10>'),
+                     self._press('x')])
 
 
     def tab(self):
