@@ -24,7 +24,7 @@ inas = [
         (0x44, 'pp3300_alw',     3.3, 0.01, 'loc', True),
         (0x45, 'ppvar_litcpu',   0.9, 0.01, 'loc', True),
         (0x46, 'pp1800_s0',      1.8, 0.05, 'loc', True),
-        (0x47, 'ppvar_logic',    0.9, 0.10, 'loc', True),
+        (0x47, 'ppvar_logic',    0.9, 0.01, 'loc', True),
         (0x48, 'ppvar_bigcpu',   0.9, 0.01, 'loc', True),
         (0x49, 'pp900_ap',       0.9, 0.01, 'loc', True),
         (0x4A, 'pp1800_ec',      1.8, 0.10, 'loc', True),

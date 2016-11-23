@@ -671,4 +671,10 @@
     <params interface="10" drv="ec3po_driver" map="onoff" init="on"
     subtype="interp_connect"></params>
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params interface="servo" drv="fw_wp_servoflex" input_type="str"
+    fw_wp_vref="pp1800"/>
+  </control>
 </root>

@@ -14,6 +14,11 @@
     shutdown_delay="11.0" boot_to_rec_screen_delay="5.0" />
   </control>
   <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="pp3300"/>
+  </control>
+  <control>
     <name>dev_mode</name>
     <alias>usbpd_boot_mode</alias>
     <params clobber_ok="" od="PU" map="onoff_i"></params>
@@ -29,20 +34,24 @@
   <control>
     <name>jtag_vref_sel0</name>
     <doc>usbpd_uart_vref_sel0</doc>
-    <params clobber_ok="" init="off"></params>
+    <params clobber_ok=""></params>
   </control>
   <control>
     <name>jtag_vref_sel1</name>
     <doc>usbpd_uart_vref_sel1</doc>
-    <params clobber_ok="" init="off"></params>
+    <params clobber_ok=""></params>
   </control>
   <control>
     <name>uart4_pty</name>
     <alias>raw_usbpd_uart_pty</alias>
     <doc>Psuedo-terminal (pty) thats connnected to USB PD MCU's
      uart console</doc>
-    <params cmd="get" subtype="pty" interface="1" drv="uart" clobber_ok="">
-    </params>
+    <!-- The servo_{v4,micro}_interface param is just a quick fix -->
+    <!-- to get servod working on boards that use this overlay with -->
+    <!-- servo v4 and uServo (and unblocking deployments). -->
+    <!-- A proper fix will be forthcoming. -->
+    <params cmd="get" subtype="pty" interface="1" drv="uart" clobber_ok=""
+    servo_v4_interface="2" servo_micro_interface="2"></params>
   </control>
   <!-- EC-3PO console interpreter for USB PD -->
   <control>
@@ -55,7 +64,7 @@
     <name>usbpd_ec3po_interp_connect</name>
     <doc>State indicating if interpreter is listening to the EC UART.</doc>
     <params interface="9" drv="ec3po_driver" map="onoff" init="on"
-    subtype="interp_connect"></params>
+    subtype="interp_connect" clobber_ok=""></params>
   </control>
   <control>
     <name>uart4_baudrate</name>
@@ -130,11 +139,10 @@
   </control>
   <!-- Overrides for jtag buffers on servo V2 & flex above -->
   <control>
-    <name>uart4_en</name>
+    <name>jtag_buf_en</name>
     <alias>usbpd_uart_en</alias>
     <doc>Enabled JTAG buffer on servo ... re-purposed to uart4.</doc>
-    <params interface="2" drv="tca6416" slv="0x24" port="1"
-    offset="0" map="onoff_i" init="on"></params>
+    <params clobber_ok="" init="on"></params>
   </control>
   <control>
     <name>uart4_on_flex_en</name>

@@ -4,8 +4,8 @@
     <name>raw_usbpd_uart_pty</name>
     <doc>Psuedo-terminal (pty) thats connnected to USB PD MCU's
     uart console</doc>
-    <params cmd="get" subtype="pty" interface="6" drv="uart">
-    </params>
+    <params cmd="get" subtype="pty" interface="6" drv="uart" clobber_ok=""
+    servo_v4_inteface="2" servo_micro_interface="2"></params>
   </control>
   <!-- EC-3PO console interpreter for USB PD -->
   <control>
@@ -18,7 +18,7 @@
     <name>usbpd_ec3po_interp_connect</name>
     <doc>State indicating if interpreter is listening to the EC UART.</doc>
     <params interface="9" drv="ec3po_driver" map="onoff" init="on"
-    subtype="interp_connect"></params>
+    subtype="interp_connect" clobber_ok=""></params>
   </control>
   <control>
     <name>usbpd_uart_baudrate</name>

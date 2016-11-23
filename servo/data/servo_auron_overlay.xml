@@ -10,4 +10,9 @@
     <doc>Used to turn the DUT off and on</doc>
     <params clobber_ok="" reset_recovery="5.0"/>
   </control>
+  <control>
+    <name>fw_wp_state</name>
+    <doc>Used to turn fw wp off and on</doc>
+    <params clobber_ok="" fw_wp_vref="pp3300"/>
+  </control>
 </root>

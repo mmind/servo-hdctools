@@ -34,7 +34,8 @@
   <control>
     <name>uart2_pty</name>
     <alias>raw_ec_uart_pty</alias>
-    <params clobber_ok="" interface="8"></params>
+    <params clobber_ok="" interface="8" servo_v4_interface="6"
+    servo_micro_interface="6"></params>
   </control>
   <control>
     <name>uart2_baudrate</name>
