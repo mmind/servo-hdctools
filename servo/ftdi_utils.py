@@ -10,6 +10,7 @@ import logging
 import optparse
 import os
 import sys
+import sysconfig
 
 import ftdi_common
 import libftdi_for_servo
@@ -31,6 +32,9 @@ def ftdi_locate_lib(lib_name):
   if 'LD_LIBRARY_PATH' in os.environ:
     paths.extend(os.environ['LD_LIBRARY_PATH'].split(os.pathsep))
 
+  # add the local path to paths to check
+  paths.append(os.path.dirname(__file__))
+
   lib_ext = ".so"
   if os.name == "posix" and sys.platform == "darwin":
     lib_ext = ".dylib"
@@ -39,6 +43,14 @@ def ftdi_locate_lib(lib_name):
     lib_path = os.path.join(path,'lib' + lib_name + lib_ext)
     if os.path.exists(lib_path):
       return os.path.realpath(lib_path)
+
+    lname = '%s.%s%s' % (lib_name,
+                             sysconfig.get_config_var('MULTIARCH'),
+                             lib_ext)
+    lib_path = os.path.join(path,'lib' + lname)
+    if os.path.exists(lib_path):
+      return os.path.realpath(lib_path)
+
   # Try the default OS library path
   return 'lib' + lib_name + lib_ext
 
@@ -57,10 +69,11 @@ def load_libs(*args):
   dll_list = []
   for lib_name in args:
     if lib_name == 'ftdi':
-      lib_name = libftdi_for_servo.LIB_NAME
-
-    lib_path = ftdi_locate_lib(lib_name)
+      lib_path = libftdi_for_servo.LIB_SONAME
+    else:
+      lib_path = ftdi_locate_lib(lib_name)
     logging.debug("lib_path for %s is %s\n", lib_name, lib_path)
+    print "lib_path for %s is %s\n" % (lib_name, lib_path)
 
     try:
       dll_list.append(ctypes.cdll.LoadLibrary(lib_path))

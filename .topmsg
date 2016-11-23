@@ -1,0 +1,15 @@
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] debian/multiarch-libs
+
+Allow loading libraries from the local python directory,
+as the whole libftdi libraries are private to servo
+and also allow them to be multi-arch capable by being named
+according to the architecture.
+
+Also don't try to load libftdi.so but instead save the full soname
+used when building (like libftdi1.so.2) and use that when loading
+libftdi.
+
+Maybe split off that latter change later.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
