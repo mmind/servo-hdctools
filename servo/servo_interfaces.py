@@ -72,9 +72,9 @@ for vid, pid in RAIDEN_DEFAULTS:
 CCD_DEFAULTS = [(0x18d1, 0x5014)]
 for vid, pid in CCD_DEFAULTS:
   INTERFACE_DEFAULTS[vid][pid] = \
-    [{'name': 'stm32_uart', 'interface': 3}, # 1: EC_PD
-     {'name': 'stm32_i2c', 'interface': 6},  # 2: i2c
-     {'name': 'stm32_uart', 'interface': 2}, # 3: AP
+    [{'name': 'stm32_uart', 'interface': 2}, # 1: EC_PD
+     {'name': 'stm32_i2c', 'interface': 5},  # 2: i2c
+     {'name': 'stm32_uart', 'interface': 1}, # 3: AP
      {'name': 'stm32_uart', 'interface': 0}, # 4: cr50 console
      'dummy',                                # 5: HID: intf 1
      'dummy',                                # 6: USB FW: intf 4
