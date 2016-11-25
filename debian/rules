@@ -25,8 +25,7 @@ export PYBUILD_NAME=hdctools-servo
 export PYBUILD_SYSTEM=distutils
 
 %:
-#	dh $@ --with python2
-	dh $@ --with python2,python3 --buildsystem=pybuild
+	dh $@ --with python2 --buildsystem=pybuild
 
 
 override_dh_auto_build:
@@ -39,3 +38,8 @@ override_dh_auto_install:
 	cp build/lib/libftdigpio.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdigpio.$(DEB_HOST_MULTIARCH).so
 	cp build/lib/libftdii2c.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdii2c.$(DEB_HOST_MULTIARCH).so
 	cp build/lib/libftdiuart.so debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/servo/libftdiuart.$(DEB_HOST_MULTIARCH).so
+
+	mkdir -p debian/python-hdctools-usbkm232/usr/bin
+	mkdir -p debian/python-hdctools-usbkm232/usr/lib/python2.7/dist-packages
+	mv debian/python-hdctools-servo/usr/bin/usbkm232* debian/python-hdctools-usbkm232/usr/bin
+	mv debian/python-hdctools-servo/usr/lib/python2.7/dist-packages/usbkm232* debian/python-hdctools-usbkm232/usr/lib/python2.7/dist-packages

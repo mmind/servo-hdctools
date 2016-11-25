@@ -5,11 +5,26 @@ Maintainer: Heiko Stuebner <mmind@debian.org>
 Build-Depends: debhelper (>= 9), dh-exec (>= 0.3), libusb-dev, libftdi1-dev, tidy, dh-python, python-all, python-setuptools, pkg-config
 Standards-Version: 3.9.6
 Homepage: https://chromium.googlesource.com/chromiumos/third_party/hdctools/
-Vcs-Git: git://anonscm.debian.org/collab-maint/hdctools.git
-Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/hdctools.git
 
 Package: python-hdctools-servo
 Architecture: any
-Depends: python-usb, python-pexpect, python-numpy, python-ec3po, libftdi1-2, ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: python-usb, python-pexpect, python-numpy, python-ec3po, libftdi1-2, ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
+Recommends: python-hdctools-usbkm232
+Description: Chrome OS Hardware Debug & Control Tools
+ Communicate with and control servo debug boards.
+ .
+ Contains both the backend server that talks to servo boards,
+ as well as a binary allowing to control the server.
+
+Package: python-hdctools-usbkm232
+Architecture: any
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
+Description: Control and interact with USBKM232 USB keyboard emulator
+ The usbkm232 is an RS232 (uart) to USB keyboard emulator.
+ .
+ See http://www.hagstromelectronics.com/products/usbkm232.html for
+ device details.
+ .
+ This package contains a python class to interact with the device as
+ well as some convenience scripts to be used when calling FAFT related
+ autotests via the 'ctrl_d_cmd|enter_cmd' hooks.
