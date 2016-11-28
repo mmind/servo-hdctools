@@ -3,7 +3,7 @@ Section: python
 Priority: optional
 Maintainer: Heiko Stuebner <mmind@debian.org>
 Build-Depends: debhelper (>= 9), dh-exec (>= 0.3), libusb-dev, libftdi1-dev, tidy, dh-python, python-all, python-setuptools, pkg-config
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Homepage: https://chromium.googlesource.com/chromiumos/third_party/hdctools/
 
 Package: python-hdctools-servo
